@@ -28,8 +28,8 @@ export default function ContactPage() {
         </p>
       </section>
 
-      {/* Map — full width, large */}
-      <section className="relative w-full" style={{ height: "clamp(320px, 55vh, 600px)" }}>
+      {/* Map — full width, slim strip */}
+      <section className="relative w-full" style={{ height: "15vh", minHeight: "120px" }}>
         {/* Dark vignette overlays on left and right edges */}
         <div className="absolute inset-y-0 left-0 w-8 z-10 bg-gradient-to-r from-[#090909] to-transparent pointer-events-none" />
         <div className="absolute inset-y-0 right-0 w-8 z-10 bg-gradient-to-l from-[#090909] to-transparent pointer-events-none" />
