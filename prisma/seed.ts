@@ -2,7 +2,20 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { hash } from "bcryptjs";
 
-const prisma = new PrismaClient();
+function createClient() {
+  if (process.env.TURSO_DATABASE_URL) {
+    const { createClient } = require("@libsql/client");
+    const { PrismaLibSQL } = require("@prisma/adapter-libsql");
+    const libsql = createClient({
+      url: process.env.TURSO_DATABASE_URL,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+    return new PrismaClient({ adapter: new PrismaLibSQL(libsql) });
+  }
+  return new PrismaClient();
+}
+
+const prisma = createClient();
 
 const OPEN_HOURS = {
   mon: { start: "14:00", end: "22:00" },
