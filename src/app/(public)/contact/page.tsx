@@ -28,24 +28,20 @@ export default function ContactPage() {
         </p>
       </section>
 
-      {/* Map — full width, slim strip */}
-      <section className="relative w-full" style={{ height: "15vh", minHeight: "120px" }}>
-        {/* Dark vignette overlays on left and right edges */}
-        <div className="absolute inset-y-0 left-0 w-8 z-10 bg-gradient-to-r from-[#090909] to-transparent pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-8 z-10 bg-gradient-to-l from-[#090909] to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 top-0 h-4 z-10 bg-gradient-to-b from-[#090909] to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-4 z-10 bg-gradient-to-t from-[#090909] to-transparent pointer-events-none" />
-
-        <iframe
-          src="https://maps.google.com/maps?q=El+Harba+Escape+Room+Manouba+Tunisia&output=embed&z=16"
-          width="100%"
-          height="100%"
-          style={{ border: 0, filter: "grayscale(30%) brightness(0.85)" }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          title="elharba location map"
-        />
+      {/* Map */}
+      <section className="max-w-5xl mx-auto px-4 pb-2">
+        <div className="rounded-2xl overflow-hidden border border-white/10" style={{ height: "450px" }}>
+          <iframe
+            src="https://maps.google.com/maps?q=El+Harba+Escape+Room+Manouba+Tunisia&output=embed&z=16"
+            width="100%"
+            height="100%"
+            style={{ border: 0, filter: "grayscale(20%) brightness(0.9)" }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="elharba location map"
+          />
+        </div>
       </section>
 
       {/* Location strip below map */}
