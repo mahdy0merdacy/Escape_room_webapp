@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Contact — elharba Escape Room",
   description:
-    "Get in touch with elharba escape room in Manouba. Call or WhatsApp us, find our location, and check our opening hours.",
+    "Find elharba escape room in Manouba. Call or WhatsApp us, get directions, and check our opening hours.",
 };
 
 const HOURS = [
@@ -17,32 +17,72 @@ const HOURS = [
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-[#090909] text-white">
-      {/* Hero */}
-      <section className="pt-24 pb-16 px-4 text-center border-b border-white/5">
-        <p className="text-red-500 uppercase tracking-[0.3em] text-xs font-semibold mb-4">
-          Get in touch
+      {/* Compact header */}
+      <section className="pt-24 pb-10 px-4 text-center">
+        <p className="text-red-500 uppercase tracking-[0.3em] text-xs font-semibold mb-3">
+          Find us
         </p>
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">Contact Us</h1>
-        <p className="text-white/50 max-w-md mx-auto text-lg">
-          Ready to book, have a question, or want to organise a group event? We&apos;re here.
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">Contact Us</h1>
+        <p className="text-white/50 max-w-sm mx-auto">
+          Ready to book or have a question? We&apos;re in Manouba, Tunisia.
         </p>
       </section>
 
-      <div className="max-w-5xl mx-auto px-4 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Map — full width, large */}
+      <section className="relative w-full" style={{ height: "clamp(320px, 55vh, 600px)" }}>
+        {/* Dark vignette overlays on left and right edges */}
+        <div className="absolute inset-y-0 left-0 w-8 z-10 bg-gradient-to-r from-[#090909] to-transparent pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-8 z-10 bg-gradient-to-l from-[#090909] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-4 z-10 bg-gradient-to-b from-[#090909] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-4 z-10 bg-gradient-to-t from-[#090909] to-transparent pointer-events-none" />
 
-          {/* Phone & WhatsApp */}
+        <iframe
+          src="https://maps.google.com/maps?q=El+Harba+Escape+Room+Manouba+Tunisia&output=embed&z=16"
+          width="100%"
+          height="100%"
+          style={{ border: 0, filter: "grayscale(30%) brightness(0.85)" }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title="elharba location map"
+        />
+      </section>
+
+      {/* Location strip below map */}
+      <div className="bg-white/5 border-y border-white/10">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-white/30">📍</span>
+            <span className="text-white/70">
+              Manouba, Tunisia — free parking on site
+            </span>
+          </div>
+          <a
+            href="https://www.google.com/maps/search/El+Harba+Escape+Room+Manouba+Tunisia"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold px-5 py-2 rounded transition-colors"
+          >
+            Get Directions →
+          </a>
+        </div>
+      </div>
+
+      {/* Contact cards */}
+      <div className="max-w-5xl mx-auto px-4 py-16 space-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {/* Call */}
           <a
             href="tel:+21628720530"
-            className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/8 hover:border-white/20 transition-all p-8 flex flex-col gap-4"
+            className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/8 hover:border-white/25 transition-all p-7 flex flex-col gap-4"
           >
-            <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-2xl">
+            <div className="w-11 h-11 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-xl">
               📞
             </div>
             <div>
-              <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Call us</p>
-              <p className="text-white text-2xl font-bold">+216 28 720 530</p>
-              <p className="text-white/40 text-sm mt-1 group-hover:text-white/60 transition-colors">
+              <p className="text-white/40 text-xs uppercase tracking-widest mb-1">Call us</p>
+              <p className="text-white font-bold text-lg">+216 28 720 530</p>
+              <p className="text-white/30 text-xs mt-1.5 group-hover:text-white/50 transition-colors">
                 Tap to call →
               </p>
             </div>
@@ -53,47 +93,32 @@ export default function ContactPage() {
             href="https://wa.me/21628720530"
             target="_blank"
             rel="noopener noreferrer"
-            className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/8 hover:border-green-500/30 transition-all p-8 flex flex-col gap-4"
+            className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/8 hover:border-green-500/30 transition-all p-7 flex flex-col gap-4"
           >
-            <div className="w-12 h-12 rounded-xl bg-green-900/30 border border-green-500/30 flex items-center justify-center text-2xl">
+            <div className="w-11 h-11 rounded-xl bg-green-900/30 border border-green-500/30 flex items-center justify-center text-xl">
               💬
             </div>
             <div>
-              <p className="text-white/50 text-xs uppercase tracking-widest mb-1">WhatsApp</p>
-              <p className="text-white text-2xl font-bold">+216 28 720 530</p>
-              <p className="text-white/40 text-sm mt-1 group-hover:text-green-400 transition-colors">
-                Message us on WhatsApp →
+              <p className="text-white/40 text-xs uppercase tracking-widest mb-1">WhatsApp</p>
+              <p className="text-white font-bold text-lg">+216 28 720 530</p>
+              <p className="text-white/30 text-xs mt-1.5 group-hover:text-green-400 transition-colors">
+                Message us →
               </p>
             </div>
           </a>
 
-          {/* Location */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-8 flex flex-col gap-4">
-            <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-2xl">
-              📍
-            </div>
-            <div>
-              <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Location</p>
-              <p className="text-white text-xl font-bold">Manouba, Tunisia</p>
-              <p className="text-white/50 text-sm mt-2 leading-relaxed">
-                Easily reachable from Tunis, La Marsa, Ariana, and Bardo by car or public transport.
-                Free parking on site.
-              </p>
-            </div>
-          </div>
-
           {/* Hours */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-8 flex flex-col gap-4">
-            <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-2xl">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-7 flex flex-col gap-4">
+            <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-xl">
               🕐
             </div>
-            <div className="flex-1">
-              <p className="text-white/50 text-xs uppercase tracking-widest mb-4">Opening Hours</p>
-              <div className="space-y-2.5">
+            <div>
+              <p className="text-white/40 text-xs uppercase tracking-widest mb-3">Opening Hours</p>
+              <div className="space-y-2">
                 {HOURS.map(({ days, hours }) => (
-                  <div key={days} className="flex justify-between items-center text-sm">
-                    <span className="text-white/60">{days}</span>
-                    <span className="text-white font-medium">{hours}</span>
+                  <div key={days} className="flex justify-between gap-3 text-xs">
+                    <span className="text-white/50">{days}</span>
+                    <span className="text-white font-medium shrink-0">{hours}</span>
                   </div>
                 ))}
               </div>
@@ -102,9 +127,9 @@ export default function ContactPage() {
         </div>
 
         {/* Languages */}
-        <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-          <p className="text-white/50 text-xs uppercase tracking-widest mb-3">We speak</p>
-          <div className="flex justify-center gap-8 text-2xl font-bold text-white">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
+          <p className="text-white/40 text-xs uppercase tracking-widest mb-4">We play in</p>
+          <div className="flex justify-center gap-10 text-base font-semibold text-white">
             <span>🇫🇷 Français</span>
             <span>🇬🇧 English</span>
             <span>🇹🇳 العربية</span>
@@ -112,9 +137,9 @@ export default function ContactPage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-16 text-center">
-          <h2 className="text-2xl font-bold text-white mb-3">Ready to book?</h2>
-          <p className="text-white/50 mb-6">Choose your room and pick a time that works for you.</p>
+        <div className="text-center pt-4">
+          <h2 className="text-2xl font-bold text-white mb-2">Ready to book?</h2>
+          <p className="text-white/50 mb-6 text-sm">Choose your room and secure your slot in under two minutes.</p>
           <Link
             href="/rooms"
             className="inline-block bg-red-600 hover:bg-red-500 text-white font-bold px-10 py-4 rounded-lg text-lg transition-colors"
