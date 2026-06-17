@@ -25,6 +25,7 @@ model Room {
   pricePerPerson    Float
   openHours         String
   active            Boolean   @default(true)
+  roomStatus        String    @default("active")
   seoTitle          String
   seoDescription    String
   bookings          Booking[]

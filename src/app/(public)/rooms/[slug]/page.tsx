@@ -13,15 +13,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const room = await prisma.room.findUnique({ where: { slug } });
   if (!room) return {};
-  return {
-    title: room.seoTitle,
-    description: room.seoDescription,
-  };
+  return { title: room.seoTitle, description: room.seoDescription };
 }
 
 export async function generateStaticParams() {
   const rooms = await prisma.room.findMany({ where: { active: true }, select: { slug: true } });
-  return rooms.map((r) => ({ slug: r.slug }));
+  return rooms.map((r: { slug: string }) => ({ slug: r.slug }));
 }
 
 function DifficultyBar({ level }: { level: number }) {
@@ -31,11 +28,7 @@ function DifficultyBar({ level }: { level: number }) {
         <div
           key={i}
           className="h-1.5 w-6 rounded-full"
-          style={
-            i <= level
-              ? { background: "var(--room-accent)" }
-              : { background: "rgba(255,255,255,0.15)" }
-          }
+          style={i <= level ? { background: "var(--room-accent)" } : { background: "rgba(255,255,255,0.15)" }}
         />
       ))}
     </div>
@@ -45,7 +38,9 @@ function DifficultyBar({ level }: { level: number }) {
 export default async function RoomPage({ params }: Props) {
   const { slug } = await params;
   const room = await prisma.room.findUnique({ where: { slug } });
+  // active:false → hidden (404). coming_soon / unavailable → still visible with banner
   if (!room || !room.active) notFound();
+  const roomStatus = (room.roomStatus ?? "active") as "active" | "coming_soon" | "unavailable";
 
   const colors = JSON.parse(room.themeColors) as {
     primary: string;
@@ -72,7 +67,7 @@ export default async function RoomPage({ params }: Props) {
       "@type": "Offer",
       price: 30,
       priceCurrency: "TND",
-      availability: "https://schema.org/InStock",
+      availability: roomStatus === "active" ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
     },
   };
 
@@ -83,6 +78,30 @@ export default async function RoomPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      {/* Status banners — sticky below the nav */}
+      {roomStatus === "coming_soon" && (
+        <div className="sticky top-0 z-40 bg-gradient-to-r from-amber-900 to-amber-800 border-b border-amber-600/40">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+            <span className="text-2xl leading-none">🚧</span>
+            <div>
+              <p className="text-amber-100 font-bold text-sm">Coming Soon</p>
+              <p className="text-amber-200/70 text-xs">This room isn&apos;t open for booking yet — check back soon!</p>
+            </div>
+          </div>
+        </div>
+      )}
+      {roomStatus === "unavailable" && (
+        <div className="sticky top-0 z-40 bg-gradient-to-r from-zinc-900 to-zinc-800 border-b border-white/10">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+            <span className="text-2xl leading-none">⛔</span>
+            <div>
+              <p className="text-white font-bold text-sm">Currently Unavailable</p>
+              <p className="text-white/50 text-xs">This room is temporarily closed. We&apos;ll reopen soon.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Apply room CSS vars to this subtree */}
       <div
@@ -107,15 +126,10 @@ export default async function RoomPage({ params }: Props) {
           />
           <div
             className="absolute inset-0"
-            style={{
-              background: `linear-gradient(to bottom, transparent 20%, ${colors.primary} 90%)`,
-            }}
+            style={{ background: `linear-gradient(to bottom, transparent 20%, ${colors.primary} 90%)` }}
           />
           <div className="relative z-10 max-w-6xl mx-auto px-4 w-full">
-            <p
-              className="text-xs font-bold tracking-[0.3em] uppercase mb-4"
-              style={{ color: colors.accent }}
-            >
+            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-4" style={{ color: colors.accent }}>
               Escape Room Experience
             </p>
             <h1
@@ -180,14 +194,11 @@ export default async function RoomPage({ params }: Props) {
 
               {/* Story */}
               <div>
-                <h2
-                  className="text-2xl font-bold text-white mb-4"
-                  style={{ fontFamily: headingFont }}
-                >
+                <h2 className="text-2xl font-bold text-white mb-4" style={{ fontFamily: headingFont }}>
                   The Story
                 </h2>
                 <div className="text-white/70 leading-relaxed space-y-4">
-                  {room.story.split("\n\n").map((para, i) => (
+                  {room.story.split("\n\n").map((para: string, i: number) => (
                     <p key={i}>{para}</p>
                   ))}
                 </div>
@@ -212,17 +223,38 @@ export default async function RoomPage({ params }: Props) {
               )}
             </div>
 
-            {/* Right: booking widget */}
+            {/* Right: booking widget or status placeholder */}
             <div className="lg:col-span-1">
               <div className="sticky top-24">
-                <BookingWidget
-                  roomId={room.id}
-                  roomSlug={room.slug}
-                  colors={colors}
-                  minPlayers={room.minPlayers}
-                  maxPlayers={room.maxPlayers}
-                  durationMinutes={room.durationMinutes}
-                />
+                {roomStatus === "active" ? (
+                  <BookingWidget
+                    roomId={room.id}
+                    roomSlug={room.slug}
+                    colors={colors}
+                    minPlayers={room.minPlayers}
+                    maxPlayers={room.maxPlayers}
+                    durationMinutes={room.durationMinutes}
+                  />
+                ) : (
+                  <div
+                    className="rounded-2xl border border-white/10 p-8 text-center space-y-4"
+                    style={{ background: colors.secondary }}
+                  >
+                    <div className="text-4xl">
+                      {roomStatus === "coming_soon" ? "🚧" : "⛔"}
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-lg mb-1">
+                        {roomStatus === "coming_soon" ? "Coming Soon" : "Unavailable"}
+                      </p>
+                      <p className="text-white/50 text-sm">
+                        {roomStatus === "coming_soon"
+                          ? "Booking for this room will open soon. Check back later!"
+                          : "This room is temporarily closed. We'll reopen soon."}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import type { Room } from "@prisma/client";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -24,7 +25,7 @@ export default async function RoomsPage() {
       </div>
 
       <div className="space-y-10">
-        {rooms.map((room) => {
+        {rooms.map((room: Room) => {
           const colors = JSON.parse(room.themeColors) as {
             primary: string;
             secondary: string;
@@ -58,6 +59,16 @@ export default async function RoomsPage() {
                     <span className="text-xs text-white/40">
                       {room.minPlayers}–{room.maxPlayers} players
                     </span>
+                    {room.roomStatus === "coming_soon" && (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-900/40 text-amber-400 border border-amber-500/30">
+                        Coming Soon
+                      </span>
+                    )}
+                    {room.roomStatus === "unavailable" && (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/10 text-white/40 border border-white/10">
+                        Unavailable
+                      </span>
+                    )}
                   </div>
                   <h2 className="text-3xl font-bold text-white mb-2">{room.name}</h2>
                   <p className="text-white/60 italic mb-4">{room.tagline}</p>

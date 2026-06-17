@@ -18,6 +18,11 @@ export default async function EditRoomPage({ params }: Props) {
   };
   const gallery: string[] = JSON.parse(room.galleryImageUrls);
 
+  // Derive combined status: hidden if inactive, otherwise use roomStatus field
+  const roomStatus = !room.active
+    ? ("hidden" as const)
+    : ((room.roomStatus ?? "active") as "active" | "coming_soon" | "unavailable");
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold text-white mb-2">Edit Room</h1>
@@ -37,8 +42,7 @@ export default async function EditRoomPage({ params }: Props) {
           durationMinutes: room.durationMinutes,
           minPlayers: room.minPlayers,
           maxPlayers: room.maxPlayers,
-          pricePerPerson: room.pricePerPerson,
-          active: room.active,
+          roomStatus,
           seoTitle: room.seoTitle,
           seoDescription: room.seoDescription,
         }}

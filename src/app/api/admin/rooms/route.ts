@@ -10,9 +10,12 @@ export async function POST(request: NextRequest) {
   const {
     slug, name, tagline, story, heroImageUrl, galleryImageUrls,
     themeColors, themeFont, difficulty, durationMinutes,
-    minPlayers, maxPlayers, pricePerPerson, active,
+    minPlayers, maxPlayers, roomStatus,
     seoTitle, seoDescription, openHours,
   } = body;
+
+  const active = roomStatus !== "hidden";
+  const dbRoomStatus = roomStatus === "hidden" ? "active" : (roomStatus ?? "active");
 
   if (!slug || !name) {
     return NextResponse.json({ error: "slug and name are required" }, { status: 400 });
@@ -43,9 +46,10 @@ export async function POST(request: NextRequest) {
         durationMinutes: Number(durationMinutes ?? 60),
         minPlayers: Number(minPlayers ?? 2),
         maxPlayers: Number(maxPlayers ?? 6),
-        pricePerPerson: Number(pricePerPerson ?? 20),
+        pricePerPerson: 30,
         openHours: JSON.stringify(openHours ?? defaultOpenHours),
-        active: Boolean(active ?? true),
+        active,
+        roomStatus: dbRoomStatus,
         seoTitle: seoTitle ?? name,
         seoDescription: seoDescription ?? tagline ?? "",
       },

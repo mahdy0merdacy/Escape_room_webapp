@@ -14,9 +14,13 @@ export async function PUT(
   const {
     name, tagline, story, heroImageUrl, galleryImageUrls,
     themeColors, themeFont, difficulty, durationMinutes,
-    minPlayers, maxPlayers, pricePerPerson, active,
+    minPlayers, maxPlayers, roomStatus,
     seoTitle, seoDescription,
   } = body;
+
+  // "hidden" means active:false; all other statuses are active:true
+  const active = roomStatus !== "hidden";
+  const dbRoomStatus = roomStatus === "hidden" ? "active" : roomStatus;
 
   const room = await prisma.room.update({
     where: { id },
@@ -32,8 +36,8 @@ export async function PUT(
       durationMinutes: Number(durationMinutes),
       minPlayers: Number(minPlayers),
       maxPlayers: Number(maxPlayers),
-      pricePerPerson: Number(pricePerPerson),
       active,
+      roomStatus: dbRoomStatus,
       seoTitle,
       seoDescription,
     },

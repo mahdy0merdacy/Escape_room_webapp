@@ -2,8 +2,10 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { TIERS } from "@/lib/pricing";
 
 type ThemeFont = "gothic" | "retro" | "industrial";
+type RoomStatus = "active" | "coming_soon" | "unavailable" | "hidden";
 
 interface RoomFormData {
   slug: string;
@@ -18,8 +20,7 @@ interface RoomFormData {
   durationMinutes: number;
   minPlayers: number;
   maxPlayers: number;
-  pricePerPerson: number;
-  active: boolean;
+  roomStatus: RoomStatus;
   seoTitle: string;
   seoDescription: string;
 }
@@ -33,6 +34,13 @@ const FONT_OPTIONS: { value: ThemeFont; label: string }[] = [
   { value: "gothic", label: "Gothic (Cinzel Decorative — horror)" },
   { value: "retro", label: "Retro (Press Start 2P — 80s)" },
   { value: "industrial", label: "Industrial (Oswald — crime drama)" },
+];
+
+const STATUS_OPTIONS: { value: RoomStatus; label: string; desc: string }[] = [
+  { value: "active", label: "Active", desc: "Shown on site, booking enabled" },
+  { value: "coming_soon", label: "Coming Soon", desc: "Shown with banner, no booking" },
+  { value: "unavailable", label: "Unavailable", desc: "Shown with banner, no booking" },
+  { value: "hidden", label: "Hidden", desc: "Not shown on site at all" },
 ];
 
 export default function RoomForm({ roomId, initial }: Props) {
@@ -50,16 +58,15 @@ export default function RoomForm({ roomId, initial }: Props) {
     durationMinutes: initial?.durationMinutes ?? 60,
     minPlayers: initial?.minPlayers ?? 2,
     maxPlayers: initial?.maxPlayers ?? 6,
-    pricePerPerson: initial?.pricePerPerson ?? 20,
-    active: initial?.active ?? true,
+    roomStatus: initial?.roomStatus ?? "active",
     seoTitle: initial?.seoTitle ?? "",
     seoDescription: initial?.seoDescription ?? "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const uploadRef = useRef<HTMLInputElement>(null);
-  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
 
   function set<K extends keyof RoomFormData>(key: K, value: RoomFormData[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -76,22 +83,20 @@ export default function RoomForm({ roomId, initial }: Props) {
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>, idx: number | "hero") {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingIdx(typeof idx === "number" ? idx : -1);
+    setUploading(true);
     const fd = new FormData();
     fd.append("file", file);
     const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
     const data = await res.json();
     if (data.url) {
-      if (idx === "hero") {
-        set("heroImageUrl", data.url);
-      } else {
-        setGallery(idx, data.url);
-      }
+      if (idx === "hero") set("heroImageUrl", data.url);
+      else setGallery(idx as number, data.url);
     }
-    setUploadingIdx(null);
+    setUploading(false);
+    e.target.value = "";
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -146,7 +151,12 @@ export default function RoomForm({ roomId, initial }: Props) {
         </FormField>
 
         <FormField label="Tagline">
-          <input type="text" value={form.tagline} onChange={(e) => set("tagline", e.target.value)} className={inputCls} />
+          <input
+            type="text"
+            value={form.tagline}
+            onChange={(e) => set("tagline", e.target.value)}
+            className={inputCls}
+          />
         </FormField>
 
         <FormField label="Story">
@@ -158,16 +168,18 @@ export default function RoomForm({ roomId, initial }: Props) {
           />
         </FormField>
 
-        <FormField label="Active">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.active}
-              onChange={(e) => set("active", e.target.checked)}
-              className="w-4 h-4"
-            />
-            <span className="text-white/70 text-sm">Show this room on the site</span>
-          </label>
+        <FormField label="Room Status">
+          <select
+            value={form.roomStatus}
+            onChange={(e) => set("roomStatus", e.target.value as RoomStatus)}
+            className={inputCls}
+          >
+            {STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label} — {o.desc}
+              </option>
+            ))}
+          </select>
         </FormField>
       </section>
 
@@ -176,31 +188,75 @@ export default function RoomForm({ roomId, initial }: Props) {
         <h2 className="text-lg font-semibold text-white border-b border-white/10 pb-2">
           Pricing & Capacity
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+
+        {/* Global pricing tiers (read-only info) */}
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-2">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">
+            Global Pricing Tiers (TND)
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            {TIERS.map((t) => (
+              <div key={t.label} className="rounded-lg bg-white/5 border border-white/10 p-3 text-center">
+                <p className="text-white/50 text-xs mb-1">{t.label}</p>
+                <p className="text-white font-bold text-lg">{t.pricePerPerson} TND</p>
+                <p className="text-white/30 text-xs">/ person</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-white/30 text-xs pt-1">
+            Pricing tiers apply to all rooms. Contact the developer to change them.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <FormField label="Duration (min)">
-            <input type="number" min={15} max={180} value={form.durationMinutes} onChange={(e) => set("durationMinutes", +e.target.value)} className={inputCls} />
+            <input
+              type="number"
+              min={15}
+              max={180}
+              value={form.durationMinutes}
+              onChange={(e) => set("durationMinutes", +e.target.value)}
+              className={inputCls}
+            />
           </FormField>
           <FormField label="Min Players">
-            <input type="number" min={1} value={form.minPlayers} onChange={(e) => set("minPlayers", +e.target.value)} className={inputCls} />
+            <input
+              type="number"
+              min={1}
+              value={form.minPlayers}
+              onChange={(e) => set("minPlayers", +e.target.value)}
+              className={inputCls}
+            />
           </FormField>
           <FormField label="Max Players">
-            <input type="number" min={1} value={form.maxPlayers} onChange={(e) => set("maxPlayers", +e.target.value)} className={inputCls} />
-          </FormField>
-          <FormField label="Price / Person ($)">
-            <input type="number" min={0} step={0.01} value={form.pricePerPerson} onChange={(e) => set("pricePerPerson", +e.target.value)} className={inputCls} />
+            <input
+              type="number"
+              min={1}
+              value={form.maxPlayers}
+              onChange={(e) => set("maxPlayers", +e.target.value)}
+              className={inputCls}
+            />
           </FormField>
         </div>
-        <FormField label="Difficulty (1-5)">
-          <input type="range" min={1} max={5} value={form.difficulty} onChange={(e) => set("difficulty", +e.target.value)} className="w-40" />
-          <span className="ml-3 text-white/60 text-sm">{form.difficulty}/5</span>
+
+        <FormField label="Difficulty (1–5)">
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              min={1}
+              max={5}
+              value={form.difficulty}
+              onChange={(e) => set("difficulty", +e.target.value)}
+              className="w-40"
+            />
+            <span className="text-white/60 text-sm">{form.difficulty}/5</span>
+          </div>
         </FormField>
       </section>
 
       {/* Theming */}
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-white border-b border-white/10 pb-2">
-          Theme
-        </h2>
+        <h2 className="text-lg font-semibold text-white border-b border-white/10 pb-2">Theme</h2>
         <div className="grid grid-cols-3 gap-4">
           {(["primary", "secondary", "accent"] as const).map((c) => (
             <FormField key={c} label={`${c.charAt(0).toUpperCase() + c.slice(1)} color`}>
@@ -208,13 +264,17 @@ export default function RoomForm({ roomId, initial }: Props) {
                 <input
                   type="color"
                   value={form.themeColors[c]}
-                  onChange={(e) => set("themeColors", { ...form.themeColors, [c]: e.target.value })}
+                  onChange={(e) =>
+                    set("themeColors", { ...form.themeColors, [c]: e.target.value })
+                  }
                   className="w-10 h-10 rounded cursor-pointer bg-transparent border-0"
                 />
                 <input
                   type="text"
                   value={form.themeColors[c]}
-                  onChange={(e) => set("themeColors", { ...form.themeColors, [c]: e.target.value })}
+                  onChange={(e) =>
+                    set("themeColors", { ...form.themeColors, [c]: e.target.value })
+                  }
                   className={`${inputCls} font-mono text-sm`}
                   maxLength={7}
                 />
@@ -239,12 +299,40 @@ export default function RoomForm({ roomId, initial }: Props) {
 
       {/* Images */}
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-white border-b border-white/10 pb-2">
-          Images
-        </h2>
-        <FormField label="Hero Image URL">
-          <input type="text" value={form.heroImageUrl} onChange={(e) => set("heroImageUrl", e.target.value)} className={inputCls} placeholder="/images/my-hero.jpg" />
+        <h2 className="text-lg font-semibold text-white border-b border-white/10 pb-2">Images</h2>
+        <FormField label="Hero Image">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={form.heroImageUrl}
+              onChange={(e) => set("heroImageUrl", e.target.value)}
+              className={inputCls}
+              placeholder="https://... or /images/hero.jpg"
+            />
+            <button
+              type="button"
+              onClick={() => uploadRef.current?.click()}
+              disabled={uploading}
+              className="shrink-0 px-3 py-2 rounded border border-white/20 text-white/60 hover:text-white text-xs transition-colors disabled:opacity-40"
+            >
+              {uploading ? "…" : "Upload"}
+            </button>
+          </div>
+          <input
+            ref={uploadRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleUpload(e, "hero")}
+          />
+          {form.heroImageUrl && (
+            <div
+              className="mt-2 h-32 rounded-lg bg-cover bg-center border border-white/10"
+              style={{ backgroundImage: `url('${form.heroImageUrl}')` }}
+            />
+          )}
         </FormField>
+
         <div className="space-y-2">
           <label className="text-white/70 text-xs font-medium block">Gallery Images (URLs)</label>
           {form.galleryImageUrls.map((url, i) => (
@@ -254,21 +342,22 @@ export default function RoomForm({ roomId, initial }: Props) {
               value={url}
               onChange={(e) => setGallery(i, e.target.value)}
               className={inputCls}
-              placeholder={`/images/gallery-${i + 1}.jpg`}
+              placeholder={`Gallery image ${i + 1} URL`}
             />
           ))}
         </div>
-        <p className="text-white/30 text-xs">
-          Upload images to <code>public/images/</code> and reference them as <code>/images/filename.jpg</code>
-        </p>
-        <input ref={uploadRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleUpload(e, "hero")} />
       </section>
 
       {/* SEO */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-white border-b border-white/10 pb-2">SEO</h2>
         <FormField label="SEO Title">
-          <input type="text" value={form.seoTitle} onChange={(e) => set("seoTitle", e.target.value)} className={inputCls} />
+          <input
+            type="text"
+            value={form.seoTitle}
+            onChange={(e) => set("seoTitle", e.target.value)}
+            className={inputCls}
+          />
         </FormField>
         <FormField label="SEO Description">
           <textarea
@@ -286,7 +375,7 @@ export default function RoomForm({ roomId, initial }: Props) {
         </p>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 pb-8">
         <button
           type="submit"
           disabled={loading}
@@ -306,7 +395,15 @@ export default function RoomForm({ roomId, initial }: Props) {
   );
 }
 
-function FormField({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function FormField({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <label className="text-white/70 text-xs font-medium block mb-1.5">

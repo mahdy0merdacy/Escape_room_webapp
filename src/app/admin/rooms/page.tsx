@@ -3,6 +3,18 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+const STATUS_STYLES: Record<string, string> = {
+  active: "bg-green-900/30 text-green-400 border-green-500/30",
+  coming_soon: "bg-amber-900/30 text-amber-400 border-amber-500/30",
+  unavailable: "bg-red-900/30 text-red-400 border-red-500/30",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  active: "Active",
+  coming_soon: "Coming Soon",
+  unavailable: "Unavailable",
+};
+
 export default async function AdminRoomsPage() {
   const rooms = await prisma.room.findMany({ orderBy: { name: "asc" } });
 
@@ -25,6 +37,10 @@ export default async function AdminRoomsPage() {
             secondary: string;
             accent: string;
           };
+          const status = !room.active ? "hidden" : (room.roomStatus ?? "active");
+          const statusCls = STATUS_STYLES[status] ?? "bg-white/10 text-white/40 border-white/10";
+          const statusLabel = !room.active ? "Hidden" : (STATUS_LABELS[status] ?? status);
+
           return (
             <div
               key={room.id}
@@ -32,21 +48,15 @@ export default async function AdminRoomsPage() {
               style={{ background: colors.primary }}
             >
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-1">
+                <div className="flex items-center gap-3 mb-1 flex-wrap">
                   <h2 className="text-lg font-bold text-white">{room.name}</h2>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded ${
-                      room.active
-                        ? "bg-green-900/30 text-green-400 border border-green-500/30"
-                        : "bg-white/10 text-white/40 border border-white/10"
-                    }`}
-                  >
-                    {room.active ? "Active" : "Inactive"}
+                  <span className={`text-xs px-2 py-0.5 rounded border ${statusCls}`}>
+                    {statusLabel}
                   </span>
                 </div>
                 <p className="text-white/50 text-sm">{room.tagline}</p>
                 <p className="text-white/30 text-xs mt-1">
-                  /{room.slug} · {room.durationMinutes}min · ${room.pricePerPerson}/person ·{" "}
+                  /{room.slug} · {room.durationMinutes} min · 30–40 TND/person ·{" "}
                   {room.minPlayers}–{room.maxPlayers} players
                 </p>
               </div>
