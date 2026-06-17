@@ -1,5 +1,6 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import { getTotalPrice, formatTND } from "@/lib/pricing";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -53,7 +54,7 @@ export default async function ConfirmedPage({ searchParams }: Props) {
     hour: "2-digit",
     minute: "2-digit",
   });
-  const total = (booking.partySize * booking.room.pricePerPerson).toFixed(2);
+  const total = formatTND(getTotalPrice(booking.partySize));
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
@@ -100,7 +101,7 @@ export default async function ConfirmedPage({ searchParams }: Props) {
           <div className="flex justify-between border-t border-white/10 pt-3">
             <span className="text-white/50 text-sm">Total due at door</span>
             <span className="font-bold text-lg" style={{ color: colors.accent }}>
-              ${total}
+              {total}
             </span>
           </div>
           <p className="text-xs text-white/30 text-center pt-2">
