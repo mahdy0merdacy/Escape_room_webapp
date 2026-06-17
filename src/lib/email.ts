@@ -269,7 +269,7 @@ export function newBookingAdminEmail(params: {
 }): EmailPayload {
   const { customerName, email, phone, roomName, startTime, endTime, partySize, bookingId } = params;
   const total = getTotalPrice(partySize);
-  const adminEmail = process.env.ADMIN_EMAIL ?? "";
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.ADMIN_EMAIL ?? "";
   const siteUrl = process.env.NEXTAUTH_URL ?? "https://elharba.tn";
 
   const dateStr = startTime.toLocaleDateString("en-US", {
