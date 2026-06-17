@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-6">
               <Link href="/" className="text-sm font-bold tracking-widest uppercase text-white">
-                Escape<span className="text-red-500">Zone</span>
+                el<span className="text-red-500">harba</span>
               </Link>
               <nav className="flex gap-4 text-sm text-white/60">
                 <Link href="/admin" className="hover:text-white transition-colors">
