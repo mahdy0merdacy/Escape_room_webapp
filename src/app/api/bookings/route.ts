@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendEmail, bookingConfirmationEmail } from "@/lib/email";
+import { sendEmail, bookingConfirmationEmail, newBookingAdminEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Fire-and-forget email stub
+    // Customer confirmation
     sendEmail(
       bookingConfirmationEmail({
         customerName: customerName as string,
@@ -74,6 +74,20 @@ export async function POST(request: NextRequest) {
         endTime: endDate,
         partySize: parsedPartySize,
         pricePerPerson: room.pricePerPerson,
+      })
+    ).catch(console.error);
+
+    // Admin notification
+    sendEmail(
+      newBookingAdminEmail({
+        customerName: customerName as string,
+        email: email as string,
+        phone: phone as string,
+        roomName: room.name,
+        startTime: startDate,
+        endTime: endDate,
+        partySize: parsedPartySize,
+        bookingId: booking.id,
       })
     ).catch(console.error);
 
