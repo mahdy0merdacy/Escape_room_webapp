@@ -84,6 +84,7 @@ export default async function BookingsPage({ searchParams }: Props) {
       </div>
 
       <BookingCalendar
+        key={`${year}-${month}`}
         bookings={serializedBookings}
         blockedSlots={serializedBlocked}
         rooms={rooms}
