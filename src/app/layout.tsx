@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { fontUI, fontGothic, fontRetro, fontIndustrial } from "@/lib/fonts";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +19,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`${fontUI.variable} ${fontGothic.variable} ${fontRetro.variable} ${fontIndustrial.variable} antialiased`}
     >
-      <body className="min-h-dvh flex flex-col bg-[#0a0a0a] text-white">{children}</body>
+      <body className="min-h-dvh flex flex-col bg-[#0a0a0a] text-white">
+        {children}
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
