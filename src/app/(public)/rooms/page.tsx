@@ -31,10 +31,14 @@ export default async function RoomsPage() {
             secondary: string;
             accent: string;
           };
+          const isComingSoon = room.roomStatus === "coming_soon";
+          const isUnavailable = room.roomStatus === "unavailable";
+          const locked = isComingSoon || isUnavailable;
+
           return (
             <div
               key={room.slug}
-              className="rounded-2xl overflow-hidden border border-white/10 flex flex-col md:flex-row"
+              className="relative rounded-2xl overflow-hidden border border-white/10 flex flex-col md:flex-row"
               style={{ background: colors.primary }}
             >
               {/* Image */}
@@ -46,7 +50,7 @@ export default async function RoomsPage() {
               />
 
               {/* Info */}
-              <div className="flex-1 p-8 flex flex-col justify-between">
+              <div className={`flex-1 p-8 flex flex-col justify-between ${locked ? "opacity-50" : ""}`}>
                 <div>
                   <div className="flex flex-wrap items-center gap-3 mb-3">
                     <span
@@ -59,16 +63,6 @@ export default async function RoomsPage() {
                     <span className="text-xs text-white/40">
                       {room.minPlayers}–{room.maxPlayers} players
                     </span>
-                    {room.roomStatus === "coming_soon" && (
-                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-900/40 text-amber-400 border border-amber-500/30">
-                        Coming Soon
-                      </span>
-                    )}
-                    {room.roomStatus === "unavailable" && (
-                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/10 text-white/40 border border-white/10">
-                        Unavailable
-                      </span>
-                    )}
                   </div>
                   <h2 className="text-3xl font-bold text-white mb-2">{room.name}</h2>
                   <p className="text-white/60 italic mb-4">{room.tagline}</p>
@@ -89,10 +83,37 @@ export default async function RoomsPage() {
                     className="px-6 py-3 rounded font-semibold text-sm transition-opacity hover:opacity-80"
                     style={{ background: colors.accent, color: colors.primary }}
                   >
-                    View Room & Book →
+                    View Room →
                   </Link>
                 </div>
               </div>
+
+              {/* Full-card overlay banner for coming soon / unavailable */}
+              {locked && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 backdrop-blur-[2px]"
+                  style={{ background: "rgba(0,0,0,0.65)" }}
+                >
+                  <div className="text-center px-6">
+                    <p className={`text-5xl mb-4 ${isComingSoon ? "" : ""}`}>
+                      {isComingSoon ? "🚧" : "⛔"}
+                    </p>
+                    <p className={`text-2xl font-black tracking-wide mb-2 ${isComingSoon ? "text-amber-400" : "text-white/70"}`}>
+                      {isComingSoon ? "Coming Soon" : "Currently Unavailable"}
+                    </p>
+                    <p className="text-white/50 text-sm max-w-xs mx-auto">
+                      {isComingSoon
+                        ? "This room is opening soon. Stay tuned!"
+                        : "This room is temporarily closed. We'll reopen soon."}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/rooms/${room.slug}`}
+                    className="mt-2 border border-white/20 hover:border-white/40 text-white/70 hover:text-white text-sm font-semibold px-6 py-2.5 rounded transition-colors"
+                  >
+                    Learn More →
+                  </Link>
+                </div>
+              )}
             </div>
           );
         })}
