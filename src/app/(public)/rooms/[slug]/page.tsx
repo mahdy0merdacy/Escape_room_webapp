@@ -1,0 +1,213 @@
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Script from "next/script";
+import prisma from "@/lib/prisma";
+import BookingWidget from "@/components/BookingWidget";
+
+interface Props {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const room = await prisma.room.findUnique({ where: { slug } });
+  if (!room) return {};
+  return {
+    title: room.seoTitle,
+    description: room.seoDescription,
+  };
+}
+
+export async function generateStaticParams() {
+  const rooms = await prisma.room.findMany({ where: { active: true }, select: { slug: true } });
+  return rooms.map((r) => ({ slug: r.slug }));
+}
+
+function DifficultyBar({ level }: { level: number }) {
+  return (
+    <div className="flex gap-1" aria-label={`Difficulty ${level} out of 5`}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className="h-1.5 w-6 rounded-full"
+          style={
+            i <= level
+              ? { background: "var(--room-accent)" }
+              : { background: "rgba(255,255,255,0.15)" }
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+export default async function RoomPage({ params }: Props) {
+  const { slug } = await params;
+  const room = await prisma.room.findUnique({ where: { slug } });
+  if (!room || !room.active) notFound();
+
+  const colors = JSON.parse(room.themeColors) as {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  const gallery: string[] = JSON.parse(room.galleryImageUrls);
+
+  const fontVarMap: Record<string, string> = {
+    gothic: "var(--font-gothic)",
+    retro: "var(--font-retro)",
+    industrial: "var(--font-industrial)",
+  };
+  const headingFont = fontVarMap[room.themeFont] ?? "var(--font-ui)";
+
+  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: room.name,
+    description: room.seoDescription,
+    url: `${baseUrl}/rooms/${room.slug}`,
+    offers: {
+      "@type": "Offer",
+      price: room.pricePerPerson,
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+    },
+  };
+
+  return (
+    <>
+      <Script
+        id={`ld-room-${room.slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      {/* Apply room CSS vars to this subtree */}
+      <div
+        style={
+          {
+            "--room-primary": colors.primary,
+            "--room-secondary": colors.secondary,
+            "--room-accent": colors.accent,
+          } as React.CSSProperties
+        }
+      >
+        {/* Hero */}
+        <section
+          className="relative min-h-[70vh] flex items-end pb-16"
+          style={{ background: colors.primary }}
+        >
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-40"
+            style={{ backgroundImage: `url('${room.heroImageUrl}')` }}
+            role="img"
+            aria-label={`Hero image for ${room.name} escape room`}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(to bottom, transparent 20%, ${colors.primary} 90%)`,
+            }}
+          />
+          <div className="relative z-10 max-w-6xl mx-auto px-4 w-full">
+            <p
+              className="text-xs font-bold tracking-[0.3em] uppercase mb-4"
+              style={{ color: colors.accent }}
+            >
+              Escape Room Experience
+            </p>
+            <h1
+              className="text-5xl md:text-7xl font-black leading-tight text-white mb-4"
+              style={{ fontFamily: headingFont }}
+            >
+              {room.name}
+            </h1>
+            <p className="text-lg md:text-xl italic text-white/70 max-w-xl">{room.tagline}</p>
+          </div>
+        </section>
+
+        {/* Main content */}
+        <div style={{ background: colors.primary }}>
+          <div className="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Left: story + gallery */}
+            <div className="lg:col-span-2 space-y-10">
+              {/* Quick stats */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { label: "Duration", value: `${room.durationMinutes} min` },
+                  { label: "Players", value: `${room.minPlayers}–${room.maxPlayers}` },
+                  { label: "Price", value: `$${room.pricePerPerson}/person` },
+                  { label: "Age", value: "16+" },
+                ].map(({ label, value }) => (
+                  <div
+                    key={label}
+                    className="rounded-xl p-4 border border-white/10 text-center"
+                    style={{ background: colors.secondary }}
+                  >
+                    <p className="text-white/50 text-xs mb-1">{label}</p>
+                    <p className="text-white font-bold">{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Difficulty */}
+              <div>
+                <p className="text-white/50 text-xs uppercase tracking-widest mb-2">Difficulty</p>
+                <DifficultyBar level={room.difficulty} />
+              </div>
+
+              {/* Story */}
+              <div>
+                <h2
+                  className="text-2xl font-bold text-white mb-4"
+                  style={{ fontFamily: headingFont }}
+                >
+                  The Story
+                </h2>
+                <div className="text-white/70 leading-relaxed space-y-4">
+                  {room.story.split("\n\n").map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+              </div>
+
+              {/* Gallery */}
+              {gallery.length > 0 && (
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-4">Gallery</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {gallery.map((url, i) => (
+                      <div
+                        key={i}
+                        className="aspect-video rounded-xl bg-cover bg-center border border-white/10"
+                        style={{ backgroundImage: `url('${url}')` }}
+                        role="img"
+                        aria-label={`${room.name} gallery image ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right: booking widget */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                <BookingWidget
+                  roomId={room.id}
+                  roomSlug={room.slug}
+                  colors={colors}
+                  minPlayers={room.minPlayers}
+                  maxPlayers={room.maxPlayers}
+                  pricePerPerson={room.pricePerPerson}
+                  durationMinutes={room.durationMinutes}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

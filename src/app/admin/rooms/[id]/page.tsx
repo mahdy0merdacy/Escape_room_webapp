@@ -1,0 +1,48 @@
+import { notFound } from "next/navigation";
+import prisma from "@/lib/prisma";
+import RoomForm from "@/components/RoomForm";
+
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+export default async function EditRoomPage({ params }: Props) {
+  const { id } = await params;
+  const room = await prisma.room.findUnique({ where: { id } });
+  if (!room) notFound();
+
+  const colors = JSON.parse(room.themeColors) as {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  const gallery: string[] = JSON.parse(room.galleryImageUrls);
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      <h1 className="text-3xl font-bold text-white mb-2">Edit Room</h1>
+      <p className="text-white/50 text-sm mb-8">{room.name}</p>
+      <RoomForm
+        roomId={room.id}
+        initial={{
+          slug: room.slug,
+          name: room.name,
+          tagline: room.tagline,
+          story: room.story,
+          heroImageUrl: room.heroImageUrl,
+          galleryImageUrls: [...gallery, "", ""].slice(0, 3),
+          themeColors: colors,
+          themeFont: room.themeFont as "gothic" | "retro" | "industrial",
+          difficulty: room.difficulty,
+          durationMinutes: room.durationMinutes,
+          minPlayers: room.minPlayers,
+          maxPlayers: room.maxPlayers,
+          pricePerPerson: room.pricePerPerson,
+          active: room.active,
+          seoTitle: room.seoTitle,
+          seoDescription: room.seoDescription,
+        }}
+      />
+    </div>
+  );
+}

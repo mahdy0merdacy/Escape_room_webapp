@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id                String    @id @default(cuid())
+  slug              String    @unique
+  name              String
+  tagline           String
+  story             String
+  heroImageUrl      String
+  galleryImageUrls  String
+  themeColors       String
+  themeFont         String
+  difficulty        Int
+  durationMinutes   Int
+  minPlayers        Int
+  maxPlayers        Int
+  pricePerPerson    Float
+  openHours         String
+  active            Boolean   @default(true)
+  seoTitle          String
+  seoDescription    String
+  bookings          Booking[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  room         Room          @relation(fields: [roomId], references: [id])
+  roomId       String
+  startTime    DateTime
+  endTime      DateTime
+  customerName String
+  email        String
+  phone        String
+  partySize    Int
+  paid         Boolean       @default(false)
+  status       String        @default("confirmed")
+  createdAt    DateTime      @default(now())
+
+  @@unique([roomId, startTime])
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  body      String
+  sentAt    DateTime @default(now())
+}
