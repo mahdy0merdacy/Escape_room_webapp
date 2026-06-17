@@ -49,10 +49,10 @@ Room:       ${roomName}
 Date:       ${dateStr}
 Time:       ${startStr} – ${endStr}
 Party size: ${partySize} people
-Total due:  $${total} (payable at the venue)
+Total due:  ${total} TND (payable at the venue)
 
 See you there!
-— The EscapeZone Team`,
+— The elharba Team`,
   };
 }
 
@@ -79,6 +79,6 @@ export function bookingCancellationEmail(params: {
 Your booking for ${roomName} on ${dateStr} at ${startStr} has been cancelled.
 
 If you have questions, please contact us.
-— The EscapeZone Team`,
+— The elharba Team`,
   };
 }

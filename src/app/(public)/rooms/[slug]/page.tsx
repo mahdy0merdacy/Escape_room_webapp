@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import prisma from "@/lib/prisma";
 import BookingWidget from "@/components/BookingWidget";
+import { TIERS } from "@/lib/pricing";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -69,8 +70,8 @@ export default async function RoomPage({ params }: Props) {
     url: `${baseUrl}/rooms/${room.slug}`,
     offers: {
       "@type": "Offer",
-      price: room.pricePerPerson,
-      priceCurrency: "USD",
+      price: 30,
+      priceCurrency: "TND",
       availability: "https://schema.org/InStock",
     },
   };
@@ -137,8 +138,8 @@ export default async function RoomPage({ params }: Props) {
                 {[
                   { label: "Duration", value: `${room.durationMinutes} min` },
                   { label: "Players", value: `${room.minPlayers}–${room.maxPlayers}` },
-                  { label: "Price", value: `$${room.pricePerPerson}/person` },
                   { label: "Age", value: "16+" },
+                  { label: "Pay", value: "At the door" },
                 ].map(({ label, value }) => (
                   <div
                     key={label}
@@ -149,6 +150,26 @@ export default async function RoomPage({ params }: Props) {
                     <p className="text-white font-bold">{value}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* Pricing tiers */}
+              <div>
+                <p className="text-white/50 text-xs uppercase tracking-widest mb-3">Pricing</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {TIERS.map((t) => (
+                    <div
+                      key={t.label}
+                      className="rounded-xl p-4 border border-white/10 text-center"
+                      style={{ background: colors.secondary }}
+                    >
+                      <p className="text-white/50 text-xs mb-1">{t.label}</p>
+                      <p className="font-bold" style={{ color: "var(--room-accent)" }}>
+                        {t.pricePerPerson} TND
+                      </p>
+                      <p className="text-white/30 text-xs">/ person</p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Difficulty */}
@@ -200,7 +221,6 @@ export default async function RoomPage({ params }: Props) {
                   colors={colors}
                   minPlayers={room.minPlayers}
                   maxPlayers={room.maxPlayers}
-                  pricePerPerson={room.pricePerPerson}
                   durationMinutes={room.durationMinutes}
                 />
               </div>

@@ -5,11 +5,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "EscapeZone — Escape Rooms",
-    template: "%s | EscapeZone",
+    default: "elharba — Escape Rooms",
+    template: "%s | elharba",
   },
   description:
-    "EscapeZone offers three uniquely themed escape rooms. Book your 60-minute adventure today.",
+    "elharba offers three uniquely themed escape rooms. Book your 60-minute adventure today.",
   metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
 };
 

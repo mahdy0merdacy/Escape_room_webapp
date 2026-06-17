@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getPricePerPerson, getTotalPrice, TIERS } from "@/lib/pricing";
 
 interface Slot {
   startTime: string;
@@ -21,7 +22,6 @@ export default function BookingWidget({
   colors,
   minPlayers,
   maxPlayers,
-  pricePerPerson,
   durationMinutes,
 }: {
   roomId: string;
@@ -29,7 +29,6 @@ export default function BookingWidget({
   colors: ThemeColors;
   minPlayers: number;
   maxPlayers: number;
-  pricePerPerson: number;
   durationMinutes: number;
 }) {
   const router = useRouter();
@@ -106,14 +105,26 @@ export default function BookingWidget({
     }
   }
 
-  const totalPrice = form.partySize * pricePerPerson;
+  const ratePerPerson = getPricePerPerson(form.partySize);
+  const totalPrice = getTotalPrice(form.partySize);
 
   return (
     <div
       className="rounded-2xl border border-white/10 p-6 md:p-8 space-y-6"
       style={{ background: "rgba(0,0,0,0.5)" }}
     >
-      <h2 className="text-xl font-bold text-white">Book This Room</h2>
+      <div>
+        <h2 className="text-xl font-bold text-white mb-3">Book This Room</h2>
+        {/* Pricing tiers summary */}
+        <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
+          {TIERS.map((t) => (
+            <div key={t.label} className="rounded-lg py-2 px-1" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <p className="text-white/40 mb-0.5">{t.label}</p>
+              <p className="font-bold text-white">{t.pricePerPerson} TND</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Step indicators */}
       <div className="flex gap-2 text-xs font-semibold">
@@ -129,9 +140,7 @@ export default function BookingWidget({
             >
               {i + 1}
             </span>
-            <span
-              className={step === s ? "text-white" : "text-white/40"}
-            >
+            <span className={step === s ? "text-white" : "text-white/40"}>
               {s === "date" ? "Pick Date" : s === "slot" ? "Pick Time" : "Your Details"}
             </span>
             {i < 2 && <span className="text-white/20 ml-2">›</span>}
@@ -143,20 +152,26 @@ export default function BookingWidget({
       {step === "date" && (
         <div className="space-y-4">
           <label className="block">
-            <span className="text-white/70 text-sm block mb-2">Select a date</span>
-            <input
-              type="date"
-              min={today}
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded px-4 py-3 text-white focus:outline-none focus:border-white/50"
-              aria-label="Booking date"
-            />
+            <span className="text-white/70 text-sm block mb-3">Select a date</span>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none text-lg">
+                📅
+              </span>
+              <input
+                type="date"
+                min={today}
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full bg-white/10 border-2 border-white/20 rounded-xl pl-11 pr-4 py-4 text-white text-base focus:outline-none focus:border-white/50 transition-colors cursor-pointer"
+                style={{ colorScheme: "dark" }}
+                aria-label="Booking date"
+              />
+            </div>
           </label>
           <button
             disabled={!selectedDate || loading}
             onClick={() => fetchSlots(selectedDate)}
-            className="w-full py-3 rounded font-semibold text-sm transition-opacity disabled:opacity-40"
+            className="w-full py-4 rounded-xl font-bold text-sm transition-opacity disabled:opacity-40 tracking-wide"
             style={{ background: colors.accent, color: colors.primary }}
           >
             {loading ? "Checking availability…" : "See Available Times →"}
@@ -169,16 +184,13 @@ export default function BookingWidget({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-white/60 text-sm">
-              {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
+              {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-GB", {
                 weekday: "long",
                 month: "long",
                 day: "numeric",
               })}
             </span>
-            <button
-              onClick={() => setStep("date")}
-              className="text-xs text-white/40 hover:text-white/70"
-            >
+            <button onClick={() => setStep("date")} className="text-xs text-white/40 hover:text-white/70">
               Change date
             </button>
           </div>
@@ -196,7 +208,7 @@ export default function BookingWidget({
                     setSelectedSlot(slot);
                     setStep("details");
                   }}
-                  className="py-2 px-3 rounded text-sm font-medium border transition-colors"
+                  className="py-2.5 px-3 rounded-lg text-sm font-medium border transition-colors"
                   style={
                     selectedSlot?.startTime === slot.startTime
                       ? { background: colors.accent, color: colors.primary, borderColor: colors.accent }
@@ -222,7 +234,7 @@ export default function BookingWidget({
             <div className="flex justify-between">
               <span className="text-white/50">Date</span>
               <span className="text-white">
-                {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
+                {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-GB", {
                   weekday: "short",
                   month: "short",
                   day: "numeric",
@@ -247,10 +259,7 @@ export default function BookingWidget({
             ← Change time
           </button>
 
-          <Field
-            label="Full Name"
-            error={errors.customerName}
-          >
+          <Field label="Full Name" error={errors.customerName}>
             <input
               type="text"
               value={form.customerName}
@@ -277,7 +286,7 @@ export default function BookingWidget({
               type="tel"
               value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-              placeholder="+1 555 000 0000"
+              placeholder="+216 XX XXX XXX"
               className="w-full bg-white/10 border border-white/20 rounded px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-white/50"
               aria-label="Phone number"
             />
@@ -295,11 +304,17 @@ export default function BookingWidget({
             />
           </Field>
 
-          <div className="flex justify-between items-center py-2 border-t border-white/10">
-            <span className="text-white/60 text-sm">Total (pay at door)</span>
-            <span className="text-xl font-bold" style={{ color: colors.accent }}>
-              ${totalPrice.toFixed(2)}
-            </span>
+          <div className="rounded-lg border border-white/10 px-4 py-3 space-y-1 text-sm">
+            <div className="flex justify-between text-white/50">
+              <span>Rate</span>
+              <span>{ratePerPerson} TND × {form.partySize} people</span>
+            </div>
+            <div className="flex justify-between items-center pt-1 border-t border-white/10">
+              <span className="text-white/60">Total (pay at door)</span>
+              <span className="text-xl font-bold" style={{ color: colors.accent }}>
+                {totalPrice} TND
+              </span>
+            </div>
           </div>
 
           {serverError && (

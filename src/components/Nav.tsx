@@ -10,7 +10,7 @@ export default function Nav() {
     <header className="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-xl font-bold tracking-widest uppercase text-white">
-          Escape<span className="text-red-500">Zone</span>
+          el<span className="text-red-500">harba</span>
         </Link>
 
         {/* Desktop nav */}

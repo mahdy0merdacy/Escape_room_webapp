@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "All Rooms",
   description:
-    "Browse all three EscapeZone escape rooms — horror, retro sci-fi, and crime drama. Book your experience today.",
+    "Browse all three elharba escape rooms — horror, retro sci-fi, and crime drama. Book your experience today.",
 };
 
 export default async function RoomsPage() {
@@ -66,10 +66,13 @@ export default async function RoomsPage() {
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-8 gap-4">
-                  <span className="text-2xl font-bold" style={{ color: colors.accent }}>
-                    ${room.pricePerPerson}
+                  <div>
+                    <span className="text-2xl font-bold" style={{ color: colors.accent }}>
+                      30–40 TND
+                    </span>
                     <span className="text-sm font-normal text-white/50 ml-1">/ person</span>
-                  </span>
+                    <p className="text-xs text-white/30 mt-0.5">based on group size</p>
+                  </div>
                   <Link
                     href={`/rooms/${room.slug}`}
                     className="px-6 py-3 rounded font-semibold text-sm transition-opacity hover:opacity-80"

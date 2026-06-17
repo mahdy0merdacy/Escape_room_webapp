@@ -47,12 +47,12 @@ async function main() {
   // Annabelle (horror)
   await prisma.room.upsert({
     where: { slug: "annabelle" },
-    update: {},
+    update: { tagline: "She was never just a doll. She was a doorway.", story: `Years ago, a doll maker and a missing girl vanished from the same hut, the same night. Neither was ever found. Now the hut has been reopened, and your team has been called in to investigate. You have 60 minutes to find out what happened — and to deal with whatever was left behind. The dolls don't always stay still. Past investigators didn't all make it out.\n\nThis experience is rated our most terrifying. Not recommended for those with heart conditions, severe anxiety, or a fear of the dark. You have been warned.` },
     create: {
       slug: "annabelle",
       name: "Annabelle",
       tagline: "She was never just a doll. She was a doorway.",
-      story: `The Warrens' artifact vault has been breached. One item is missing — the Annabelle doll. Your team has 60 minutes to locate her, contain her, and seal the ritual before she claims a new host. The paranormal investigators who tried before you never made it out. The lights flicker. The music box plays on its own. You are not alone in this room.
+      story: `Years ago, a doll maker and a missing girl vanished from the same hut, the same night. Neither was ever found. Now the hut has been reopened, and your team has been called in to investigate. You have 60 minutes to find out what happened — and to deal with whatever was left behind. The dolls don't always stay still. Past investigators didn't all make it out.
 
 This experience is rated our most terrifying. Not recommended for those with heart conditions, severe anxiety, or a fear of the dark. You have been warned.`,
       heroImageUrl: "/images/annabelle-hero.jpg",

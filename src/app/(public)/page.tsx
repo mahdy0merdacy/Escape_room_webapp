@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "EscapeZone — Escape Rooms",
+  title: "elharba — Escape Rooms",
   description:
-    "Three uniquely themed escape rooms. Horror, 80s Sci-Fi, and Crime Drama. Book your 60-minute adventure in Albuquerque.",
+    "Three uniquely themed escape rooms. Horror, 80s Sci-Fi, and Crime Drama. Book your 60-minute adventure.",
 };
 
 export default async function HomePage() {
@@ -15,7 +15,7 @@ export default async function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name: "EscapeZone",
+    name: "elharba",
     description: "Escape room experiences in three themed rooms.",
     url: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
     "@id": (process.env.NEXTAUTH_URL ?? "http://localhost:3000") + "/#business",
@@ -134,7 +134,7 @@ export default async function HomePage() {
                       {room.minPlayers}–{room.maxPlayers} players
                     </span>
                     <span className="font-semibold" style={{ color: colors.accent }}>
-                      ${room.pricePerPerson}/person
+                      from 30 TND/person
                     </span>
                   </div>
                   <div

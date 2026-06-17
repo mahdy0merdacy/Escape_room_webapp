@@ -34,7 +34,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <span className="text-2xl font-bold tracking-widest uppercase text-white">
-            Escape<span className="text-red-500">Zone</span>
+            el<span className="text-red-500">harba</span>
           </span>
           <p className="text-white/50 text-sm mt-2">Staff Login</p>
         </div>
@@ -54,7 +54,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-white/10 border border-white/20 rounded px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-white/50"
-              placeholder="admin@escapezone.local"
+              placeholder="admin@elharba.tn"
               autoComplete="email"
               required
             />
