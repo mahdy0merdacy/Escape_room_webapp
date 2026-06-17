@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { fontUI, fontGothic, fontRetro, fontIndustrial } from "@/lib/fonts";
 import "./globals.css";
 
+const LOGO_URL =
+  "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/HARBA%20%282%29.png";
+
 export const metadata: Metadata = {
   title: {
     default: "elharba — Escape Rooms",
@@ -10,6 +13,10 @@ export const metadata: Metadata = {
   description:
     "elharba offers three uniquely themed escape rooms. Book your 60-minute adventure today.",
   metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
+  icons: {
+    icon: LOGO_URL,
+    apple: LOGO_URL,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

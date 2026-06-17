@@ -11,8 +11,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <header className="bg-black border-b border-white/10">
           <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <Link href="/" className="text-sm font-bold tracking-widest uppercase text-white">
-                el<span className="text-red-500">harba</span>
+              <Link href="/" aria-label="elharba home">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/HARBA%20%282%29.png"
+                  alt="elharba"
+                  className="h-7 w-auto object-contain"
+                />
               </Link>
               <nav className="flex gap-4 text-sm text-white/60">
                 <Link href="/admin" className="hover:text-white transition-colors">

@@ -7,9 +7,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
           <div className="md:col-span-2">
-            <p className="text-xl font-bold tracking-widest uppercase text-white mb-3">
-              el<span className="text-red-500">harba</span>
-            </p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/HARBA%20%282%29.png"
+              alt="elharba"
+              className="h-10 w-auto object-contain mb-3"
+            />
             <p className="text-white/40 text-sm leading-relaxed max-w-xs">
               The leading escape room experience in Tunisia. Three immersive rooms in Manouba — horror, sci-fi, and crime drama.
             </p>
