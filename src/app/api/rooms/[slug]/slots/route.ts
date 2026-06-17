@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { generateSlots, filterAvailableSlots, type OpenHours } from "@/lib/slots";
+import { generateUnifiedSlots } from "@/lib/slots";
 
 export async function GET(
   request: NextRequest,
@@ -18,31 +18,32 @@ export async function GET(
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
 
-  // Interpret date in local time (midnight)
   const [year, month, day] = date.split("-").map(Number);
-  const dateObj = new Date(year, month - 1, day);
+  const sessionDate = new Date(year, month - 1, day);
+  const allSlots = generateUnifiedSlots(sessionDate, room.durationMinutes);
 
-  const openHours: OpenHours = JSON.parse(room.openHours);
-  const allSlots = generateSlots(dateObj, room.durationMinutes, openHours);
+  // Query window covers 11 AM session day → 2 AM next day
+  const windowStart = new Date(year, month - 1, day, 11, 0, 0, 0);
+  const windowEnd = new Date(year, month - 1, day + 1, 2, 0, 0, 0);
 
-  // Find booked slots for this day
-  const dayStart = new Date(dateObj);
-  const dayEnd = new Date(dateObj);
-  dayEnd.setDate(dayEnd.getDate() + 1);
+  const [booked, blocked] = await Promise.all([
+    prisma.booking.findMany({
+      where: { roomId: room.id, status: "confirmed", startTime: { gte: windowStart, lte: windowEnd } },
+      select: { startTime: true },
+    }),
+    prisma.blockedSlot.findMany({
+      where: { roomId: room.id, slotStart: { gte: windowStart, lte: windowEnd } },
+      select: { slotStart: true },
+    }),
+  ]);
 
-  const booked = await prisma.booking.findMany({
-    where: {
-      roomId: room.id,
-      status: "confirmed",
-      startTime: { gte: dayStart, lt: dayEnd },
-    },
-    select: { startTime: true },
+  const bookedMs = new Set(booked.map((b) => b.startTime.getTime()));
+  const blockedMs = new Set(blocked.map((b) => b.slotStart.getTime()));
+
+  const available = allSlots.filter((s) => {
+    const t = s.startTime.getTime();
+    return !bookedMs.has(t) && !blockedMs.has(t);
   });
-
-  const available = filterAvailableSlots(
-    allSlots,
-    booked.map((b) => b.startTime)
-  );
 
   return NextResponse.json({
     slots: available.map((s) => ({

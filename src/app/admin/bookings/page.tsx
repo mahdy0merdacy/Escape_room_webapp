@@ -22,26 +22,41 @@ export default async function BookingsPage({ searchParams }: Props) {
   }
 
   const monthStart = new Date(year, month - 1, 1);
-  const monthEnd = new Date(year, month, 1);
+  // Extend end by 2 hours to catch 1 AM slots on last day of month
+  const monthEnd = new Date(year, month, 1, 2, 0, 0, 0);
 
-  const bookings = await prisma.booking.findMany({
-    where: { startTime: { gte: monthStart, lt: monthEnd } },
-    orderBy: { startTime: "asc" },
-    include: { room: { select: { name: true, themeColors: true } } },
-  });
+  const [bookings, blockedSlots, rooms] = await Promise.all([
+    prisma.booking.findMany({
+      where: { startTime: { gte: monthStart, lt: monthEnd } },
+      orderBy: { startTime: "asc" },
+      include: { room: { select: { name: true, themeColors: true } } },
+    }),
+    prisma.blockedSlot.findMany({
+      where: { slotStart: { gte: monthStart, lt: monthEnd } },
+      select: { roomId: true, slotStart: true },
+    }),
+    prisma.room.findMany({
+      where: { active: true },
+      select: { id: true, name: true, themeColors: true, durationMinutes: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
-  const serialized = bookings.map((b) => ({
+  const serializedBookings = bookings.map((b) => ({
     ...b,
     startTime: b.startTime.toISOString(),
     endTime: b.endTime.toISOString(),
     createdAt: b.createdAt.toISOString(),
   }));
 
+  const serializedBlocked = blockedSlots.map((b) => ({
+    roomId: b.roomId,
+    slotStart: b.slotStart.toISOString(),
+  }));
+
   const pad = (n: number) => String(n).padStart(2, "0");
-  const prevMonth =
-    month === 1 ? `${year - 1}-12` : `${year}-${pad(month - 1)}`;
-  const nextMonth =
-    month === 12 ? `${year + 1}-01` : `${year}-${pad(month + 1)}`;
+  const prevMonth = month === 1 ? `${year - 1}-12` : `${year}-${pad(month - 1)}`;
+  const nextMonth = month === 12 ? `${year + 1}-01` : `${year}-${pad(month + 1)}`;
   const monthLabel = new Date(year, month - 1).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -58,9 +73,7 @@ export default async function BookingsPage({ searchParams }: Props) {
           >
             ←
           </Link>
-          <span className="text-white font-semibold px-3 min-w-[160px] text-center">
-            {monthLabel}
-          </span>
+          <span className="text-white font-semibold px-3 min-w-[160px] text-center">{monthLabel}</span>
           <Link
             href={`/admin/bookings?month=${nextMonth}`}
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-white/20 text-white/60 hover:text-white hover:border-white/40 transition-colors"
@@ -70,7 +83,13 @@ export default async function BookingsPage({ searchParams }: Props) {
         </div>
       </div>
 
-      <BookingCalendar bookings={serialized} year={year} month={month} />
+      <BookingCalendar
+        bookings={serializedBookings}
+        blockedSlots={serializedBlocked}
+        rooms={rooms}
+        year={year}
+        month={month}
+      />
     </div>
   );
 }
