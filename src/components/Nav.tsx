@@ -16,7 +16,10 @@ export default function Nav() {
   const pathname = usePathname();
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
+    <header
+      className="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10"
+      style={{ viewTransitionName: "site-header" }}
+    >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-xl font-bold tracking-widest uppercase text-white">
           el<span className="text-red-500">harba</span>
