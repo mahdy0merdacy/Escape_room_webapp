@@ -1,5 +1,6 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import type { Room } from "@prisma/client";
 import type { Metadata } from "next";
 import Script from "next/script";
 
@@ -25,7 +26,7 @@ export default async function HomePage() {
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Escape Rooms",
-      itemListElement: rooms.map((r) => ({
+      itemListElement: rooms.map((r: Room) => ({
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
@@ -50,7 +51,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black z-10" />
         <div
           className="absolute inset-0 bg-cover bg-center opacity-30"
-          style={{ backgroundImage: "url('/images/hero-bg.jpg')" }}
+          style={{ backgroundImage: "url('https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/hero-bg.webp')" }}
           aria-hidden="true"
         />
         <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
@@ -96,7 +97,7 @@ export default async function HomePage() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {rooms.map((room) => {
+          {rooms.map((room: Room) => {
             const colors = JSON.parse(room.themeColors) as {
               primary: string;
               secondary: string;
