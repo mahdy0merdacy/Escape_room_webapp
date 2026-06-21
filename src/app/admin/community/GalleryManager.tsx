@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import type { GalleryAlbumRow } from "./page";
 
 const PRESET_COLORS = [
@@ -14,13 +14,7 @@ const PRESET_COLORS = [
   { name: "Indigo", value: "#4f46e5" },
 ];
 
-function ColorPicker({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
+function ColorPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {PRESET_COLORS.map((c) => (
@@ -61,14 +55,14 @@ function AlbumRow({
   const [label, setLabel] = useState(album.label);
   const [sub, setSub] = useState(album.sub);
   const [accent, setAccent] = useState(album.accent);
-  const [pending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  function save() {
-    startTransition(async () => {
-      await onUpdate(album.id, { label, sub, accent });
-      setEditing(false);
-    });
+  async function save() {
+    setLoading(true);
+    await onUpdate(album.id, { label, sub, accent });
+    setLoading(false);
+    setEditing(false);
   }
 
   function cancel() {
@@ -78,28 +72,42 @@ function AlbumRow({
     setEditing(false);
   }
 
+  async function toggleFeatured() {
+    setLoading(true);
+    await onUpdate(album.id, { featured: !album.featured });
+    setLoading(false);
+  }
+
+  async function toggleActive() {
+    setLoading(true);
+    await onUpdate(album.id, { active: !album.active });
+    setLoading(false);
+  }
+
+  async function handleDelete() {
+    setLoading(true);
+    await onDelete(album.id);
+    // no setLoading(false) — row unmounts
+  }
+
   return (
     <div
       className={`rounded-xl border transition-colors ${
         album.active ? "border-white/10 bg-white/[0.03]" : "border-white/5 bg-white/[0.01] opacity-50"
       }`}
     >
-      {/* Header row */}
       <div className="flex items-center gap-3 px-4 py-3">
-        {/* Color swatch */}
         <div
           className="w-4 h-4 rounded-full flex-shrink-0 border border-white/20"
           style={{ background: album.accent }}
         />
 
-        {/* Featured badge */}
         {album.featured && (
           <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">
             Featured
           </span>
         )}
 
-        {/* Name + sub */}
         {editing ? (
           <div className="flex-1 flex flex-col gap-2 min-w-0">
             <input
@@ -120,22 +128,19 @@ function AlbumRow({
         ) : (
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-semibold truncate">{album.label}</p>
-            {album.sub && (
-              <p className="text-white/40 text-xs truncate">{album.sub}</p>
-            )}
+            {album.sub && <p className="text-white/40 text-xs truncate">{album.sub}</p>}
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex items-center gap-2 flex-shrink-0 ml-2">
           {editing ? (
             <>
               <button
                 onClick={save}
-                disabled={pending || !label.trim()}
+                disabled={loading || !label.trim()}
                 className="text-xs bg-green-700 hover:bg-green-600 disabled:opacity-40 text-white px-3 py-1.5 rounded font-semibold transition-colors"
               >
-                {pending ? "Saving…" : "Save"}
+                {loading ? "Saving…" : "Save"}
               </button>
               <button
                 onClick={cancel}
@@ -146,11 +151,11 @@ function AlbumRow({
             </>
           ) : (
             <>
-              {/* Featured toggle */}
               <button
                 title={album.featured ? "Unmark as featured" : "Mark as featured (large card)"}
-                onClick={() => startTransition(() => onUpdate(album.id, { featured: !album.featured }))}
-                className={`text-xs px-2.5 py-1 rounded font-medium transition-colors ${
+                onClick={toggleFeatured}
+                disabled={loading}
+                className={`text-xs px-2.5 py-1 rounded font-medium transition-colors disabled:opacity-40 ${
                   album.featured
                     ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
                     : "text-white/30 hover:text-amber-400 hover:bg-amber-400/10"
@@ -159,11 +164,11 @@ function AlbumRow({
                 ★
               </button>
 
-              {/* Active toggle */}
               <button
                 title={album.active ? "Hide album" : "Show album"}
-                onClick={() => startTransition(() => onUpdate(album.id, { active: !album.active }))}
-                className={`text-xs px-2.5 py-1 rounded font-medium transition-colors ${
+                onClick={toggleActive}
+                disabled={loading}
+                className={`text-xs px-2.5 py-1 rounded font-medium transition-colors disabled:opacity-40 ${
                   album.active
                     ? "bg-white/10 text-white/60 hover:bg-white/20"
                     : "bg-white/5 text-white/25 hover:text-white/60"
@@ -172,21 +177,21 @@ function AlbumRow({
                 {album.active ? "Visible" : "Hidden"}
               </button>
 
-              {/* Edit */}
               <button
                 onClick={() => setEditing(true)}
-                className="text-xs text-white/40 hover:text-white px-2.5 py-1 rounded hover:bg-white/10 transition-colors"
+                disabled={loading}
+                className="text-xs text-white/40 hover:text-white px-2.5 py-1 rounded hover:bg-white/10 transition-colors disabled:opacity-40"
               >
                 Edit
               </button>
 
-              {/* Delete */}
               {confirmDelete ? (
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-red-400">Delete?</span>
                   <button
-                    onClick={() => startTransition(() => onDelete(album.id))}
-                    className="text-xs text-red-400 hover:text-red-300 font-semibold"
+                    onClick={handleDelete}
+                    disabled={loading}
+                    className="text-xs text-red-400 hover:text-red-300 font-semibold disabled:opacity-40"
                   >
                     Yes
                   </button>
@@ -200,7 +205,8 @@ function AlbumRow({
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="text-xs text-white/20 hover:text-red-400 px-2 py-1 rounded transition-colors"
+                  disabled={loading}
+                  className="text-xs text-white/20 hover:text-red-400 px-2 py-1 rounded transition-colors disabled:opacity-40"
                 >
                   ✕
                 </button>
@@ -218,26 +224,35 @@ function AddAlbumForm({ onAdd }: { onAdd: (album: GalleryAlbumRow) => void }) {
   const [label, setLabel] = useState("");
   const [sub, setSub] = useState("");
   const [accent, setAccent] = useState("#e11d48");
-  const [pending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  function submit() {
+  async function submit() {
     if (!label.trim()) { setError("Name is required"); return; }
     setError("");
-    startTransition(async () => {
+    setLoading(true);
+    try {
       const res = await fetch("/api/admin/gallery", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ label: label.trim(), sub: sub.trim(), accent }),
       });
-      if (!res.ok) { setError("Failed to create"); return; }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        setError(body.error ?? "Failed to create album");
+        return;
+      }
       const album = await res.json() as GalleryAlbumRow;
       onAdd(album);
       setLabel("");
       setSub("");
       setAccent("#e11d48");
       setOpen(false);
-    });
+    } catch {
+      setError("Network error — please try again");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (!open) {
@@ -279,15 +294,15 @@ function AddAlbumForm({ onAdd }: { onAdd: (album: GalleryAlbumRow) => void }) {
           <label className="text-xs text-white/40 mb-1 block">Accent color</label>
           <ColorPicker value={accent} onChange={setAccent} />
         </div>
-        {error && <p className="text-red-400 text-xs">{error}</p>}
+        {error && <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded px-3 py-2">{error}</p>}
       </div>
       <div className="flex gap-2 pt-1">
         <button
           onClick={submit}
-          disabled={pending || !label.trim()}
-          className="bg-red-700 hover:bg-red-600 disabled:opacity-40 text-white text-sm font-semibold px-5 py-2 rounded transition-colors"
+          disabled={loading || !label.trim()}
+          className="bg-red-700 hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded transition-colors"
         >
-          {pending ? "Adding…" : "Add album"}
+          {loading ? "Adding…" : "Add album"}
         </button>
         <button
           onClick={() => { setOpen(false); setError(""); }}
@@ -300,11 +315,7 @@ function AddAlbumForm({ onAdd }: { onAdd: (album: GalleryAlbumRow) => void }) {
   );
 }
 
-export default function GalleryManager({
-  initialAlbums,
-}: {
-  initialAlbums: GalleryAlbumRow[];
-}) {
+export default function GalleryManager({ initialAlbums }: { initialAlbums: GalleryAlbumRow[] }) {
   const [albums, setAlbums] = useState(initialAlbums);
 
   async function handleUpdate(id: string, patch: Partial<GalleryAlbumRow>) {
@@ -331,17 +342,10 @@ export default function GalleryManager({
   return (
     <div className="space-y-3">
       {albums.length === 0 && (
-        <p className="text-white/30 text-sm py-6 text-center">
-          No albums yet — add one below.
-        </p>
+        <p className="text-white/30 text-sm py-6 text-center">No albums yet — add one below.</p>
       )}
       {albums.map((album) => (
-        <AlbumRow
-          key={album.id}
-          album={album}
-          onUpdate={handleUpdate}
-          onDelete={handleDelete}
-        />
+        <AlbumRow key={album.id} album={album} onUpdate={handleUpdate} onDelete={handleDelete} />
       ))}
       <AddAlbumForm onAdd={handleAdd} />
     </div>
