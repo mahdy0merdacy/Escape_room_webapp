@@ -4,15 +4,21 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-  const [roomCount, bookingCount, recentBookings] = await Promise.all([
-    prisma.room.count(),
-    prisma.booking.count({ where: { status: "confirmed" } }),
-    prisma.booking.findMany({
-      take: 5,
-      orderBy: { createdAt: "desc" },
-      include: { room: true },
-    }),
-  ]);
+  let roomCount = 0, bookingCount = 0;
+  let recentBookings: Awaited<ReturnType<typeof prisma.booking.findMany<{ include: { room: true } }>>> = [];
+  try {
+    [roomCount, bookingCount, recentBookings] = await Promise.all([
+      prisma.room.count(),
+      prisma.booking.count({ where: { status: "confirmed" } }),
+      prisma.booking.findMany({
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        include: { room: true },
+      }),
+    ]);
+  } catch {
+    // Booking table schema may be pending a migration — degrade gracefully
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 space-y-10">

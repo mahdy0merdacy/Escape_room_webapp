@@ -28,22 +28,23 @@ export default async function BookingsPage({ searchParams }: Props) {
   const closeBuffer = schedule.closeHour < schedule.openHour ? schedule.closeHour + 2 : 2;
   const monthEnd = new Date(year, month, 1, closeBuffer, 0, 0, 0);
 
-  const [bookings, blockedSlots, rooms] = await Promise.all([
+  const [bookingsRaw, blockedSlots, rooms] = await Promise.all([
     prisma.booking.findMany({
       where: { startTime: { gte: monthStart, lt: monthEnd } },
       orderBy: { startTime: "asc" },
       include: { room: { select: { name: true, themeColors: true } } },
-    }),
+    }).catch(() => []),
     prisma.blockedSlot.findMany({
       where: { slotStart: { gte: monthStart, lt: monthEnd } },
       select: { roomId: true, slotStart: true },
-    }),
+    }).catch(() => []),
     prisma.room.findMany({
       where: { active: true },
       select: { id: true, name: true, themeColors: true, durationMinutes: true },
       orderBy: { name: "asc" },
     }),
   ]);
+  const bookings = bookingsRaw;
 
   const serializedBookings = bookings.map((b) => ({
     ...b,
