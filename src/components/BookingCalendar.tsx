@@ -418,8 +418,19 @@ export default function BookingCalendar({
                     setSelectedRoomId(null);
                   } else {
                     setSelectedDay(day);
-                    setSelectedRoomId(null);
                     setRescheduleId(null);
+                    // Auto-select the room with the most bookings on this day
+                    const dayBkgs = bookingsByDay.get(day) ?? [];
+                    if (dayBkgs.length > 0) {
+                      const countByRoom = new Map<string, number>();
+                      for (const b of dayBkgs) countByRoom.set(b.roomId, (countByRoom.get(b.roomId) ?? 0) + 1);
+                      const topRoom = rooms.reduce((best, r) =>
+                        (countByRoom.get(r.id) ?? 0) > (countByRoom.get(best.id) ?? 0) ? r : best
+                      );
+                      setSelectedRoomId(topRoom.id);
+                    } else {
+                      setSelectedRoomId(rooms[0]?.id ?? null);
+                    }
                   }
                 }}
                 className={`h-20 border-t border-r border-white/5 p-2 text-left transition-all relative group ${
@@ -479,6 +490,9 @@ export default function BookingCalendar({
               {rooms.map((room) => {
                 const c = JSON.parse(room.themeColors) as { primary: string; accent: string };
                 const isActive = selectedRoomId === room.id;
+                const roomCount = (bookingsByDay.get(selectedDay) ?? []).filter(
+                  (b) => b.roomId === room.id
+                ).length;
                 return (
                   <button
                     key={room.id}
@@ -486,7 +500,7 @@ export default function BookingCalendar({
                       setSelectedRoomId(isActive ? null : room.id);
                       setRescheduleId(null);
                     }}
-                    className="px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+                    className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
                     style={
                       isActive
                         ? { background: c.accent, color: c.primary }
@@ -494,6 +508,18 @@ export default function BookingCalendar({
                     }
                   >
                     {room.name}
+                    {roomCount > 0 && (
+                      <span
+                        className="text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                        style={
+                          isActive
+                            ? { background: "rgba(0,0,0,0.25)", color: c.primary }
+                            : { background: c.accent, color: c.primary }
+                        }
+                      >
+                        {roomCount}
+                      </span>
+                    )}
                   </button>
                 );
               })}

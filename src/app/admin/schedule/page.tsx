@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SchedulePage() {
   const [configRow, rooms] = await Promise.all([
-    prisma.scheduleConfig.findUnique({ where: { id: "default" } }),
+    prisma.scheduleConfig.findUnique({ where: { id: "default" } }).catch(() => null),
     prisma.room.findMany({
       where: { active: true },
       select: { id: true, name: true, durationMinutes: true },
