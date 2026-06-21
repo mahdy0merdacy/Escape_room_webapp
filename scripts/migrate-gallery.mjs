@@ -1,5 +1,5 @@
 import { createClient } from "@libsql/client";
-import { createId } from "@paralleldrive/cuid2";
+import { randomUUID } from "crypto";
 
 const client = createClient({
   url: process.env.TURSO_DATABASE_URL,
@@ -34,7 +34,7 @@ if (Number(rows[0].n) === 0) {
   for (const s of seeds) {
     await client.execute({
       sql: `INSERT INTO GalleryAlbum (id, label, sub, accent, featured, "order") VALUES (?, ?, ?, ?, ?, ?)`,
-      args: [createId(), s.label, s.sub, s.accent, s.featured, s.order],
+      args: [randomUUID(), s.label, s.sub, s.accent, s.featured, s.order],
     });
   }
   console.log("✓ Seeded 5 default albums");
