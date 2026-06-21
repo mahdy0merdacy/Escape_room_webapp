@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import MapEmbed from "@/components/MapEmbed";
 import { getScheduleConfig } from "@/lib/schedule";
 import { DEFAULT_SCHEDULE } from "@/lib/slots";
 
@@ -36,18 +37,7 @@ export default async function ContactPage() {
 
       {/* Map — loading="lazy" defers load until scrolled into view */}
       <section className="max-w-5xl mx-auto px-4 pb-2">
-        <div className="rounded-2xl overflow-hidden border border-white/10" style={{ height: "450px" }}>
-          <iframe
-            src="https://maps.google.com/maps?q=El+Harba+Escape+Room+Manouba+Tunisia&output=embed&z=16"
-            width="100%"
-            height="100%"
-            style={{ border: 0, filter: "grayscale(20%) brightness(0.9)" }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="elharba location map"
-          />
-        </div>
+        <MapEmbed />
       </section>
 
       {/* Location strip */}
