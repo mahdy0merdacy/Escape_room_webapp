@@ -148,12 +148,11 @@ export default async function RoomPage({ params }: Props) {
             {/* Left: story + gallery */}
             <div className="lg:col-span-2 space-y-10">
               {/* Quick stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 {[
                   { label: "Duration", value: `${room.durationMinutes} min` },
                   { label: "Players", value: `${room.minPlayers}–${room.maxPlayers}` },
                   { label: "Age", value: "16+" },
-                  { label: "Pay", value: "At the door" },
                 ].map(({ label, value }) => (
                   <div
                     key={label}

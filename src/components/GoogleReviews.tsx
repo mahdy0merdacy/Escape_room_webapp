@@ -70,7 +70,7 @@ export default function GoogleReviews() {
                 </svg>
               ))}
             </div>
-            <span className="text-white/40 text-sm">· 3 reviews</span>
+            <span className="text-white/40 text-sm">· 255 reviews</span>
           </div>
         </div>
 

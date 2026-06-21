@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getScheduleConfig } from "@/lib/schedule";
+import { DEFAULT_SCHEDULE } from "@/lib/slots";
+
+export const revalidate = 3600; // cache for 1 hour — Vercel serves this from edge
 
 export const metadata: Metadata = {
   title: "Contact — elharba Escape Room",
@@ -7,14 +11,16 @@ export const metadata: Metadata = {
     "Find elharba escape room in Manouba. Call or WhatsApp us, get directions, and check our opening hours.",
 };
 
-const HOURS = [
-  { days: "Monday – Thursday", hours: "2:00 PM – 11:00 PM" },
-  { days: "Friday", hours: "12:00 PM – 1:00 AM" },
-  { days: "Saturday", hours: "12:00 PM – 1:00 AM" },
-  { days: "Sunday", hours: "12:00 PM – 11:00 PM" },
-];
+function formatTime(hour: number, minute: number): string {
+  const d = new Date(2000, 0, 1, hour, minute, 0);
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const schedule = await getScheduleConfig().catch(() => DEFAULT_SCHEDULE);
+  const openStr = formatTime(schedule.openHour, schedule.openMinute);
+  const closeStr = formatTime(schedule.closeHour, schedule.closeMinute);
+
   return (
     <div className="min-h-screen bg-[#090909] text-white">
       {/* Compact header */}
@@ -28,7 +34,7 @@ export default function ContactPage() {
         </p>
       </section>
 
-      {/* Map */}
+      {/* Map — loading="lazy" defers load until scrolled into view */}
       <section className="max-w-5xl mx-auto px-4 pb-2">
         <div className="rounded-2xl overflow-hidden border border-white/10" style={{ height: "450px" }}>
           <iframe
@@ -44,14 +50,12 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Location strip below map */}
+      {/* Location strip */}
       <div className="bg-white/5 border-y border-white/10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-sm">
             <span className="text-white/30">📍</span>
-            <span className="text-white/70">
-              Manouba, Tunisia — free parking on site
-            </span>
+            <span className="text-white/70">Manouba, Tunisia — free parking on site</span>
           </div>
           <a
             href="https://www.google.com/maps/search/El+Harba+Escape+Room+Manouba+Tunisia"
@@ -78,9 +82,7 @@ export default function ContactPage() {
             <div>
               <p className="text-white/40 text-xs uppercase tracking-widest mb-1">Call us</p>
               <p className="text-white font-bold text-lg">+216 28 720 530</p>
-              <p className="text-white/30 text-xs mt-1.5 group-hover:text-white/50 transition-colors">
-                Tap to call →
-              </p>
+              <p className="text-white/30 text-xs mt-1.5 group-hover:text-white/50 transition-colors">Tap to call →</p>
             </div>
           </a>
 
@@ -97,26 +99,22 @@ export default function ContactPage() {
             <div>
               <p className="text-white/40 text-xs uppercase tracking-widest mb-1">WhatsApp</p>
               <p className="text-white font-bold text-lg">+216 28 720 530</p>
-              <p className="text-white/30 text-xs mt-1.5 group-hover:text-green-400 transition-colors">
-                Message us →
-              </p>
+              <p className="text-white/30 text-xs mt-1.5 group-hover:text-green-400 transition-colors">Message us →</p>
             </div>
           </a>
 
-          {/* Hours */}
+          {/* Hours — live from schedule config */}
           <div className="rounded-2xl border border-white/10 bg-white/5 p-7 flex flex-col gap-4">
             <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-xl">
               🕐
             </div>
             <div>
               <p className="text-white/40 text-xs uppercase tracking-widest mb-3">Opening Hours</p>
-              <div className="space-y-2">
-                {HOURS.map(({ days, hours }) => (
-                  <div key={days} className="flex justify-between gap-3 text-xs">
-                    <span className="text-white/50">{days}</span>
-                    <span className="text-white font-medium shrink-0">{hours}</span>
-                  </div>
-                ))}
+              <div className="flex justify-between gap-3 text-sm">
+                <span className="text-white/50">Daily</span>
+                <span className="text-white font-semibold">
+                  {openStr} – {closeStr}
+                </span>
               </div>
             </div>
           </div>

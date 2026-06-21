@@ -15,6 +15,9 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
+  const hideBookNow =
+    pathname.startsWith("/rooms/") || pathname.startsWith("/booking");
+
   return (
     <header
       className="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10"
@@ -45,12 +48,14 @@ export default function Nav() {
               {label}
             </Link>
           ))}
-          <Link
-            href="/rooms"
-            className="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded transition-colors font-semibold tracking-wide"
-          >
-            Book Now
-          </Link>
+          {!hideBookNow && (
+            <Link
+              href="/rooms"
+              className="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded transition-colors font-semibold tracking-wide"
+            >
+              Book Now
+            </Link>
+          )}
         </nav>
 
         {/* Mobile hamburger */}
@@ -78,13 +83,15 @@ export default function Nav() {
               {label}
             </Link>
           ))}
-          <Link
-            href="/rooms"
-            onClick={() => setOpen(false)}
-            className="mt-3 bg-red-600 text-white px-5 py-3 rounded text-center font-semibold text-sm"
-          >
-            Book Now
-          </Link>
+          {!hideBookNow && (
+            <Link
+              href="/rooms"
+              onClick={() => setOpen(false)}
+              className="mt-3 bg-red-600 text-white px-5 py-3 rounded text-center font-semibold text-sm"
+            >
+              Book Now
+            </Link>
+          )}
         </div>
       )}
     </header>
