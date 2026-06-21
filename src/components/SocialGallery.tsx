@@ -1,3 +1,13 @@
+import prisma from "@/lib/prisma";
+
+type Album = {
+  id: string;
+  label: string;
+  sub: string;
+  accent: string;
+  featured: boolean;
+};
+
 const SOCIALS = [
   {
     label: "Instagram",
@@ -34,45 +44,53 @@ const SOCIALS = [
   },
 ];
 
-const GRID_ITEMS = [
-  {
-    span: "md:col-span-2 md:row-span-2",
-    gradient: "from-red-900/40 via-red-950/60 to-black/80",
-    accent: "#e11d48",
-    label: "The Horror Room",
-    sub: "Can you handle the dark?",
-  },
-  {
-    span: "",
-    gradient: "from-violet-900/40 via-violet-950/60 to-black/80",
-    accent: "#7c3aed",
-    label: "Sci-Fi Escape",
-    sub: "Team photo after escaping 👾",
-  },
-  {
-    span: "",
-    gradient: "from-cyan-900/40 via-cyan-950/60 to-black/80",
-    accent: "#0891b2",
-    label: "Crime Scene",
-    sub: "We solved it in 47 min!",
-  },
-  {
-    span: "",
-    gradient: "from-amber-900/30 via-amber-950/60 to-black/80",
-    accent: "#d97706",
-    label: "Group of 6",
-    sub: "Birthday escape 🎉",
-  },
-  {
-    span: "",
-    gradient: "from-emerald-900/30 via-emerald-950/60 to-black/80",
-    accent: "#059669",
-    label: "Corporate team",
-    sub: "Company outing — great fun!",
-  },
-];
+function AlbumCard({ album, large }: { album: Album; large: boolean }) {
+  return (
+    <div
+      className={`${large ? "md:col-span-2 md:row-span-2" : ""} relative rounded-2xl overflow-hidden border border-white/10 group cursor-pointer`}
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(135deg, ${album.accent}33 0%, #00000099 55%, #000000cc 100%)`,
+        }}
+      />
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+        aria-hidden="true"
+      />
+      <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" className="w-16 h-16" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+        <p className="text-xs font-bold uppercase tracking-widest mb-0.5" style={{ color: album.accent }}>
+          {album.label}
+        </p>
+        {album.sub && <p className="text-white/60 text-xs">{album.sub}</p>}
+      </div>
+    </div>
+  );
+}
 
-export default function SocialGallery() {
+export default async function SocialGallery() {
+  const albums = await prisma.galleryAlbum
+    .findMany({
+      where: { active: true },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+      select: { id: true, label: true, sub: true, accent: true, featured: true },
+    })
+    .catch(() => [] as Album[]);
+
+  if (albums.length === 0) return null;
+
+  const featuredIndex = albums.findIndex((a) => a.featured);
+
   return (
     <section className="py-24 px-4 bg-[#080808]">
       <div className="max-w-6xl mx-auto">
@@ -91,7 +109,6 @@ export default function SocialGallery() {
             </p>
           </div>
 
-          {/* Social pill links */}
           <div className="flex flex-wrap gap-3">
             {SOCIALS.map((s) => (
               <a
@@ -100,7 +117,6 @@ export default function SocialGallery() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25 text-white/70 hover:text-white rounded-full px-4 py-2 text-sm font-medium transition-all"
-                style={{ "--accent": s.color } as React.CSSProperties}
               >
                 <span style={{ color: s.color }}>{s.icon}</span>
                 <span>{s.handle}</span>
@@ -110,42 +126,9 @@ export default function SocialGallery() {
         </div>
 
         {/* Mosaic grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 grid-rows-[auto] gap-3 auto-rows-[200px]">
-          {GRID_ITEMS.map((item, i) => (
-            <div
-              key={i}
-              className={`${item.span} relative rounded-2xl overflow-hidden border border-white/10 group cursor-pointer`}
-            >
-              {/* Gradient placeholder */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${item.gradient} transition-opacity duration-300`}
-              />
-              {/* Noise texture overlay */}
-              <div
-                className="absolute inset-0 opacity-[0.03]"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                }}
-                aria-hidden="true"
-              />
-              {/* Camera icon centered */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" className="w-16 h-16" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              {/* Bottom label */}
-              <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                <p
-                  className="text-xs font-bold uppercase tracking-widest mb-0.5"
-                  style={{ color: item.accent }}
-                >
-                  {item.label}
-                </p>
-                <p className="text-white/60 text-xs">{item.sub}</p>
-              </div>
-            </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 auto-rows-[200px]">
+          {albums.map((album, i) => (
+            <AlbumCard key={album.id} album={album} large={i === featuredIndex} />
           ))}
         </div>
 
@@ -154,7 +137,9 @@ export default function SocialGallery() {
           <div>
             <p className="text-white font-bold text-lg mb-1">Share your escape story</p>
             <p className="text-white/40 text-sm">
-              Tag us <span className="text-white/60 font-medium">@elharbaescaperoom</span> — the best shots get featured right here.
+              Tag us{" "}
+              <span className="text-white/60 font-medium">@elharbaescaperoom</span>{" "}
+              — the best shots get featured right here.
             </p>
           </div>
           <div className="flex gap-3 shrink-0">

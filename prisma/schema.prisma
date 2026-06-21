@@ -85,3 +85,15 @@ model EmailLog {
   body      String
   sentAt    DateTime @default(now())
 }
+
+model GalleryAlbum {
+  id        String   @id @default(cuid())
+  label     String
+  sub       String   @default("")
+  accent    String   @default("#e11d48")
+  featured  Boolean  @default(false)
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
