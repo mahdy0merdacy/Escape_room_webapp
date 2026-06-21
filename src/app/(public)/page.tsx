@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import type { Room } from "@prisma/client";
 import type { Metadata } from "next";
 import Script from "next/script";
+import GoogleReviews from "@/components/GoogleReviews";
 
 export const metadata: Metadata = {
   title: "elharba — Escape Rooms",
@@ -171,6 +172,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Google Reviews */}
+      <GoogleReviews />
 
       {/* CTA */}
       <section className="py-24 text-center px-4">

@@ -14,7 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <Link href="/" aria-label="elharba home">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/HARBA%20%282%29.png"
+                  src="https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png"
                   alt="elharba"
                   className="h-7 w-auto object-contain"
                 />

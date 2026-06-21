@@ -3,7 +3,7 @@ import { fontUI, fontGothic, fontRetro, fontIndustrial } from "@/lib/fonts";
 import "./globals.css";
 
 const LOGO_URL =
-  "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/HARBA%20%282%29.png";
+  "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png";
 
 export const metadata: Metadata = {
   title: {
