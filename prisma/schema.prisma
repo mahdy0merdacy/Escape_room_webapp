@@ -54,9 +54,11 @@ model Booking {
   email        String
   phone        String
   partySize    Int
-  paid         Boolean       @default(false)
-  status       String        @default("confirmed")
-  createdAt    DateTime      @default(now())
+  paid            Boolean       @default(false)
+  amountPaid      Float?
+  confirmedPlayed Boolean       @default(false)
+  status          String        @default("confirmed")
+  createdAt       DateTime      @default(now())
 
   @@unique([roomId, startTime])
 }
