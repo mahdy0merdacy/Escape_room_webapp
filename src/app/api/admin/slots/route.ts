@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { generateUnifiedSlots } from "@/lib/slots";
+import { getScheduleConfig, slotWindow } from "@/lib/schedule";
 
 // GET ?roomId=&date=YYYY-MM-DD → all unified slots with status (for reschedule picker)
 export async function GET(request: NextRequest) {
@@ -15,15 +16,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing or invalid params" }, { status: 400 });
   }
 
-  const room = await prisma.room.findUnique({ where: { id: roomId } });
+  const [room, schedule] = await Promise.all([
+    prisma.room.findUnique({ where: { id: roomId } }),
+    getScheduleConfig(),
+  ]);
   if (!room) return NextResponse.json({ error: "Room not found" }, { status: 404 });
 
   const [year, month, day] = date.split("-").map(Number);
   const sessionDate = new Date(year, month - 1, day);
-  const allSlots = generateUnifiedSlots(sessionDate, room.durationMinutes);
-
-  const windowStart = new Date(year, month - 1, day, 11, 0, 0, 0);
-  const windowEnd = new Date(year, month - 1, day + 1, 2, 0, 0, 0);
+  const allSlots = generateUnifiedSlots(sessionDate, room.durationMinutes, schedule);
+  const [windowStart, windowEnd] = slotWindow(year, month, day, schedule);
 
   const [booked, blocked] = await Promise.all([
     prisma.booking.findMany({

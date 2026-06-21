@@ -61,6 +61,14 @@ model Booking {
   @@unique([roomId, startTime])
 }
 
+model ScheduleConfig {
+  id           String   @id @default("default")
+  openHour     Int      @default(11)
+  closeHour    Int      @default(1)
+  breakMinutes Int      @default(0)
+  updatedAt    DateTime @updatedAt
+}
+
 model AdminUser {
   id           String   @id @default(cuid())
   email        String   @unique

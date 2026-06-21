@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { getScheduleConfig } from "@/lib/schedule";
 import BookingCalendar from "@/components/BookingCalendar";
 import Link from "next/link";
 
@@ -21,9 +22,11 @@ export default async function BookingsPage({ searchParams }: Props) {
     month = m;
   }
 
+  const schedule = await getScheduleConfig();
   const monthStart = new Date(year, month - 1, 1);
-  // Extend end by 2 hours to catch 1 AM slots on last day of month
-  const monthEnd = new Date(year, month, 1, 2, 0, 0, 0);
+  // Extend past midnight to catch next-day slots on the last day of the month
+  const closeBuffer = schedule.closeHour < schedule.openHour ? schedule.closeHour + 2 : 2;
+  const monthEnd = new Date(year, month, 1, closeBuffer, 0, 0, 0);
 
   const [bookings, blockedSlots, rooms] = await Promise.all([
     prisma.booking.findMany({

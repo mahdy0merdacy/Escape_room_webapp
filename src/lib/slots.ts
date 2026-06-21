@@ -11,28 +11,52 @@ export interface TimeSlot {
   label: string;
 }
 
-// Canonical session hours: 11 AM through 1 AM next day (same across all rooms)
-// Hours 0 and 1 are on the next calendar day
-export const SESSION_HOURS = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0, 1];
+export interface ScheduleConfig {
+  openHour: number;
+  closeHour: number;
+  breakMinutes: number;
+}
 
-export function generateUnifiedSlots(sessionDate: Date, durationMinutes: number): TimeSlot[] {
+export const DEFAULT_SCHEDULE: ScheduleConfig = {
+  openHour: 11,
+  closeHour: 1,
+  breakMinutes: 0,
+};
+
+export function generateUnifiedSlots(
+  sessionDate: Date,
+  durationMinutes: number,
+  schedule: ScheduleConfig = DEFAULT_SCHEDULE
+): TimeSlot[] {
+  const { openHour, closeHour, breakMinutes } = schedule;
+  const intervalMinutes = durationMinutes + breakMinutes;
+
   const base = new Date(sessionDate);
   base.setHours(0, 0, 0, 0);
 
-  return SESSION_HOURS.map((hour) => {
-    const startTime = new Date(base);
-    if (hour < 11) {
-      startTime.setDate(startTime.getDate() + 1);
-    }
-    startTime.setHours(hour, 0, 0, 0);
-    const endTime = new Date(startTime.getTime() + durationMinutes * 60 * 1000);
+  const cursor = new Date(base);
+  cursor.setHours(openHour, 0, 0, 0);
+
+  // If closeHour < openHour the last slot wraps to the next calendar day (e.g. 1 AM after 11 PM)
+  const closeDay = new Date(base);
+  if (closeHour < openHour) closeDay.setDate(closeDay.getDate() + 1);
+  closeDay.setHours(closeHour, 0, 0, 0);
+
+  const slots: TimeSlot[] = [];
+
+  while (cursor <= closeDay) {
+    const startTime = new Date(cursor);
+    const endTime = new Date(cursor.getTime() + durationMinutes * 60_000);
     const label = startTime.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
     });
-    return { startTime, endTime, label };
-  });
+    slots.push({ startTime, endTime, label });
+    cursor.setMinutes(cursor.getMinutes() + intervalMinutes);
+  }
+
+  return slots;
 }
 
 export function filterAvailableSlots(slots: TimeSlot[], bookedStartTimes: Date[]): TimeSlot[] {
@@ -60,7 +84,7 @@ export function generateSlots(date: Date, durationMinutes: number, openHours: Op
   const closeTime = new Date(date);
   closeTime.setHours(endH, endM, 0, 0);
   while (true) {
-    const slotEnd = new Date(cursor.getTime() + durationMinutes * 60 * 1000);
+    const slotEnd = new Date(cursor.getTime() + durationMinutes * 60_000);
     if (slotEnd > closeTime) break;
     const label = cursor.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
     slots.push({ startTime: new Date(cursor), endTime: new Date(slotEnd), label });
