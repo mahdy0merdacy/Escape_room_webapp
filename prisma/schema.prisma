@@ -64,7 +64,9 @@ model Booking {
 model ScheduleConfig {
   id           String   @id @default("default")
   openHour     Int      @default(11)
+  openMinute   Int      @default(0)
   closeHour    Int      @default(1)
+  closeMinute  Int      @default(0)
   breakMinutes Int      @default(0)
   updatedAt    DateTime @updatedAt
 }

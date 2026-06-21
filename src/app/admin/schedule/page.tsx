@@ -15,7 +15,13 @@ export default async function SchedulePage() {
   ]);
 
   const config = configRow
-    ? { openHour: configRow.openHour, closeHour: configRow.closeHour, breakMinutes: configRow.breakMinutes }
+    ? {
+        openHour: configRow.openHour,
+        openMinute: configRow.openMinute,
+        closeHour: configRow.closeHour,
+        closeMinute: configRow.closeMinute,
+        breakMinutes: configRow.breakMinutes,
+      }
     : DEFAULT_SCHEDULE;
 
   return (

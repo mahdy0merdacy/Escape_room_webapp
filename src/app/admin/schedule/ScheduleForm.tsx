@@ -14,15 +14,19 @@ interface Props {
   rooms: Room[];
 }
 
-function formatHour(h: number): string {
-  const d = new Date(2000, 0, 1, h, 0, 0);
+// All half-hour increments across 24 hours (48 options)
+const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => ({
+  hour: Math.floor(i / 2),
+  minute: i % 2 === 0 ? 0 : 30,
+}));
+
+function formatTime(hour: number, minute: number): string {
+  const d = new Date(2000, 0, 1, hour, minute, 0);
   return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
 }
 
-function previewSlots(durationMinutes: number, config: ScheduleConfig): string {
-  const slots = generateUnifiedSlots(new Date(2000, 0, 1), durationMinutes, config);
-  if (slots.length === 0) return "No slots";
-  return slots.map((s) => s.label).join(" · ");
+function totalMinutes(hour: number, minute: number) {
+  return hour * 60 + minute;
 }
 
 const BREAK_OPTIONS = [
@@ -33,8 +37,6 @@ const BREAK_OPTIONS = [
   { value: 60, label: "1 hour" },
   { value: 90, label: "1.5 hours" },
 ];
-
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 export default function ScheduleForm({ initial, rooms }: Props) {
   const [config, setConfig] = useState<ScheduleConfig>(initial);
@@ -68,7 +70,9 @@ export default function ScheduleForm({ initial, rooms }: Props) {
     });
   }
 
-  const isNextDay = config.closeHour < config.openHour;
+  const openTotal = totalMinutes(config.openHour, config.openMinute);
+  const closeTotal = totalMinutes(config.closeHour, config.closeMinute);
+  const isNextDay = closeTotal < openTotal;
 
   return (
     <div className="space-y-8">
@@ -77,42 +81,50 @@ export default function ScheduleForm({ initial, rooms }: Props) {
         <h2 className="text-base font-semibold text-white">Operating Hours</h2>
 
         <div className="grid grid-cols-2 gap-6">
+          {/* Open time */}
           <div className="space-y-2">
             <label className="text-xs font-medium text-white/50 uppercase tracking-widest">
               First slot
             </label>
             <select
-              value={config.openHour}
-              onChange={(e) => update({ openHour: Number(e.target.value) })}
+              value={`${config.openHour}:${config.openMinute}`}
+              onChange={(e) => {
+                const [h, m] = e.target.value.split(":").map(Number);
+                update({ openHour: h, openMinute: m });
+              }}
               className="w-full bg-black/40 border border-white/15 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-red-500/60"
             >
-              {HOURS.map((h) => (
-                <option key={h} value={h}>
-                  {formatHour(h)}
+              {TIME_OPTIONS.map(({ hour, minute }) => (
+                <option key={`${hour}:${minute}`} value={`${hour}:${minute}`}>
+                  {formatTime(hour, minute)}
                 </option>
               ))}
             </select>
           </div>
 
+          {/* Close time */}
           <div className="space-y-2">
             <label className="text-xs font-medium text-white/50 uppercase tracking-widest">
               Last slot
             </label>
             <select
-              value={config.closeHour}
-              onChange={(e) => update({ closeHour: Number(e.target.value) })}
+              value={`${config.closeHour}:${config.closeMinute}`}
+              onChange={(e) => {
+                const [h, m] = e.target.value.split(":").map(Number);
+                update({ closeHour: h, closeMinute: m });
+              }}
               className="w-full bg-black/40 border border-white/15 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-red-500/60"
             >
-              {HOURS.map((h) => (
-                <option key={h} value={h}>
-                  {formatHour(h)}
-                  {h < config.openHour ? " (next day)" : ""}
+              {TIME_OPTIONS.map(({ hour, minute }) => (
+                <option key={`${hour}:${minute}`} value={`${hour}:${minute}`}>
+                  {formatTime(hour, minute)}
+                  {totalMinutes(hour, minute) < openTotal ? " (next day)" : ""}
                 </option>
               ))}
             </select>
             {isNextDay && (
               <p className="text-xs text-amber-400/80">
-                Wraps to next day — last slot starts at {formatHour(config.closeHour)} the following morning.
+                Wraps to next day — last slot at {formatTime(config.closeHour, config.closeMinute)} the following morning.
               </p>
             )}
           </div>
@@ -149,26 +161,37 @@ export default function ScheduleForm({ initial, rooms }: Props) {
       <section className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4">
         <h2 className="text-base font-semibold text-white">Slot Preview</h2>
         <p className="text-xs text-white/40">
-          Showing generated time slots per room with the current settings.
+          Generated time slots per room with the current settings.
         </p>
 
         {rooms.length === 0 ? (
           <p className="text-white/30 text-sm">No active rooms.</p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {rooms.map((room) => {
               const slots = generateUnifiedSlots(new Date(2000, 0, 1), room.durationMinutes, config);
               return (
-                <div key={room.id} className="space-y-1">
+                <div key={room.id} className="space-y-1.5">
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-semibold text-white">{room.name}</span>
-                    <span className="text-xs text-white/30">{room.durationMinutes} min · {slots.length} slots</span>
+                    <span className="text-xs text-white/30">
+                      {room.durationMinutes} min · {slots.length} slot{slots.length !== 1 ? "s" : ""}
+                    </span>
                   </div>
-                  <div className="text-xs text-white/50 leading-relaxed font-mono">
-                    {slots.length === 0
-                      ? <span className="text-red-400/70">No slots — adjust open/close hours</span>
-                      : slots.map((s) => s.label).join("  ·  ")}
-                  </div>
+                  {slots.length === 0 ? (
+                    <p className="text-xs text-red-400/70">No slots — adjust open/close times</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {slots.map((s) => (
+                        <span
+                          key={s.startTime.toISOString()}
+                          className="text-xs bg-white/5 border border-white/10 rounded px-2 py-1 text-white/60 font-mono"
+                        >
+                          {s.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -188,7 +211,7 @@ export default function ScheduleForm({ initial, rooms }: Props) {
         </button>
 
         {saved && (
-          <span className="text-sm text-emerald-400">Saved — changes apply immediately to new bookings.</span>
+          <span className="text-sm text-emerald-400">Saved — applies immediately to new bookings.</span>
         )}
         {error && (
           <span className="text-sm text-red-400">{error}</span>

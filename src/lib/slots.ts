@@ -13,13 +13,17 @@ export interface TimeSlot {
 
 export interface ScheduleConfig {
   openHour: number;
+  openMinute: number;
   closeHour: number;
+  closeMinute: number;
   breakMinutes: number;
 }
 
 export const DEFAULT_SCHEDULE: ScheduleConfig = {
   openHour: 11,
+  openMinute: 0,
   closeHour: 1,
+  closeMinute: 0,
   breakMinutes: 0,
 };
 
@@ -28,19 +32,22 @@ export function generateUnifiedSlots(
   durationMinutes: number,
   schedule: ScheduleConfig = DEFAULT_SCHEDULE
 ): TimeSlot[] {
-  const { openHour, closeHour, breakMinutes } = schedule;
+  const { openHour, openMinute, closeHour, closeMinute, breakMinutes } = schedule;
   const intervalMinutes = durationMinutes + breakMinutes;
 
   const base = new Date(sessionDate);
   base.setHours(0, 0, 0, 0);
 
   const cursor = new Date(base);
-  cursor.setHours(openHour, 0, 0, 0);
+  cursor.setHours(openHour, openMinute, 0, 0);
 
-  // If closeHour < openHour the last slot wraps to the next calendar day (e.g. 1 AM after 11 PM)
+  const openTotal = openHour * 60 + openMinute;
+  const closeTotal = closeHour * 60 + closeMinute;
+
+  // If close is earlier in the day than open, it wraps to the next calendar day
   const closeDay = new Date(base);
-  if (closeHour < openHour) closeDay.setDate(closeDay.getDate() + 1);
-  closeDay.setHours(closeHour, 0, 0, 0);
+  if (closeTotal < openTotal) closeDay.setDate(closeDay.getDate() + 1);
+  closeDay.setHours(closeHour, closeMinute, 0, 0);
 
   const slots: TimeSlot[] = [];
 
