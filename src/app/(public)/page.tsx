@@ -6,7 +6,7 @@ import Script from "next/script";
 import GoogleReviews from "@/components/GoogleReviews";
 import SocialGallery from "@/components/SocialGallery";
 
-export const revalidate = 60; // revalidate every minute so gallery changes appear quickly
+export const revalidate = 3600; // 1-hour fallback; gallery API calls revalidatePath("/") for instant updates
 
 export const metadata: Metadata = {
   title: "elharba — Escape Rooms",
