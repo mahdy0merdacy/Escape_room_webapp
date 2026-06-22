@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getPricePerPerson, getTotalPrice, TIERS } from "@/lib/pricing";
+import { useT } from "./IntlProvider";
 
 interface Slot {
   startTime: string;
@@ -32,6 +33,7 @@ export default function BookingWidget({
   durationMinutes: number;
 }) {
   const router = useRouter();
+  const t = useT();
   const [step, setStep] = useState<"date" | "slot" | "details">("date");
   const [selectedDate, setSelectedDate] = useState("");
   const [slots, setSlots] = useState<Slot[]>([]);
@@ -108,42 +110,50 @@ export default function BookingWidget({
   const ratePerPerson = getPricePerPerson(form.partySize);
   const totalPrice = getTotalPrice(form.partySize);
 
+  const STEPS = [
+    { key: "date", label: t.booking.stepDate },
+    { key: "slot", label: t.booking.stepTime },
+    { key: "details", label: t.booking.stepDetails },
+  ] as const;
+
   return (
     <div
-      className="rounded-2xl border border-white/10 p-6 md:p-8 space-y-6"
+      className="rounded-2xl border border-white/10 p-5 md:p-8 space-y-5"
       style={{ background: "rgba(0,0,0,0.5)" }}
     >
       <div>
-        <h2 className="text-xl font-bold text-white mb-3">Book This Room</h2>
-        {/* Pricing tiers summary */}
+        <h2 className="text-xl font-bold text-white mb-3">{t.booking.title}</h2>
         <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
-          {TIERS.map((t) => (
-            <div key={t.label} className="rounded-lg py-2 px-1" style={{ background: "rgba(255,255,255,0.06)" }}>
-              <p className="text-white/40 mb-0.5">{t.label}</p>
-              <p className="font-bold text-white">{t.pricePerPerson} TND</p>
+          {TIERS.map((tier) => (
+            <div key={tier.label} className="rounded-lg py-2 px-1" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <p className="text-white/40 mb-0.5">{tier.label}</p>
+              <p className="font-bold text-white">{tier.pricePerPerson} TND</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Step indicators */}
-      <div className="flex gap-2 text-xs font-semibold">
-        {(["date", "slot", "details"] as const).map((s, i) => (
-          <div key={s} className="flex items-center gap-2">
+      {/* Step indicators — compact on mobile */}
+      <div className="flex items-center gap-1 text-xs font-semibold">
+        {STEPS.map(({ key, label }, i) => (
+          <div key={key} className="flex items-center gap-1 min-w-0">
             <span
-              className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
+              className="w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0"
               style={
-                step === s
+                step === key
                   ? { background: colors.accent, color: colors.primary }
                   : { background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }
               }
             >
               {i + 1}
             </span>
-            <span className={step === s ? "text-white" : "text-white/40"}>
-              {s === "date" ? "Pick Date" : s === "slot" ? "Pick Time" : "Your Details"}
+            <span className={`truncate hidden sm:block ${step === key ? "text-white" : "text-white/40"}`}>
+              {label}
             </span>
-            {i < 2 && <span className="text-white/20 ml-2">›</span>}
+            <span className={`truncate sm:hidden text-[10px] ${step === key ? "text-white" : "text-white/40"}`}>
+              {label}
+            </span>
+            {i < 2 && <span className="text-white/20 shrink-0">›</span>}
           </div>
         ))}
       </div>
@@ -152,7 +162,7 @@ export default function BookingWidget({
       {step === "date" && (
         <div className="space-y-4">
           <label className="block">
-            <span className="text-white/70 text-sm block mb-3">Select a date</span>
+            <span className="text-white/70 text-sm block mb-3">{t.booking.selectDate}</span>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none text-lg">
                 📅
@@ -174,7 +184,7 @@ export default function BookingWidget({
             className="w-full py-4 rounded-xl font-bold text-sm transition-opacity disabled:opacity-40 tracking-wide"
             style={{ background: colors.accent, color: colors.primary }}
           >
-            {loading ? "Checking availability…" : "See Available Times →"}
+            {loading ? t.booking.checking : t.booking.seeAvailable}
           </button>
         </div>
       )}
@@ -191,16 +201,14 @@ export default function BookingWidget({
               })}
             </span>
             <button onClick={() => setStep("date")} className="text-xs text-white/40 hover:text-white/70">
-              Change date
+              {t.booking.changeDate}
             </button>
           </div>
 
           {slots.length === 0 ? (
-            <p className="text-white/50 text-sm py-4 text-center">
-              No slots available on this day. Please pick another date.
-            </p>
+            <p className="text-white/50 text-sm py-4 text-center">{t.booking.noSlots}</p>
           ) : (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {slots.map((slot) => (
                 <button
                   key={slot.startTime}
@@ -208,7 +216,7 @@ export default function BookingWidget({
                     setSelectedSlot(slot);
                     setStep("details");
                   }}
-                  className="py-2.5 px-3 rounded-lg text-sm font-medium border transition-colors"
+                  className="py-3 px-2 rounded-lg text-sm font-medium border transition-colors min-h-[48px]"
                   style={
                     selectedSlot?.startTime === slot.startTime
                       ? { background: colors.accent, color: colors.primary, borderColor: colors.accent }
@@ -246,7 +254,7 @@ export default function BookingWidget({
               <span className="text-white">{selectedSlot.label}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/50">Duration</span>
+              <span className="text-white/50">{t.booking.duration}</span>
               <span className="text-white">{durationMinutes} min</span>
             </div>
           </div>
@@ -256,61 +264,61 @@ export default function BookingWidget({
             onClick={() => setStep("slot")}
             className="text-xs text-white/40 hover:text-white/70"
           >
-            ← Change time
+            {t.booking.changeTime}
           </button>
 
-          <Field label="Full Name" error={errors.customerName}>
+          <Field label={t.booking.fullName} error={errors.customerName}>
             <input
               type="text"
               value={form.customerName}
               onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))}
               placeholder="Jane Smith"
-              className="w-full bg-white/10 border border-white/20 rounded px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-white/50"
+              className="w-full bg-white/10 border border-white/20 rounded px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/50 text-base"
               aria-label="Full name"
             />
           </Field>
 
-          <Field label="Email" error={errors.email}>
+          <Field label={t.booking.email} error={errors.email}>
             <input
               type="email"
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               placeholder="jane@example.com"
-              className="w-full bg-white/10 border border-white/20 rounded px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-white/50"
+              className="w-full bg-white/10 border border-white/20 rounded px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/50 text-base"
               aria-label="Email address"
             />
           </Field>
 
-          <Field label="Phone" error={errors.phone}>
+          <Field label={t.booking.phone} error={errors.phone}>
             <input
               type="tel"
               value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
               placeholder="+216 XX XXX XXX"
-              className="w-full bg-white/10 border border-white/20 rounded px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-white/50"
+              className="w-full bg-white/10 border border-white/20 rounded px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/50 text-base"
               aria-label="Phone number"
             />
           </Field>
 
-          <Field label={`Party Size (${minPlayers}–${maxPlayers})`} error={errors.partySize}>
+          <Field label={`${t.booking.partySize} (${minPlayers}–${maxPlayers})`} error={errors.partySize}>
             <input
               type="number"
               min={minPlayers}
               max={maxPlayers}
               value={form.partySize}
               onChange={(e) => setForm((f) => ({ ...f, partySize: parseInt(e.target.value) || minPlayers }))}
-              className="w-full bg-white/10 border border-white/20 rounded px-4 py-2.5 text-white focus:outline-none focus:border-white/50"
+              className="w-full bg-white/10 border border-white/20 rounded px-4 py-3 text-white focus:outline-none focus:border-white/50 text-base"
               aria-label="Party size"
             />
           </Field>
 
           <div className="rounded-lg border border-white/10 px-4 py-3 space-y-1 text-sm">
             <div className="flex justify-between text-white/50">
-              <span>Rate</span>
-              <span>{ratePerPerson} TND × {form.partySize} people</span>
+              <span>{t.booking.rate}</span>
+              <span>{ratePerPerson} TND × {form.partySize}</span>
             </div>
             <div className="flex justify-between items-center pt-1 border-t border-white/10">
-              <span className="text-white/60">Total (pay at door)</span>
+              <span className="text-white/60">{t.booking.total}</span>
               <span className="text-xl font-bold" style={{ color: colors.accent }}>
                 {totalPrice} TND
               </span>
@@ -326,10 +334,10 @@ export default function BookingWidget({
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded font-bold text-sm transition-opacity disabled:opacity-50"
+            className="w-full py-4 rounded font-bold text-sm transition-opacity disabled:opacity-50"
             style={{ background: colors.accent, color: colors.primary }}
           >
-            {loading ? "Booking…" : "Confirm Booking"}
+            {loading ? t.booking.booking : t.booking.confirm}
           </button>
         </form>
       )}

@@ -389,9 +389,10 @@ export default function BookingCalendar({
       {/* Calendar grid */}
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
         <div className="grid grid-cols-7 border-b border-white/10">
-          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-            <div key={d} className="py-3 text-center text-xs font-semibold text-white/40 uppercase tracking-widest">
-              {d}
+          {[["M","Mon"],["T","Tue"],["W","Wed"],["T","Thu"],["F","Fri"],["S","Sat"],["S","Sun"]].map(([short, full]) => (
+            <div key={full} className="py-2 sm:py-3 text-center text-xs font-semibold text-white/40 uppercase tracking-widest">
+              <span className="sm:hidden">{short}</span>
+              <span className="hidden sm:inline">{full}</span>
             </div>
           ))}
         </div>
@@ -399,7 +400,7 @@ export default function BookingCalendar({
           {cells.map((day, i) => {
             if (!day)
               return (
-                <div key={`blank-${i}`} className="h-20 border-t border-r border-white/5 bg-white/[0.02]" />
+                <div key={`blank-${i}`} className="h-12 sm:h-20 border-t border-r border-white/5 bg-white/[0.02]" />
               );
 
             const dayBookings = bookingsByDay.get(day) ?? [];
@@ -433,12 +434,12 @@ export default function BookingCalendar({
                     }
                   }
                 }}
-                className={`h-20 border-t border-r border-white/5 p-2 text-left transition-all relative group ${
+                className={`h-12 sm:h-20 border-t border-r border-white/5 p-1.5 sm:p-2 text-left transition-all relative group ${
                   isSelected ? "bg-red-600/20" : "hover:bg-white/5"
                 }`}
               >
                 <span
-                  className={`text-sm font-bold inline-flex items-center justify-center w-7 h-7 rounded-full transition-colors ${
+                  className={`text-xs sm:text-sm font-bold inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full transition-colors ${
                     isSelected
                       ? "bg-red-500 text-white"
                       : isToday

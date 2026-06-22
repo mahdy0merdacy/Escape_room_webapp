@@ -1,4 +1,4 @@
-import { Cinzel_Decorative, Press_Start_2P, Oswald, Inter } from "next/font/google";
+import { Cinzel_Decorative, Press_Start_2P, Oswald, Cairo } from "next/font/google";
 
 // Gothic/distressed — Annabelle
 export const fontGothic = Cinzel_Decorative({
@@ -24,9 +24,10 @@ export const fontIndustrial = Oswald({
   display: "swap",
 });
 
-// UI / body fallback
-export const fontUI = Inter({
-  subsets: ["latin"],
+// UI / body — Cairo works beautifully for Arabic and Latin
+export const fontUI = Cairo({
+  subsets: ["latin", "arabic"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-ui",
   display: "swap",
 });
