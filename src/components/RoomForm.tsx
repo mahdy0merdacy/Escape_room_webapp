@@ -159,12 +159,13 @@ export default function RoomForm({ roomId, initial }: Props) {
           />
         </FormField>
 
-        <FormField label="Story">
+        <FormField label="Description">
           <textarea
             value={form.story}
             onChange={(e) => set("story", e.target.value)}
             rows={6}
             className={`${inputCls} resize-y`}
+            placeholder="Full description shown on the room page — set the atmosphere, explain the premise, list what makes this room special."
           />
         </FormField>
 
