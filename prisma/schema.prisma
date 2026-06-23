@@ -99,3 +99,23 @@ model GalleryAlbum {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model FaqItem {
+  id        String   @id @default(cuid())
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  q_en      String   @default("")
+  q_fr      String   @default("")
+  q_ar      String   @default("")
+  a_en      String   @default("")
+  a_fr      String   @default("")
+  a_ar      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSettings {
+  key       String   @id
+  value     String   @default("")
+  updatedAt DateTime @updatedAt
+}

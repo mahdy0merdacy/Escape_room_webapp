@@ -4,7 +4,9 @@ import Link from "next/link";
 import MapEmbed from "./MapEmbed";
 import { useT } from "./IntlProvider";
 
-export default function ContactContent({ openStr, closeStr }: { openStr: string; closeStr: string }) {
+export default function ContactContent({ openStr, closeStr, phone }: { openStr: string; closeStr: string; phone: string }) {
+  const telLink = `tel:${phone.replace(/\s/g, "")}`;
+  const waLink = `https://wa.me/${phone.replace(/[+\s]/g, "")}`;
   const t = useT();
 
   return (
@@ -41,7 +43,7 @@ export default function ContactContent({ openStr, closeStr }: { openStr: string;
       <div className="max-w-5xl mx-auto px-4 py-16 space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <a
-            href="tel:+21628720530"
+            href={telLink}
             className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/8 hover:border-white/25 transition-all p-7 flex flex-col gap-4"
           >
             <div className="w-11 h-11 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-xl">
@@ -49,13 +51,13 @@ export default function ContactContent({ openStr, closeStr }: { openStr: string;
             </div>
             <div>
               <p className="text-white/40 text-xs uppercase tracking-widest mb-1">{t.contact.call}</p>
-              <p className="text-white font-bold text-lg">+216 28 720 530</p>
+              <p className="text-white font-bold text-lg">{phone}</p>
               <p className="text-white/30 text-xs mt-1.5 group-hover:text-white/50 transition-colors">{t.contact.tapToCall}</p>
             </div>
           </a>
 
           <a
-            href="https://wa.me/21628720530"
+            href={waLink}
             target="_blank"
             rel="noopener noreferrer"
             className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/8 hover:border-green-500/30 transition-all p-7 flex flex-col gap-4"
@@ -65,7 +67,7 @@ export default function ContactContent({ openStr, closeStr }: { openStr: string;
             </div>
             <div>
               <p className="text-white/40 text-xs uppercase tracking-widest mb-1">{t.contact.whatsapp}</p>
-              <p className="text-white font-bold text-lg">+216 28 720 530</p>
+              <p className="text-white font-bold text-lg">{phone}</p>
               <p className="text-white/30 text-xs mt-1.5 group-hover:text-green-400 transition-colors">{t.contact.message}</p>
             </div>
           </a>

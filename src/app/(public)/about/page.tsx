@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import prisma from "@/lib/prisma";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "About elharba — Escape Room in Manouba, Tunisia",
@@ -7,30 +10,17 @@ export const metadata: Metadata = {
     "Learn about elharba, Tunisia's leading escape room. Our story, values, and what makes our immersive experiences unique.",
 };
 
-const VALUES = [
-  {
-    icon: "🤝",
-    title: "Friendliness",
-    desc: "A warm welcome from our team every time. We guide every group through a personalised briefing so you feel ready before the clock starts.",
-  },
-  {
-    icon: "🎨",
-    title: "Creativity",
-    desc: "Every scenario is an original creation, designed in-house with custom sets, sound design, and lighting built to pull you into the story.",
-  },
-  {
-    icon: "🌍",
-    title: "Accessibility",
-    desc: "We run sessions in French, Arabic, and English. Our rooms are designed for beginners and seasoned players alike.",
-  },
-  {
-    icon: "🛡️",
-    title: "Safety",
-    desc: "Your wellbeing comes first. All rooms have an emergency exit, a live game master monitors every session, and you can leave at any time.",
-  },
+type AboutValue = { icon: string; title: string; desc: string };
+type AboutFeature = { label: string; desc: string };
+
+const DEFAULT_VALUES: AboutValue[] = [
+  { icon: "🤝", title: "Friendliness", desc: "A warm welcome from our team every time. We guide every group through a personalised briefing so you feel ready before the clock starts." },
+  { icon: "🎨", title: "Creativity", desc: "Every scenario is an original creation, designed in-house with custom sets, sound design, and lighting built to pull you into the story." },
+  { icon: "🌍", title: "Accessibility", desc: "We run sessions in French, Arabic, and English. Our rooms are designed for beginners and seasoned players alike." },
+  { icon: "🛡️", title: "Safety", desc: "Your wellbeing comes first. All rooms have an emergency exit, a live game master monitors every session, and you can leave at any time." },
 ];
 
-const FEATURES = [
+const DEFAULT_FEATURES: AboutFeature[] = [
   { label: "Total Immersion", desc: "Original storylines with meticulous sets, sound, and lighting design." },
   { label: "All Levels Welcome", desc: "From first-timers to escape room enthusiasts — no prior experience needed." },
   { label: "Extended Hours", desc: "Open daily from 12:00 PM to 1:00 AM so you can come after work or late at night." },
@@ -39,7 +29,23 @@ const FEATURES = [
   { label: "Instant Confirmation", desc: "Book online, get confirmed immediately, pay at the door." },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  type SettingsRow = { key: string; value: string };
+  const rows = await prisma.siteSettings.findMany({
+    where: { key: { in: ["about.values", "about.features"] } },
+  }).catch((): SettingsRow[] => []);
+
+  const map: Record<string, string> = {};
+  for (const r of rows) map[r.key] = r.value;
+
+  const VALUES: AboutValue[] = map["about.values"]
+    ? (JSON.parse(map["about.values"]) as AboutValue[])
+    : DEFAULT_VALUES;
+
+  const FEATURES: AboutFeature[] = map["about.features"]
+    ? (JSON.parse(map["about.features"]) as AboutFeature[])
+    : DEFAULT_FEATURES;
+
   return (
     <div className="min-h-screen bg-[#090909] text-white">
       {/* Hero */}
