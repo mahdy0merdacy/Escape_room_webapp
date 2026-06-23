@@ -31,6 +31,7 @@ export default async function RoomsPage() {
             primary: string;
             secondary: string;
             accent: string;
+            heroPosition?: string;
           };
           const isComingSoon = room.roomStatus === "coming_soon";
           const isUnavailable = room.roomStatus === "unavailable";
@@ -44,8 +45,8 @@ export default async function RoomsPage() {
             >
               {/* Image */}
               <div
-                className="md:w-80 h-64 md:h-auto bg-cover bg-center flex-shrink-0"
-                style={{ backgroundImage: `url('${room.heroImageUrl}')` }}
+                className="md:w-80 h-64 md:h-auto bg-cover flex-shrink-0"
+                style={{ backgroundImage: `url('${room.heroImageUrl}')`, backgroundPosition: `center ${colors.heroPosition ?? "50%"}` }}
                 role="img"
                 aria-label={`Hero image for ${room.name} escape room`}
               />

@@ -49,7 +49,9 @@ export default async function RoomPage({ params }: Props) {
     primary: string;
     secondary: string;
     accent: string;
+    heroPosition?: string;
   };
+  const heroPos = `center ${colors.heroPosition ?? "50%"}`;
   const gallery: string[] = JSON.parse(room.galleryImageUrls);
 
   const fontVarMap: Record<string, string> = {
@@ -122,8 +124,8 @@ export default async function RoomPage({ params }: Props) {
           style={{ background: colors.primary }}
         >
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-40"
-            style={{ backgroundImage: `url('${room.heroImageUrl}')` }}
+            className="absolute inset-0 bg-cover opacity-40"
+            style={{ backgroundImage: `url('${room.heroImageUrl}')`, backgroundPosition: heroPos }}
             role="img"
             aria-label={`Hero image for ${room.name} escape room`}
           />

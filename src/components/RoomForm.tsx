@@ -15,7 +15,7 @@ interface RoomFormData {
   storyI18n: StoryI18n;
   heroImageUrl: string;
   galleryImageUrls: string[];
-  themeColors: { primary: string; secondary: string; accent: string };
+  themeColors: { primary: string; secondary: string; accent: string; heroPosition?: string };
   themeFont: ThemeFont;
   difficulty: number;
   durationMinutes: number;
@@ -369,10 +369,33 @@ export default function RoomForm({ roomId, initial }: Props) {
             onChange={(e) => handleUpload(e, "hero")}
           />
           {form.heroImageUrl && (
-            <div
-              className="mt-2 h-32 rounded-lg bg-cover bg-center border border-white/10"
-              style={{ backgroundImage: `url('${form.heroImageUrl}')` }}
-            />
+            <div className="mt-3 space-y-2">
+              <div
+                className="h-48 rounded-lg bg-cover border border-white/10 transition-all"
+                style={{
+                  backgroundImage: `url('${form.heroImageUrl}')`,
+                  backgroundPosition: `center ${form.themeColors.heroPosition ?? "50%"}`,
+                }}
+              />
+              <div className="flex items-center gap-3">
+                <span className="text-white/40 text-xs shrink-0">Top</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={Number((form.themeColors.heroPosition ?? "50%").replace("%", "")) || 50}
+                  onChange={(e) =>
+                    set("themeColors", { ...form.themeColors, heroPosition: `${e.target.value}%` })
+                  }
+                  className="flex-1 accent-red-500"
+                  aria-label="Vertical image focus"
+                />
+                <span className="text-white/40 text-xs shrink-0">Bottom</span>
+              </div>
+              <p className="text-white/25 text-xs">
+                Drag to choose which part of the image stays visible. Applies across all pages.
+              </p>
+            </div>
           )}
         </FormField>
 

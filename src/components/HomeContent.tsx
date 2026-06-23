@@ -74,6 +74,7 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
               primary: string;
               secondary: string;
               accent: string;
+              heroPosition?: string;
             };
             const isComingSoon = room.roomStatus === "coming_soon";
             const isUnavailable = room.roomStatus === "unavailable";
@@ -86,8 +87,8 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
                 style={{ background: colors.primary }}
               >
                 <div
-                  className="h-52 bg-cover bg-center relative"
-                  style={{ backgroundImage: `url('${room.heroImageUrl}')` }}
+                  className="h-52 bg-cover relative"
+                  style={{ backgroundImage: `url('${room.heroImageUrl}')`, backgroundPosition: `center ${colors.heroPosition ?? "50%"}` }}
                 >
                   <div
                     className="absolute inset-0"

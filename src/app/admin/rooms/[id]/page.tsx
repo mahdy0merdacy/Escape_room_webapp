@@ -16,6 +16,7 @@ export default async function EditRoomPage({ params }: Props) {
     primary: string;
     secondary: string;
     accent: string;
+    heroPosition?: string;
   };
   const gallery: string[] = JSON.parse(room.galleryImageUrls);
 
