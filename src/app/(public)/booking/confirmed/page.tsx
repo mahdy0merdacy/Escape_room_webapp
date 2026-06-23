@@ -59,19 +59,19 @@ export default async function ConfirmedPage({ searchParams }: Props) {
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
       <div className="max-w-lg w-full text-center space-y-8">
-        {/* Checkmark */}
+        {/* Clock icon */}
         <div
           className="w-20 h-20 rounded-full flex items-center justify-center mx-auto text-4xl"
-          style={{ background: colors.accent + "22", color: colors.accent }}
+          style={{ background: "rgba(251,191,36,0.12)", color: "#fbbf24" }}
           aria-hidden="true"
         >
-          ✓
+          📋
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">You&rsquo;re Booked!</h1>
-          <p className="text-white/60">
-            Confirmation sent to {booking.email}. See you there!
+          <h1 className="text-3xl font-bold text-white mb-2">Request Received!</h1>
+          <p className="text-white/60 max-w-sm mx-auto">
+            We&rsquo;ll call you at <span className="text-white font-semibold">{booking.phone}</span> shortly to confirm your slot. No payment needed yet.
           </p>
         </div>
 

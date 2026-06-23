@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendEmail, bookingCancellationEmail } from "@/lib/email";
+import { sendEmail, bookingConfirmationEmail, bookingCancellationEmail } from "@/lib/email";
 
 export async function PATCH(
   request: NextRequest,
@@ -19,6 +19,23 @@ export async function PATCH(
 
   const booking = await prisma.booking.findUnique({ where: { id }, include: { room: true } });
   if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+
+  // ── Confirm ───────────────────────────────────────────────────────────────
+  if (body.status === "confirmed") {
+    const updated = await prisma.booking.update({ where: { id }, data: { status: "confirmed" } });
+    sendEmail(
+      bookingConfirmationEmail({
+        customerName: booking.customerName,
+        email: booking.email,
+        roomName: booking.room.name,
+        startTime: booking.startTime,
+        endTime: booking.endTime,
+        partySize: booking.partySize,
+        pricePerPerson: booking.room.pricePerPerson,
+      })
+    ).catch(console.error);
+    return NextResponse.json({ ...updated, startTime: updated.startTime.toISOString(), endTime: updated.endTime.toISOString(), createdAt: updated.createdAt.toISOString() });
+  }
 
   // ── Cancel ────────────────────────────────────────────────────────────────
   if (body.status === "cancelled") {
@@ -48,7 +65,7 @@ export async function PATCH(
 
     // Check slot not already booked by someone else
     const conflict = await prisma.booking.findFirst({
-      where: { roomId: booking.roomId, startTime: newStart, status: "confirmed", NOT: { id } },
+      where: { roomId: booking.roomId, startTime: newStart, status: { in: ["confirmed", "pending"] }, NOT: { id } },
     });
     if (conflict) return NextResponse.json({ error: "Slot already booked" }, { status: 409 });
 

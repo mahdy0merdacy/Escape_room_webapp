@@ -33,7 +33,7 @@ export async function GET(
 
   const [booked, blocked] = await Promise.all([
     prisma.booking.findMany({
-      where: { roomId: room.id, status: "confirmed", startTime: { gte: windowStart, lte: windowEnd } },
+      where: { roomId: room.id, status: { in: ["confirmed", "pending"] }, startTime: { gte: windowStart, lte: windowEnd } },
       select: { startTime: true },
     }),
     prisma.blockedSlot.findMany({

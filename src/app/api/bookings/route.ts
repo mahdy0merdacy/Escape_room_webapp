@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendEmail, bookingConfirmationEmail, newBookingAdminEmail } from "@/lib/email";
+import { sendEmail, newBookingAdminEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -60,24 +60,11 @@ export async function POST(request: NextRequest) {
         email: email as string,
         phone: phone as string,
         partySize: parsedPartySize,
-        status: "confirmed",
+        status: "pending",
       },
     });
 
-    // Customer confirmation
-    sendEmail(
-      bookingConfirmationEmail({
-        customerName: customerName as string,
-        email: email as string,
-        roomName: room.name,
-        startTime: startDate,
-        endTime: endDate,
-        partySize: parsedPartySize,
-        pricePerPerson: room.pricePerPerson,
-      })
-    ).catch(console.error);
-
-    // Admin notification
+    // Admin notification — customer email is sent only after admin confirms
     sendEmail(
       newBookingAdminEmail({
         customerName: customerName as string,

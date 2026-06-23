@@ -68,6 +68,27 @@ export default function BookingCalendar({
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
+  async function confirmBooking(bookingId: string) {
+    const key = `confirm-${bookingId}`;
+    if (pending.has(key)) return;
+    setPendingKey(key, true);
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "confirmed" }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setBookings((prev) =>
+          prev.map((b) => (b.id === bookingId ? { ...b, status: updated.status } : b))
+        );
+      }
+    } finally {
+      setPendingKey(key, false);
+    }
+  }
+
   async function cancelBooking(bookingId: string) {
     const key = `cancel-${bookingId}`;
     if (pending.has(key)) return;
@@ -237,10 +258,12 @@ export default function BookingCalendar({
                         className={`text-xs px-2.5 py-1 rounded-full border font-semibold ${
                           booking.status === "confirmed"
                             ? "bg-green-900/40 text-green-400 border-green-500/30"
+                            : booking.status === "pending"
+                            ? "bg-amber-900/40 text-amber-400 border-amber-500/30"
                             : "bg-red-900/40 text-red-400 border-red-500/30"
                         }`}
                       >
-                        {booking.status}
+                        {booking.status === "pending" ? "⏳ pending" : booking.status}
                       </span>
                     </div>
 
@@ -265,13 +288,22 @@ export default function BookingCalendar({
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
+                      {booking.status === "pending" && (
+                        <button
+                          onClick={() => confirmBooking(booking.id)}
+                          disabled={pending.has(`confirm-${booking.id}`)}
+                          className="px-4 py-2 rounded-lg bg-green-700/60 hover:bg-green-600/70 border border-green-500/40 text-green-300 text-sm font-semibold transition-colors disabled:opacity-40"
+                        >
+                          {pending.has(`confirm-${booking.id}`) ? "Confirming…" : "✓ Confirm"}
+                        </button>
+                      )}
                       <button
                         onClick={() => cancelBooking(booking.id)}
                         disabled={pending.has(`cancel-${booking.id}`) || booking.status === "cancelled"}
                         className="px-4 py-2 rounded-lg border border-red-500/40 text-red-400 hover:bg-red-500/15 text-sm font-semibold transition-colors disabled:opacity-40"
                       >
-                        {pending.has(`cancel-${booking.id}`) ? "Cancelling…" : "Cancel Booking"}
+                        {pending.has(`cancel-${booking.id}`) ? "Cancelling…" : "Cancel"}
                       </button>
                       {booking.status !== "cancelled" && (
                         <button
