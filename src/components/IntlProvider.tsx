@@ -41,9 +41,7 @@ export function IntlProvider({ children }: { children: ReactNode }) {
 }
 
 function applyLocale(l: Locale) {
-  const dir = l === "ar" ? "rtl" : "ltr";
   document.documentElement.lang = l;
-  document.documentElement.dir = dir;
 }
 
 export function useT(): Dict {

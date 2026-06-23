@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Apply stored locale before first paint to avoid flash */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var l=localStorage.getItem('locale');if(l==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}else if(l==='fr'){document.documentElement.lang='fr';}})();`,
+            __html: `(function(){var l=localStorage.getItem('locale');if(l==='ar'){document.documentElement.lang='ar';}else if(l==='fr'){document.documentElement.lang='fr';}})();`,
           }}
         />
       </head>
