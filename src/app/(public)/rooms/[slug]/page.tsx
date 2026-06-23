@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import prisma from "@/lib/prisma";
 import BookingWidget from "@/components/BookingWidget";
+import RoomDescription from "@/components/RoomDescription";
 import { TIERS } from "@/lib/pricing";
+import { parseStory } from "@/lib/story";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -42,6 +44,7 @@ export default async function RoomPage({ params }: Props) {
   if (!room || !room.active) notFound();
   const roomStatus = (room.roomStatus ?? "active") as "active" | "coming_soon" | "unavailable";
 
+  const storyI18n = parseStory(room.story);
   const colors = JSON.parse(room.themeColors) as {
     primary: string;
     secondary: string;
@@ -191,17 +194,7 @@ export default async function RoomPage({ params }: Props) {
                 <DifficultyBar level={room.difficulty} />
               </div>
 
-              {/* Story */}
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-4" style={{ fontFamily: headingFont }}>
-                  The Story
-                </h2>
-                <div className="text-white/70 leading-relaxed space-y-4">
-                  {room.story.split("\n\n").map((para: string, i: number) => (
-                    <p key={i}>{para}</p>
-                  ))}
-                </div>
-              </div>
+              <RoomDescription story={storyI18n} headingFont={headingFont} />
 
               {/* Gallery */}
               {gallery.length > 0 && (

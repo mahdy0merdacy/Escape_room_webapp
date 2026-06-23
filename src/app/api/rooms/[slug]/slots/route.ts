@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { generateUnifiedSlots } from "@/lib/slots";
 import { getScheduleConfig, slotWindow } from "@/lib/schedule";
+import { parseRoomSchedule } from "@/lib/room-schedule";
 
 export async function GET(
   request: NextRequest,
@@ -14,13 +15,16 @@ export async function GET(
     return NextResponse.json({ error: "Invalid date" }, { status: 400 });
   }
 
-  const [room, schedule] = await Promise.all([
+  const [room, globalSchedule] = await Promise.all([
     prisma.room.findUnique({ where: { slug } }),
     getScheduleConfig(),
   ]);
   if (!room || !room.active) {
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
+
+  const roomOverride = parseRoomSchedule(room.openHours);
+  const schedule = roomOverride ?? globalSchedule;
 
   const [year, month, day] = date.split("-").map(Number);
   const sessionDate = new Date(year, month - 1, day);

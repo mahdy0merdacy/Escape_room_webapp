@@ -51,6 +51,7 @@ export default async function HomePage() {
     difficulty: r.difficulty,
     minPlayers: r.minPlayers,
     maxPlayers: r.maxPlayers,
+    roomStatus: r.roomStatus ?? "active",
   }));
 
   return (

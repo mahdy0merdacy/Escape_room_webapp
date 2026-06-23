@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { TIERS } from "@/lib/pricing";
+import { parseStory, type StoryI18n } from "@/lib/story";
 
 type ThemeFont = "gothic" | "retro" | "industrial";
 type RoomStatus = "active" | "coming_soon" | "unavailable" | "hidden";
@@ -11,7 +12,7 @@ interface RoomFormData {
   slug: string;
   name: string;
   tagline: string;
-  story: string;
+  storyI18n: StoryI18n;
   heroImageUrl: string;
   galleryImageUrls: string[];
   themeColors: { primary: string; secondary: string; accent: string };
@@ -27,7 +28,7 @@ interface RoomFormData {
 
 interface Props {
   roomId?: string;
-  initial?: Partial<RoomFormData>;
+  initial?: Partial<RoomFormData> & { story?: string };
 }
 
 const FONT_OPTIONS: { value: ThemeFont; label: string }[] = [
@@ -43,13 +44,24 @@ const STATUS_OPTIONS: { value: RoomStatus; label: string; desc: string }[] = [
   { value: "hidden", label: "Hidden", desc: "Not shown on site at all" },
 ];
 
+const LANG_TABS: { key: keyof StoryI18n; flag: string; label: string }[] = [
+  { key: "en", flag: "🇬🇧", label: "English" },
+  { key: "fr", flag: "🇫🇷", label: "Français" },
+  { key: "ar", flag: "🇸🇦", label: "العربية" },
+];
+
 export default function RoomForm({ roomId, initial }: Props) {
   const router = useRouter();
+
+  const initialStory: StoryI18n =
+    initial?.storyI18n ??
+    (initial?.story ? parseStory(initial.story) : { en: "", fr: "", ar: "" });
+
   const [form, setForm] = useState<RoomFormData>({
     slug: initial?.slug ?? "",
     name: initial?.name ?? "",
     tagline: initial?.tagline ?? "",
-    story: initial?.story ?? "",
+    storyI18n: initialStory,
     heroImageUrl: initial?.heroImageUrl ?? "",
     galleryImageUrls: initial?.galleryImageUrls ?? ["", "", ""],
     themeColors: initial?.themeColors ?? { primary: "#000000", secondary: "#111111", accent: "#ff0000" },
@@ -63,6 +75,7 @@ export default function RoomForm({ roomId, initial }: Props) {
     seoDescription: initial?.seoDescription ?? "",
   });
 
+  const [storyLang, setStoryLang] = useState<keyof StoryI18n>("en");
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -78,6 +91,10 @@ export default function RoomForm({ roomId, initial }: Props) {
       g[idx] = value;
       return { ...f, galleryImageUrls: g };
     });
+  }
+
+  function setStory(lang: keyof StoryI18n, value: string) {
+    setForm((f) => ({ ...f, storyI18n: { ...f.storyI18n, [lang]: value } }));
   }
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>, idx: number | "hero") {
@@ -102,6 +119,7 @@ export default function RoomForm({ roomId, initial }: Props) {
     setLoading(true);
     const payload = {
       ...form,
+      story: JSON.stringify(form.storyI18n),
       galleryImageUrls: form.galleryImageUrls.filter(Boolean),
     };
     const url = roomId ? `/api/admin/rooms/${roomId}` : "/api/admin/rooms";
@@ -159,15 +177,44 @@ export default function RoomForm({ roomId, initial }: Props) {
           />
         </FormField>
 
-        <FormField label="Description">
-          <textarea
-            value={form.story}
-            onChange={(e) => set("story", e.target.value)}
-            rows={6}
-            className={`${inputCls} resize-y`}
-            placeholder="Full description shown on the room page — set the atmosphere, explain the premise, list what makes this room special."
-          />
-        </FormField>
+        {/* Multi-language description */}
+        <div>
+          <label className="text-white/70 text-xs font-medium block mb-2">Description</label>
+          <div className="flex gap-1 mb-2">
+            {LANG_TABS.map(({ key, flag, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setStoryLang(key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  storyLang === key
+                    ? "bg-red-600 text-white"
+                    : "bg-white/5 text-white/50 hover:text-white border border-white/10"
+                }`}
+              >
+                <span>{flag}</span>
+                <span>{label}</span>
+                {form.storyI18n[key] && (
+                  <span className={`w-1.5 h-1.5 rounded-full ${storyLang === key ? "bg-white/60" : "bg-emerald-400"}`} />
+                )}
+              </button>
+            ))}
+          </div>
+          {LANG_TABS.map(({ key, flag }) => (
+            <textarea
+              key={key}
+              value={form.storyI18n[key]}
+              onChange={(e) => setStory(key, e.target.value)}
+              rows={6}
+              dir={key === "ar" ? "rtl" : "ltr"}
+              placeholder={`Description in ${key === "en" ? "English" : key === "fr" ? "French" : "Arabic"} — ${flag}`}
+              className={`${inputCls} resize-y ${storyLang === key ? "" : "hidden"}`}
+            />
+          ))}
+          <p className="text-white/25 text-xs mt-1">
+            Shown on the room page. Switches automatically with the visitor&apos;s language.
+          </p>
+        </div>
 
         <FormField label="Room Status">
           <select
@@ -190,7 +237,6 @@ export default function RoomForm({ roomId, initial }: Props) {
           Pricing & Capacity
         </h2>
 
-        {/* Global pricing tiers (read-only info) */}
         <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-2">
           <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">
             Global Pricing Tiers (TND)
@@ -265,17 +311,13 @@ export default function RoomForm({ roomId, initial }: Props) {
                 <input
                   type="color"
                   value={form.themeColors[c]}
-                  onChange={(e) =>
-                    set("themeColors", { ...form.themeColors, [c]: e.target.value })
-                  }
+                  onChange={(e) => set("themeColors", { ...form.themeColors, [c]: e.target.value })}
                   className="w-10 h-10 rounded cursor-pointer bg-transparent border-0"
                 />
                 <input
                   type="text"
                   value={form.themeColors[c]}
-                  onChange={(e) =>
-                    set("themeColors", { ...form.themeColors, [c]: e.target.value })
-                  }
+                  onChange={(e) => set("themeColors", { ...form.themeColors, [c]: e.target.value })}
                   className={`${inputCls} font-mono text-sm`}
                   maxLength={7}
                 />

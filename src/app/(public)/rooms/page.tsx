@@ -2,6 +2,7 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import type { Room } from "@prisma/client";
 import type { Metadata } from "next";
+import { storyTeaser } from "@/lib/story";
 
 export const metadata: Metadata = {
   title: "All Rooms",
@@ -67,7 +68,7 @@ export default async function RoomsPage() {
                   <h2 className="text-3xl font-bold text-white mb-2">{room.name}</h2>
                   <p className="text-white/60 italic mb-4">{room.tagline}</p>
                   <p className="text-white/50 text-sm line-clamp-3">
-                    {room.story.split("\n")[0]}
+                    {storyTeaser(room.story)}
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-8 gap-4">

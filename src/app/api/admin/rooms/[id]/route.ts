@@ -45,3 +45,22 @@ export async function PUT(
 
   return NextResponse.json(room);
 }
+
+// PATCH — partial update for per-room schedule override only
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await params;
+  const { openHours } = await request.json();
+
+  const room = await prisma.room.update({
+    where: { id },
+    data: { openHours },
+  });
+
+  return NextResponse.json(room);
+}

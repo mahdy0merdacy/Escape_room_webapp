@@ -12,6 +12,7 @@ type Room = {
   difficulty: number;
   minPlayers: number;
   maxPlayers: number;
+  roomStatus: string;
 };
 
 export default function HomeContent({ rooms }: { rooms: Room[] }) {
@@ -74,6 +75,9 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
               secondary: string;
               accent: string;
             };
+            const isComingSoon = room.roomStatus === "coming_soon";
+            const isUnavailable = room.roomStatus === "unavailable";
+            const locked = isComingSoon || isUnavailable;
             return (
               <Link
                 key={room.slug}
@@ -89,8 +93,19 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
                     className="absolute inset-0"
                     style={{ background: `linear-gradient(to bottom, transparent 40%, ${colors.primary})` }}
                   />
+                  {/* Status badge pinned to top-left of image */}
+                  {isComingSoon && (
+                    <span className="absolute top-3 start-3 bg-amber-500 text-black text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full">
+                      🚧 Coming Soon
+                    </span>
+                  )}
+                  {isUnavailable && (
+                    <span className="absolute top-3 start-3 bg-zinc-700 text-white/80 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full">
+                      ⛔ Unavailable
+                    </span>
+                  )}
                 </div>
-                <div className="p-6 flex flex-col flex-1">
+                <div className={`p-6 flex flex-col flex-1 ${locked ? "opacity-60" : ""}`}>
                   <span
                     className="text-xs font-bold tracking-widest uppercase mb-2"
                     style={{ color: colors.accent }}
@@ -111,7 +126,7 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
                     className="mt-4 text-center py-2 rounded text-sm font-semibold group-hover:opacity-90 transition-opacity"
                     style={{ background: colors.accent, color: colors.primary }}
                   >
-                    {t.home.bookNow}
+                    {locked ? "Learn More →" : t.home.bookNow}
                   </div>
                 </div>
               </Link>

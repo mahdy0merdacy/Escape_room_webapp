@@ -9,7 +9,7 @@ export default async function SchedulePage() {
     prisma.scheduleConfig.findUnique({ where: { id: "default" } }).catch(() => null),
     prisma.room.findMany({
       where: { active: true },
-      select: { id: true, name: true, durationMinutes: true },
+      select: { id: true, name: true, durationMinutes: true, openHours: true },
       orderBy: { name: "asc" },
     }),
   ]);

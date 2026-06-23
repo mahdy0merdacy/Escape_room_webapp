@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import RoomForm from "@/components/RoomForm";
+import { parseStory } from "@/lib/story";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -33,7 +34,7 @@ export default async function EditRoomPage({ params }: Props) {
           slug: room.slug,
           name: room.name,
           tagline: room.tagline,
-          story: room.story,
+          storyI18n: parseStory(room.story),
           heroImageUrl: room.heroImageUrl,
           galleryImageUrls: [...gallery, "", ""].slice(0, 3),
           themeColors: colors,
