@@ -169,20 +169,15 @@ export default function BookingWidget({
         <div className="space-y-4">
           <label className="block">
             <span className="text-white/70 text-sm block mb-3">{t.booking.selectDate}</span>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none text-lg">
-                📅
-              </span>
-              <input
-                type="date"
-                min={today}
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full bg-white/10 border-2 border-white/20 rounded-xl pl-11 pr-4 py-4 text-white text-base focus:outline-none focus:border-white/50 transition-colors cursor-pointer"
-                style={{ colorScheme: "dark" }}
-                aria-label="Booking date"
-              />
-            </div>
+            <input
+              type="date"
+              min={today}
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full bg-white/10 border-2 border-white/20 rounded-xl px-4 py-4 text-white text-base focus:outline-none focus:border-white/50 transition-colors cursor-pointer"
+              style={{ colorScheme: "dark" }}
+              aria-label="Booking date"
+            />
           </label>
           <button
             disabled={!selectedDate || loading}

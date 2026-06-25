@@ -35,7 +35,7 @@ export default function LanguageSwitcher() {
         aria-label="Select language"
         aria-expanded={open}
       >
-        <span className="text-base leading-none">{current.flag}</span>
+        <span className="text-sm leading-none">{current.flag}</span>
         <svg
           viewBox="0 0 12 12"
           className={`w-3 h-3 text-white/40 transition-transform ${open ? "rotate-180" : ""}`}
