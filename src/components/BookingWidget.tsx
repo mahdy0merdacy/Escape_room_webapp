@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getPricePerPerson, getTotalPrice, TIERS } from "@/lib/pricing";
 import { useT } from "./IntlProvider";
@@ -35,8 +35,9 @@ export default function BookingWidget({
 }) {
   const router = useRouter();
   const t = useT();
+  const today = new Date().toISOString().split("T")[0];
   const [step, setStep] = useState<"date" | "slot" | "details">("date");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(today);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [form, setForm] = useState({
@@ -49,7 +50,11 @@ export default function BookingWidget({
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  const today = new Date().toISOString().split("T")[0];
+  // Auto-load today's slots when the widget mounts
+  useEffect(() => {
+    fetchSlots(today);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function fetchSlots(date: string) {
     setLoading(true);
