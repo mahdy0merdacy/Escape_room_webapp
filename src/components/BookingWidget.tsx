@@ -9,6 +9,7 @@ interface Slot {
   startTime: string;
   endTime: string;
   label: string;
+  status: "available" | "taken";
 }
 
 interface ThemeColors {
@@ -209,27 +210,31 @@ export default function BookingWidget({
             <p className="text-white/50 text-sm py-4 text-center">{t.booking.noSlots}</p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {slots.map((slot) => (
-                <button
-                  key={slot.startTime}
-                  onClick={() => {
-                    setSelectedSlot(slot);
-                    setStep("details");
-                  }}
-                  className="py-3 px-2 rounded-lg text-sm font-medium border transition-colors min-h-[48px]"
-                  style={
-                    selectedSlot?.startTime === slot.startTime
-                      ? { background: colors.accent, color: colors.primary, borderColor: colors.accent }
-                      : {
-                          background: "transparent",
-                          color: "rgba(255,255,255,0.7)",
-                          borderColor: "rgba(255,255,255,0.2)",
-                        }
-                  }
-                >
-                  {slot.label}
-                </button>
-              ))}
+              {slots.map((slot) => {
+                const taken = slot.status === "taken";
+                const selected = selectedSlot?.startTime === slot.startTime;
+                return (
+                  <button
+                    key={slot.startTime}
+                    disabled={taken}
+                    onClick={() => {
+                      setSelectedSlot(slot);
+                      setStep("details");
+                    }}
+                    className="py-3 px-2 rounded-lg text-sm font-medium border transition-colors min-h-[48px] flex flex-col items-center justify-center gap-0.5 disabled:cursor-not-allowed"
+                    style={
+                      taken
+                        ? { background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.2)", borderColor: "rgba(255,255,255,0.07)" }
+                        : selected
+                        ? { background: colors.accent, color: colors.primary, borderColor: colors.accent }
+                        : { background: "transparent", color: "rgba(255,255,255,0.7)", borderColor: "rgba(255,255,255,0.2)" }
+                    }
+                  >
+                    <span>{slot.label}</span>
+                    {taken && <span className="text-[10px] uppercase tracking-wider opacity-60">Taken</span>}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

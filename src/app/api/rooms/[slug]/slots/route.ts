@@ -45,16 +45,16 @@ export async function GET(
   const bookedMs = new Set(booked.map((b) => b.startTime.getTime()));
   const blockedMs = new Set(blocked.map((b) => b.slotStart.getTime()));
 
-  const available = allSlots.filter((s) => {
-    const t = s.startTime.getTime();
-    return !bookedMs.has(t) && !blockedMs.has(t);
-  });
-
   return NextResponse.json({
-    slots: available.map((s) => ({
-      startTime: s.startTime.toISOString(),
-      endTime: s.endTime.toISOString(),
-      label: s.label,
-    })),
+    slots: allSlots.map((s) => {
+      const t = s.startTime.getTime();
+      const status = bookedMs.has(t) || blockedMs.has(t) ? "taken" : "available";
+      return {
+        startTime: s.startTime.toISOString(),
+        endTime: s.endTime.toISOString(),
+        label: s.label,
+        status,
+      };
+    }),
   });
 }
