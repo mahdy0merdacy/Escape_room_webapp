@@ -231,7 +231,7 @@ export default function BookingWidget({
                     }
                   >
                     <span>{slot.label}</span>
-                    {taken && <span className="text-[10px] uppercase tracking-wider opacity-60">Taken</span>}
+                    {taken && <span className="text-[10px] uppercase tracking-wider opacity-60">Booked</span>}
                   </button>
                 );
               })}
