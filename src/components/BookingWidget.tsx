@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getPricePerPerson, getTotalPrice, TIERS } from "@/lib/pricing";
 import { useT } from "./IntlProvider";
@@ -49,12 +49,6 @@ export default function BookingWidget({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
-
-  // Auto-load today's slots when the widget mounts
-  useEffect(() => {
-    fetchSlots(today);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function fetchSlots(date: string) {
     setLoading(true);
