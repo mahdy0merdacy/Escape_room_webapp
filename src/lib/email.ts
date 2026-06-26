@@ -121,11 +121,12 @@ export function bookingConfirmationEmail(params: {
   const { customerName, email, roomName, startTime, endTime, partySize } = params;
   const total = getTotalPrice(partySize);
 
+  const tz = "Africa/Tunis";
   const dateStr = startTime.toLocaleDateString("en-US", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
+    weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: tz,
   });
-  const startStr = startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-  const endStr = endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  const startStr = startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz });
+  const endStr = endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz });
 
   const textContent = `Hi ${customerName},
 
@@ -207,10 +208,11 @@ export function bookingCancellationEmail(params: {
   startTime: Date;
 }): EmailPayload {
   const { customerName, email, roomName, startTime } = params;
+  const tz = "Africa/Tunis";
   const dateStr = startTime.toLocaleDateString("en-US", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
+    weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: tz,
   });
-  const startStr = startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  const startStr = startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz });
 
   const textContent = `Hi ${customerName},
 
@@ -272,11 +274,12 @@ export function newBookingAdminEmail(params: {
   const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.ADMIN_EMAIL ?? "";
   const siteUrl = process.env.NEXTAUTH_URL ?? "https://elharba.tn";
 
+  const tz = "Africa/Tunis";
   const dateStr = startTime.toLocaleDateString("en-US", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
+    weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: tz,
   });
-  const startStr = startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-  const endStr = endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  const startStr = startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz });
+  const endStr = endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz });
   const ref = bookingId.slice(0, 8).toUpperCase();
 
   const textContent = `New booking #${ref}

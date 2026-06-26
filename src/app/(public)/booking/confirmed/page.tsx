@@ -40,19 +40,23 @@ export default async function ConfirmedPage({ searchParams }: Props) {
     accent: string;
   };
 
+  const tz = "Africa/Tunis";
   const dateStr = booking.startTime.toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: tz,
   });
   const startStr = booking.startTime.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: tz,
   });
   const endStr = booking.endTime.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: tz,
   });
   const total = formatTND(getTotalPrice(booking.partySize));
 

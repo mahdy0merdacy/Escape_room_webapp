@@ -71,6 +71,7 @@ export default async function AdminDashboard() {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
+                        timeZone: "Africa/Tunis",
                       })}
                     </td>
                     <td className="px-4 py-3">
