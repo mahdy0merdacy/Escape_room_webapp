@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getPricePerPerson, getTotalPrice, TIERS } from "@/lib/pricing";
+import { getPricePerPerson, getTotalPrice } from "@/lib/pricing";
 import { useT } from "./IntlProvider";
 
 interface Slot {
@@ -57,7 +57,9 @@ export default function BookingWidget({
     try {
       const res = await fetch(`/api/rooms/${roomSlug}/slots?date=${date}`);
       const data = await res.json();
-      setSlots(data.slots ?? []);
+      const now = new Date();
+      const upcoming = (data.slots ?? []).filter((s: Slot) => new Date(s.startTime) > now);
+      setSlots(upcoming);
       setStep("slot");
     } finally {
       setLoading(false);
@@ -121,17 +123,7 @@ export default function BookingWidget({
       className="rounded-2xl border border-white/10 p-5 md:p-8 space-y-5"
       style={{ background: "rgba(0,0,0,0.5)" }}
     >
-      <div>
-        <h2 className="text-xl font-bold text-white mb-3">{t.booking.title}</h2>
-        <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
-          {TIERS.map((tier) => (
-            <div key={tier.label} className="rounded-lg py-2 px-1" style={{ background: "rgba(255,255,255,0.06)" }}>
-              <p className="text-white/40 mb-0.5">{tier.label}</p>
-              <p className="font-bold text-white">{tier.pricePerPerson} TND</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <h2 className="text-xl font-bold text-white">{t.booking.title}</h2>
 
       {/* Step indicators — compact on mobile */}
       <div className="flex items-center gap-1 text-xs font-semibold">
