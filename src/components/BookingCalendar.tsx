@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { generateUnifiedSlots } from "@/lib/slots";
+import { generateUnifiedSlots, type ScheduleConfig } from "@/lib/slots";
 
 type Booking = {
   id: string;
@@ -32,6 +32,7 @@ interface Props {
   rooms: Room[];
   year: number;
   month: number;
+  scheduleConfig: ScheduleConfig;
 }
 
 export default function BookingCalendar({
@@ -40,6 +41,7 @@ export default function BookingCalendar({
   rooms,
   year,
   month,
+  scheduleConfig,
 }: Props) {
   const today = new Date();
   const defaultDay =
@@ -191,7 +193,11 @@ export default function BookingCalendar({
 
   const bookingsByDay = new Map<number, Booking[]>();
   for (const b of bookings) {
-    const day = new Date(b.startTime).getDate();
+    // Use Tunisia local day so overnight slots (stored as UTC) group correctly
+    const day = parseInt(
+      new Intl.DateTimeFormat("en-US", { day: "numeric", timeZone: "Africa/Tunis" })
+        .format(new Date(b.startTime))
+    );
     if (!bookingsByDay.has(day)) bookingsByDay.set(day, []);
     bookingsByDay.get(day)!.push(b);
   }
@@ -214,7 +220,7 @@ export default function BookingCalendar({
     if (!room) return null;
     const colors = JSON.parse(room.themeColors) as { primary: string; accent: string };
     const sessionDate = new Date(year, month - 1, day);
-    const slots = generateUnifiedSlots(sessionDate, room.durationMinutes);
+    const slots = generateUnifiedSlots(sessionDate, room.durationMinutes, scheduleConfig);
 
     return (
       <div className="rounded-2xl border border-white/10 overflow-hidden" style={{ background: colors.primary }}>

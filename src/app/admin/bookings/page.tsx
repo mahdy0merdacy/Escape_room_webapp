@@ -94,6 +94,7 @@ export default async function BookingsPage({ searchParams }: Props) {
         rooms={rooms}
         year={year}
         month={month}
+        scheduleConfig={schedule}
       />
     </div>
   );

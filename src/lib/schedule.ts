@@ -19,6 +19,8 @@ export async function getScheduleConfig(): Promise<ScheduleConfig> {
   }
 }
 
+const TUNIS_OFFSET_MS = 60 * 60 * 1000; // Africa/Tunis = UTC+1, no DST
+
 export function slotWindow(
   year: number,
   month: number,
@@ -28,8 +30,9 @@ export function slotWindow(
   const { openHour, openMinute, closeHour, closeMinute } = schedule;
   const openTotal = openHour * 60 + openMinute;
   const closeTotal = closeHour * 60 + closeMinute;
-  const windowStart = new Date(year, month - 1, day, openHour, openMinute, 0, 0);
-  const closeDayOffset = closeTotal < openTotal ? 1 : 0;
-  const windowEnd = new Date(year, month - 1, day + closeDayOffset, closeHour, closeMinute, 0, 0);
+  const closeDayExtraMin = closeTotal < openTotal ? 24 * 60 : 0;
+  const midnightUtcMs = Date.UTC(year, month - 1, day) - TUNIS_OFFSET_MS;
+  const windowStart = new Date(midnightUtcMs + openTotal * 60_000);
+  const windowEnd = new Date(midnightUtcMs + (closeTotal + closeDayExtraMin) * 60_000);
   return [windowStart, windowEnd];
 }
