@@ -150,8 +150,8 @@ export default async function RoomPage({ params }: Props) {
         {/* Main content */}
         <div style={{ background: colors.primary }}>
           <div className="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Left: story + gallery */}
-            <div className="lg:col-span-2 space-y-10">
+            {/* Left: story + gallery — shown below booking widget on mobile */}
+            <div className="order-2 lg:order-none lg:col-start-1 lg:col-span-2 space-y-10">
               {/* Quick stats */}
               <div className="grid grid-cols-3 gap-4">
                 {[
@@ -217,8 +217,8 @@ export default async function RoomPage({ params }: Props) {
               )}
             </div>
 
-            {/* Right: booking widget or status placeholder */}
-            <div className="lg:col-span-1">
+            {/* Right: booking widget — shown first on mobile */}
+            <div className="order-1 lg:order-none lg:col-start-3 lg:col-span-1">
               <div className="sticky top-24">
                 {roomStatus === "active" ? (
                   <BookingWidget
