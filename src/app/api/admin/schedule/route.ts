@@ -4,6 +4,22 @@ import prisma from "@/lib/prisma";
 import { DEFAULT_SCHEDULE, generateUnifiedSlots, type ScheduleConfig } from "@/lib/slots";
 import { parseRoomSchedule } from "@/lib/room-schedule";
 
+// Creates the ScheduleConfig table if it doesn't exist yet.
+// Idempotent — safe to call on every request.
+async function ensureTable() {
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS "ScheduleConfig" (
+      "id"           TEXT     NOT NULL PRIMARY KEY,
+      "openHour"     INTEGER  NOT NULL DEFAULT 11,
+      "openMinute"   INTEGER  NOT NULL DEFAULT 0,
+      "closeHour"    INTEGER  NOT NULL DEFAULT 1,
+      "closeMinute"  INTEGER  NOT NULL DEFAULT 0,
+      "breakMinutes" INTEGER  NOT NULL DEFAULT 0,
+      "updatedAt"    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+}
+
 export async function GET() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -12,6 +28,8 @@ export async function GET() {
     const config = await prisma.scheduleConfig.findUnique({ where: { id: "default" } });
     return NextResponse.json(config ?? { id: "default", ...DEFAULT_SCHEDULE });
   } catch {
+    // Table likely missing — create it silently and return defaults
+    try { await ensureTable(); } catch {}
     return NextResponse.json({ id: "default", ...DEFAULT_SCHEDULE });
   }
 }
@@ -46,11 +64,22 @@ export async function PATCH(request: NextRequest) {
 
   const newConfig: ScheduleConfig = { openHour, openMinute, closeHour, closeMinute, breakMinutes };
 
-  const config = await prisma.scheduleConfig.upsert({
-    where: { id: "default" },
-    update: newConfig,
-    create: { id: "default", ...newConfig },
-  });
+  // Self-heal: if the table is missing, create it and retry once
+  let config;
+  try {
+    config = await prisma.scheduleConfig.upsert({
+      where: { id: "default" },
+      update: newConfig,
+      create: { id: "default", ...newConfig },
+    });
+  } catch {
+    await ensureTable();
+    config = await prisma.scheduleConfig.upsert({
+      where: { id: "default" },
+      update: newConfig,
+      create: { id: "default", ...newConfig },
+    });
+  }
 
   // ── Auto-reschedule future bookings ──────────────────────────────────────
   // Any future booking whose original slot no longer exists in the new schedule
