@@ -78,8 +78,8 @@ export async function POST(request: NextRequest) {
     const ref = booking.id.slice(0, 8).toUpperCase();
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.ADMIN_EMAIL ?? "";
 
-    // Immediate "request received" confirmation to the customer
-    sendEmail(
+    // Awaited so Vercel doesn't kill the function before the Brevo request resolves
+    await sendEmail(
       bookingRequestReceivedEmail({
         customerName: customerName as string,
         email: email as string,

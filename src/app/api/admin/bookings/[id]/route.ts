@@ -23,7 +23,8 @@ export async function PATCH(
   // ── Confirm ───────────────────────────────────────────────────────────────
   if (body.status === "confirmed") {
     const updated = await prisma.booking.update({ where: { id }, data: { status: "confirmed" } });
-    sendEmail(
+    // Awaited — Vercel terminates the function on response, so fire-and-forget never resolves
+    await sendEmail(
       bookingConfirmationEmail({
         customerName: booking.customerName,
         email: booking.email,
@@ -43,7 +44,8 @@ export async function PATCH(
       return NextResponse.json({ error: "Already cancelled" }, { status: 400 });
     }
     const updated = await prisma.booking.update({ where: { id }, data: { status: "cancelled" } });
-    sendEmail(
+    // Awaited — same reason as above
+    await sendEmail(
       bookingCancellationEmail({
         customerName: booking.customerName,
         email: booking.email,

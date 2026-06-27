@@ -58,8 +58,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send confirmation email to the customer — they have a record of the booking
-    sendEmail(
+    // Awaited so Vercel doesn't cut it off before the Brevo request completes
+    await sendEmail(
       bookingConfirmationEmail({
         customerName: customerName as string,
         email: email as string,
