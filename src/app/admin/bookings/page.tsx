@@ -43,7 +43,7 @@ export default async function BookingsPage({ searchParams }: Props) {
     }).catch(() => []),
     prisma.room.findMany({
       where: { active: true },
-      select: { id: true, name: true, themeColors: true, durationMinutes: true },
+      select: { id: true, name: true, themeColors: true, durationMinutes: true, minPlayers: true, maxPlayers: true },
       orderBy: { name: "asc" },
     }),
   ]);

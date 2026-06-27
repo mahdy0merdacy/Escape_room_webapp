@@ -17,7 +17,7 @@ type Booking = {
 };
 
 type BlockedSlot = { roomId: string; slotStart: string };
-type Room = { id: string; name: string; themeColors: string; durationMinutes: number };
+type Room = { id: string; name: string; themeColors: string; durationMinutes: number; minPlayers: number; maxPlayers: number };
 
 interface RescheduleSlot {
   startTime: string;
@@ -59,6 +59,14 @@ export default function BookingCalendar({
   const [rescheduleSlots, setRescheduleSlots] = useState<RescheduleSlot[]>([]);
   const [rescheduleSlotTime, setRescheduleSlotTime] = useState<string | null>(null);
   const [rescheduleFetching, setRescheduleFetching] = useState(false);
+
+  // Admin manual booking state — slotKey is `${slotIso}|${roomId}`
+  const [newBookingSlot, setNewBookingSlot] = useState<string | null>(null);
+  const [newBookingForm, setNewBookingForm] = useState({
+    customerName: "", email: "", phone: "", partySize: 1,
+  });
+  const [newBookingError, setNewBookingError] = useState("");
+  const [newBookingLoading, setNewBookingLoading] = useState(false);
 
   function setPendingKey(key: string, on: boolean) {
     setPending((prev) => {
@@ -155,6 +163,43 @@ export default function BookingCalendar({
       );
     } finally {
       setRescheduleFetching(false);
+    }
+  }
+
+  async function createBooking(
+    room: Room,
+    slotKey: string,
+    startTime: string,
+    endTime: string
+  ) {
+    setNewBookingLoading(true);
+    setNewBookingError("");
+    try {
+      const res = await fetch("/api/admin/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomId: room.id,
+          startTime,
+          endTime,
+          ...newBookingForm,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setNewBookingError(data.error ?? "Failed to create booking");
+        return;
+      }
+      setBookings((prev) => [
+        ...prev,
+        { ...data, room: { name: room.name, themeColors: room.themeColors } },
+      ]);
+      setNewBookingSlot(null);
+      setNewBookingForm({ customerName: "", email: "", phone: "", partySize: 1 });
+    } catch {
+      setNewBookingError("Network error — please try again.");
+    } finally {
+      setNewBookingLoading(false);
     }
   }
 
@@ -389,28 +434,122 @@ export default function BookingCalendar({
             }
 
             // ── Blocked / available — compact row ───────────────────────────
+            const slotKey = `${slotIso}|${room.id}`;
+            const isBookingThis = newBookingSlot === slotKey;
             return (
-              <div key={slotIso} className="flex items-center gap-4 px-5 py-2.5">
-                <span className="text-white/35 text-sm font-mono w-24 shrink-0">{slot.label}</span>
-                <span className="flex-1 text-sm text-white/20">
-                  {isBlocked ? "🔒 Disabled" : "—"}
-                </span>
-                {isBlocked ? (
-                  <button
-                    onClick={() => unblockSlot(room.id, slotIso)}
-                    disabled={pending.has(`unblock-${room.id}-${slotIso}`)}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-white/15 text-white/50 hover:bg-white/10 transition-colors disabled:opacity-40"
-                  >
-                    {pending.has(`unblock-${room.id}-${slotIso}`) ? "…" : "Enable"}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => blockSlot(room.id, slotIso)}
-                    disabled={pending.has(`block-${room.id}-${slotIso}`)}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-amber-500/20 text-amber-500/60 hover:bg-amber-500/10 transition-colors disabled:opacity-40"
-                  >
-                    {pending.has(`block-${room.id}-${slotIso}`) ? "…" : "Disable"}
-                  </button>
+              <div key={slotIso}>
+                <div className="flex items-center gap-3 px-5 py-2.5">
+                  <span className="text-white/35 text-sm font-mono w-24 shrink-0">{slot.label}</span>
+                  <span className="flex-1 text-sm text-white/20">
+                    {isBlocked ? "🔒 Disabled" : "—"}
+                  </span>
+                  {isBlocked ? (
+                    <button
+                      onClick={() => unblockSlot(room.id, slotIso)}
+                      disabled={pending.has(`unblock-${room.id}-${slotIso}`)}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-white/15 text-white/50 hover:bg-white/10 transition-colors disabled:opacity-40"
+                    >
+                      {pending.has(`unblock-${room.id}-${slotIso}`) ? "…" : "Enable"}
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          const next = isBookingThis ? null : slotKey;
+                          setNewBookingSlot(next);
+                          if (next) {
+                            setNewBookingForm({ customerName: "", email: "", phone: "", partySize: room.minPlayers });
+                            setNewBookingError("");
+                          }
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-lg border transition-colors"
+                        style={
+                          isBookingThis
+                            ? { borderColor: colors.accent, background: colors.accent + "22", color: colors.accent }
+                            : { borderColor: "rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.6)" }
+                        }
+                      >
+                        {isBookingThis ? "Close" : "📞 Book"}
+                      </button>
+                      <button
+                        onClick={() => blockSlot(room.id, slotIso)}
+                        disabled={pending.has(`block-${room.id}-${slotIso}`)}
+                        className="text-xs px-3 py-1.5 rounded-lg border border-amber-500/20 text-amber-500/60 hover:bg-amber-500/10 transition-colors disabled:opacity-40"
+                      >
+                        {pending.has(`block-${room.id}-${slotIso}`) ? "…" : "Disable"}
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Inline admin booking form */}
+                {isBookingThis && (
+                  <div className="px-5 py-4 border-t border-white/10 bg-black/20 space-y-3">
+                    <p className="text-xs text-white/50 uppercase tracking-widest font-semibold">
+                      Book this slot — {slot.label}
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/40">Customer name</label>
+                        <input
+                          type="text"
+                          value={newBookingForm.customerName}
+                          onChange={(e) => setNewBookingForm((f) => ({ ...f, customerName: e.target.value }))}
+                          placeholder="Jane Smith"
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-white/30 focus:outline-none focus:border-white/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/40">Email</label>
+                        <input
+                          type="email"
+                          value={newBookingForm.email}
+                          onChange={(e) => setNewBookingForm((f) => ({ ...f, email: e.target.value }))}
+                          placeholder="jane@example.com"
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-white/30 focus:outline-none focus:border-white/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/40">Phone</label>
+                        <input
+                          type="tel"
+                          value={newBookingForm.phone}
+                          onChange={(e) => setNewBookingForm((f) => ({ ...f, phone: e.target.value }))}
+                          placeholder="+216 XX XXX XXX"
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-white/30 focus:outline-none focus:border-white/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/40">
+                          Party size ({room.minPlayers}–{room.maxPlayers})
+                        </label>
+                        <input
+                          type="number"
+                          min={room.minPlayers}
+                          max={room.maxPlayers}
+                          value={newBookingForm.partySize}
+                          onChange={(e) => setNewBookingForm((f) => ({ ...f, partySize: Number(e.target.value) }))}
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-white/50"
+                        />
+                      </div>
+                    </div>
+                    {newBookingError && (
+                      <p className="text-xs text-red-400">{newBookingError}</p>
+                    )}
+                    <button
+                      onClick={() => createBooking(room, slotKey, slotIso, slot.endTime.toISOString())}
+                      disabled={
+                        newBookingLoading ||
+                        !newBookingForm.customerName.trim() ||
+                        !newBookingForm.email.trim() ||
+                        !newBookingForm.phone.trim()
+                      }
+                      className="px-5 py-2 rounded-lg font-semibold text-sm transition-opacity disabled:opacity-40"
+                      style={{ background: colors.accent, color: colors.primary }}
+                    >
+                      {newBookingLoading ? "Creating…" : "Confirm Booking"}
+                    </button>
+                  </div>
                 )}
               </div>
             );
@@ -458,6 +597,7 @@ export default function BookingCalendar({
                   } else {
                     setSelectedDay(day);
                     setRescheduleId(null);
+                    setNewBookingSlot(null);
                     // Auto-select the room with the most bookings on this day
                     const dayBkgs = bookingsByDay.get(day) ?? [];
                     if (dayBkgs.length > 0) {
@@ -538,6 +678,7 @@ export default function BookingCalendar({
                     onClick={() => {
                       setSelectedRoomId(isActive ? null : room.id);
                       setRescheduleId(null);
+                      setNewBookingSlot(null);
                     }}
                     className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
                     style={
