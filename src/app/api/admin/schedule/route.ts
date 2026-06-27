@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { DEFAULT_SCHEDULE } from "@/lib/slots";
+import { DEFAULT_SCHEDULE, generateUnifiedSlots, type ScheduleConfig } from "@/lib/slots";
+import { parseRoomSchedule } from "@/lib/room-schedule";
 
 export async function GET() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const config = await prisma.scheduleConfig.findUnique({ where: { id: "default" } });
-  return NextResponse.json(config ?? { id: "default", ...DEFAULT_SCHEDULE });
+  try {
+    const config = await prisma.scheduleConfig.findUnique({ where: { id: "default" } });
+    return NextResponse.json(config ?? { id: "default", ...DEFAULT_SCHEDULE });
+  } catch {
+    return NextResponse.json({ id: "default", ...DEFAULT_SCHEDULE });
+  }
 }
 
 export async function PATCH(request: NextRequest) {
@@ -39,11 +44,113 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Invalid values" }, { status: 400 });
   }
 
+  const newConfig: ScheduleConfig = { openHour, openMinute, closeHour, closeMinute, breakMinutes };
+
   const config = await prisma.scheduleConfig.upsert({
     where: { id: "default" },
-    update: { openHour, openMinute, closeHour, closeMinute, breakMinutes },
-    create: { id: "default", openHour, openMinute, closeHour, closeMinute, breakMinutes },
+    update: newConfig,
+    create: { id: "default", ...newConfig },
   });
 
-  return NextResponse.json(config);
+  // ── Auto-reschedule future bookings ──────────────────────────────────────
+  // Any future booking whose original slot no longer exists in the new schedule
+  // is moved to the closest available slot and reset to "pending" so the admin
+  // must reconfirm. Bookings for rooms with a custom per-room override are
+  // unaffected because they don't follow the global schedule.
+
+  const now = new Date();
+
+  const [futureBookings, futureBlocked] = await Promise.all([
+    prisma.booking.findMany({
+      where: { startTime: { gt: now }, status: { in: ["confirmed", "pending"] } },
+      include: { room: { select: { id: true, name: true, durationMinutes: true, openHours: true } } },
+      orderBy: { startTime: "asc" },
+    }),
+    prisma.blockedSlot.findMany({
+      where: { slotStart: { gt: now } },
+      select: { roomId: true, slotStart: true },
+    }),
+  ]);
+
+  // Maintain a live set of taken slot keys (roomId|ms) so moves don't collide.
+  const takenKeys = new Set<string>([
+    ...futureBookings.map((b) => `${b.roomId}|${b.startTime.getTime()}`),
+    ...futureBlocked.map((b) => `${b.roomId}|${new Date(b.slotStart).getTime()}`),
+  ]);
+
+  type RescheduledInfo = { bookingId: string; customerName: string; roomName: string; originalTime: string; newTime: string };
+  type UnresolvableInfo = { bookingId: string; customerName: string; roomName: string; originalTime: string };
+
+  const rescheduled: RescheduledInfo[] = [];
+  const unresolvable: UnresolvableInfo[] = [];
+
+  for (const booking of futureBookings) {
+    // Room with custom override → not affected by global schedule change
+    const override = parseRoomSchedule(booking.room.openHours);
+    if (override?.useCustom) continue;
+
+    // Generate the new slot list for this booking's calendar date
+    const newSlots = generateUnifiedSlots(
+      booking.startTime,
+      booking.room.durationMinutes,
+      newConfig
+    );
+
+    const originalMs = booking.startTime.getTime();
+    const originalKey = `${booking.roomId}|${originalMs}`;
+
+    // If the slot still exists in the new schedule, nothing to do
+    if (newSlots.some((s) => s.startTime.getTime() === originalMs)) continue;
+
+    // Free this slot from the taken set while we look for a replacement
+    takenKeys.delete(originalKey);
+
+    // Pick the closest available slot
+    const sorted = [...newSlots].sort(
+      (a, b) =>
+        Math.abs(a.startTime.getTime() - originalMs) -
+        Math.abs(b.startTime.getTime() - originalMs)
+    );
+    const target = sorted.find(
+      (s) => !takenKeys.has(`${booking.roomId}|${s.startTime.getTime()}`)
+    );
+
+    if (!target) {
+      // No slot available — leave booking where it is and report
+      takenKeys.add(originalKey);
+      unresolvable.push({
+        bookingId: booking.id,
+        customerName: booking.customerName,
+        roomName: booking.room.name,
+        originalTime: booking.startTime.toISOString(),
+      });
+      continue;
+    }
+
+    try {
+      await prisma.booking.update({
+        where: { id: booking.id },
+        data: { startTime: target.startTime, endTime: target.endTime, status: "pending" },
+      });
+      takenKeys.add(`${booking.roomId}|${target.startTime.getTime()}`);
+      rescheduled.push({
+        bookingId: booking.id,
+        customerName: booking.customerName,
+        roomName: booking.room.name,
+        originalTime: booking.startTime.toISOString(),
+        newTime: target.startTime.toISOString(),
+      });
+    } catch {
+      // Unique constraint race — treat as unresolvable
+      takenKeys.add(originalKey);
+      unresolvable.push({
+        bookingId: booking.id,
+        customerName: booking.customerName,
+        roomName: booking.room.name,
+        originalTime: booking.startTime.toISOString(),
+      });
+    }
+  }
+
+  return NextResponse.json({ config, rescheduled, unresolvable });
 }

@@ -71,35 +71,53 @@ function TimeSelect({
 
 // ── Global schedule section ────────────────────────────────────────────────────
 
+type RescheduledInfo = { bookingId: string; customerName: string; roomName: string; originalTime: string; newTime: string };
+type UnresolvableInfo = { bookingId: string; customerName: string; roomName: string; originalTime: string };
+
+function fmtTime(iso: string) {
+  return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Tunis" });
+}
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "Africa/Tunis" });
+}
+
 function GlobalScheduleSection({ initial }: { initial: ScheduleConfig; rooms: Room[] }) {
   const [config, setConfig] = useState<ScheduleConfig>(initial);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rescheduled, setRescheduled] = useState<RescheduledInfo[]>([]);
+  const [unresolvable, setUnresolvable] = useState<UnresolvableInfo[]>([]);
 
   function update(patch: Partial<ScheduleConfig>) {
     setConfig((prev) => ({ ...prev, ...patch }));
     setSaved(false);
     setError(null);
+    setRescheduled([]);
+    setUnresolvable([]);
   }
 
   async function handleSave() {
     setLoading(true);
     setError(null);
+    setRescheduled([]);
+    setUnresolvable([]);
     try {
       const res = await fetch("/api/admin/schedule", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(config),
       });
+      const data = await res.json();
       if (!res.ok) {
-        const d = await res.json();
-        setError(d.error ?? "Failed to save");
+        setError(data.error ?? "Failed to save");
       } else {
         setSaved(true);
+        setRescheduled(data.rescheduled ?? []);
+        setUnresolvable(data.unresolvable ?? []);
       }
     } catch {
-      setError("Network error");
+      setError("Network error — check console");
     } finally {
       setLoading(false);
     }
@@ -168,9 +186,52 @@ function GlobalScheduleSection({ initial }: { initial: ScheduleConfig; rooms: Ro
         >
           {loading ? "Saving…" : "Save Global Schedule"}
         </button>
-        {saved && <span className="text-sm text-emerald-400">Saved.</span>}
+        {saved && rescheduled.length === 0 && unresolvable.length === 0 && (
+          <span className="text-sm text-emerald-400">Saved — no bookings affected.</span>
+        )}
         {error && <span className="text-sm text-red-400">{error}</span>}
       </div>
+
+      {/* Auto-rescheduled bookings */}
+      {rescheduled.length > 0 && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-900/10 p-4 space-y-3">
+          <p className="text-sm font-semibold text-amber-400">
+            {rescheduled.length} booking{rescheduled.length > 1 ? "s" : ""} auto-rescheduled → now pending reconfirmation
+          </p>
+          <div className="space-y-1.5">
+            {rescheduled.map((r) => (
+              <div key={r.bookingId} className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-white/70">
+                <span className="font-medium text-white">{r.customerName}</span>
+                <span className="text-white/40">{r.roomName}</span>
+                <span>{fmtDate(r.originalTime)} {fmtTime(r.originalTime)}</span>
+                <span className="text-amber-400/70">→</span>
+                <span className="text-amber-300">{fmtDate(r.newTime)} {fmtTime(r.newTime)}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-white/40">Go to Reservations to confirm each booking at its new time.</p>
+        </div>
+      )}
+
+      {/* Bookings that couldn't be moved */}
+      {unresolvable.length > 0 && (
+        <div className="rounded-xl border border-red-500/30 bg-red-900/10 p-4 space-y-3">
+          <p className="text-sm font-semibold text-red-400">
+            {unresolvable.length} booking{unresolvable.length > 1 ? "s" : ""} could not be auto-rescheduled — handle manually
+          </p>
+          <div className="space-y-1.5">
+            {unresolvable.map((r) => (
+              <div key={r.bookingId} className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-white/70">
+                <span className="font-medium text-white">{r.customerName}</span>
+                <span className="text-white/40">{r.roomName}</span>
+                <span>{fmtDate(r.originalTime)} {fmtTime(r.originalTime)}</span>
+                <span className="text-red-400/60">(all nearest slots taken)</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-white/40">These bookings still exist at their original times. Reschedule or cancel them from Reservations.</p>
+        </div>
+      )}
     </section>
   );
 }
