@@ -99,6 +99,8 @@ export const ar: Dict = {
     seeAvailable: "عرض الأوقات المتاحة ←",
     checking: "جارٍ التحقق من التوفر…",
     noSlots: "لا توجد مواعيد متاحة هذا اليوم. يرجى اختيار تاريخ آخر.",
+    noSlotsToday: "انتهت جميع مواعيد اليوم.",
+    tryTomorrow: "جرّب الغد ←",
     changeDate: "تغيير التاريخ",
     changeTime: "← تغيير الوقت",
     fullName: "الاسم الكامل",

@@ -81,6 +81,8 @@ export type Dict = {
     seeAvailable: string;
     checking: string;
     noSlots: string;
+    noSlotsToday: string;
+    tryTomorrow: string;
     changeDate: string;
     changeTime: string;
     fullName: string;

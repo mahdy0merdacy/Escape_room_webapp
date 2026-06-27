@@ -23,10 +23,13 @@ export default async function BookingsPage({ searchParams }: Props) {
   }
 
   const schedule = await getScheduleConfig();
-  const monthStart = new Date(year, month - 1, 1);
-  // Extend past midnight to catch next-day slots on the last day of the month
+  // Use UTC arithmetic anchored to Africa/Tunis (UTC+1) so midnight Tunisia is the boundary,
+  // not midnight UTC (which is 1am Tunisia and would miss the first hour of each month).
+  const TUNIS_OFFSET_MS = 60 * 60 * 1000;
+  const monthStart = new Date(Date.UTC(year, month - 1, 1) - TUNIS_OFFSET_MS);
+  // Extend into the next month to catch overnight slots that start on the last night
   const closeBuffer = schedule.closeHour < schedule.openHour ? schedule.closeHour + 2 : 2;
-  const monthEnd = new Date(year, month, 1, closeBuffer, 0, 0, 0);
+  const monthEnd = new Date(Date.UTC(year, month, 1) - TUNIS_OFFSET_MS + closeBuffer * 60 * 60 * 1000);
 
   const [bookingsRaw, blockedSlots, rooms] = await Promise.all([
     prisma.booking.findMany({

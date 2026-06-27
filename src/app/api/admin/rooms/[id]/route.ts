@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { parseRoomSchedule } from "@/lib/room-schedule";
+import { getScheduleConfig } from "@/lib/schedule";
+import { rescheduleRoomBookings } from "@/lib/reschedule";
 
 export async function PUT(
   request: NextRequest,
@@ -51,7 +54,7 @@ export async function PUT(
   return NextResponse.json(room);
 }
 
-// PATCH — partial update for per-room schedule override only
+// PATCH — per-room schedule override; auto-reschedules affected future bookings
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -67,5 +70,10 @@ export async function PATCH(
     data: { openHours },
   });
 
-  return NextResponse.json(room);
+  // Determine the effective schedule this room now follows and reschedule accordingly.
+  const override = parseRoomSchedule(openHours);
+  const effectiveConfig = override?.useCustom ? override : await getScheduleConfig();
+  const { rescheduled, unresolvable } = await rescheduleRoomBookings(id, effectiveConfig);
+
+  return NextResponse.json({ room, rescheduled, unresolvable });
 }

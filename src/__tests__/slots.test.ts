@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateSlots, filterAvailableSlots } from "@/lib/slots";
+import { generateSlots, generateUnifiedSlots, filterAvailableSlots } from "@/lib/slots";
 
 const openHours = {
   mon: { start: "14:00", end: "22:00" },
@@ -55,6 +55,83 @@ describe("generateSlots", () => {
       const diffMs = slot.endTime.getTime() - slot.startTime.getTime();
       expect(diffMs).toBe(60 * 60 * 1000);
     }
+  });
+});
+
+describe("generateUnifiedSlots", () => {
+  it("anchors first slot to 11:00 Africa/Tunis = 10:00 UTC", () => {
+    // 2026-01-15 00:00 UTC = 01:00 Tunisia → still Jan 15 in Tunisia
+    const date = new Date("2026-01-15T00:00:00Z");
+    const slots = generateUnifiedSlots(date, 60, {
+      openHour: 11, openMinute: 0,
+      closeHour: 14, closeMinute: 0,
+      breakMinutes: 0,
+    });
+    expect(slots[0].startTime.toISOString()).toBe("2026-01-15T10:00:00.000Z");
+  });
+
+  it("generates the correct number of hourly slots", () => {
+    const date = new Date("2026-01-15T00:00:00Z");
+    const slots = generateUnifiedSlots(date, 60, {
+      openHour: 11, openMinute: 0,
+      closeHour: 14, closeMinute: 0,
+      breakMinutes: 0,
+    });
+    // 11:00, 12:00, 13:00, 14:00 Tunisia → 4 slots
+    expect(slots).toHaveLength(4);
+  });
+
+  it("produces correct UTC timestamps for all slots", () => {
+    const date = new Date("2026-01-15T00:00:00Z");
+    const slots = generateUnifiedSlots(date, 60, {
+      openHour: 14, openMinute: 0,
+      closeHour: 16, closeMinute: 0,
+      breakMinutes: 0,
+    });
+    // 14:00, 15:00, 16:00 Tunisia = 13:00, 14:00, 15:00 UTC
+    expect(slots.map((s) => s.startTime.toISOString())).toEqual([
+      "2026-01-15T13:00:00.000Z",
+      "2026-01-15T14:00:00.000Z",
+      "2026-01-15T15:00:00.000Z",
+    ]);
+  });
+
+  it("applies break between sessions", () => {
+    const date = new Date("2026-01-15T00:00:00Z");
+    const slots = generateUnifiedSlots(date, 60, {
+      openHour: 11, openMinute: 0,
+      closeHour: 15, closeMinute: 0,
+      breakMinutes: 30,
+    });
+    // 11:00 → 12:30 → 14:00 (next start 15:30 > 15:00) → 3 slots
+    expect(slots).toHaveLength(3);
+    const gapMs = slots[1].startTime.getTime() - slots[0].startTime.getTime();
+    expect(gapMs).toBe(90 * 60 * 1000); // 60 session + 30 break
+  });
+
+  it("handles overnight schedule (close before open)", () => {
+    const date = new Date("2026-01-15T00:00:00Z");
+    const slots = generateUnifiedSlots(date, 60, {
+      openHour: 22, openMinute: 0,
+      closeHour: 1, closeMinute: 0,
+      breakMinutes: 0,
+    });
+    // 22:00, 23:00, 00:00, 01:00 Tunisia = 4 slots
+    expect(slots).toHaveLength(4);
+    // First slot: 22:00 Tunisia = 21:00 UTC
+    expect(slots[0].startTime.toISOString()).toBe("2026-01-15T21:00:00.000Z");
+  });
+
+  it("produces identical slots for two UTC timestamps on the same Tunisia calendar day", () => {
+    // 00:00 UTC = 01:00 Tunisia (Jan 15), 22:59 UTC = 23:59 Tunisia (still Jan 15)
+    const earlyUTC = new Date("2026-01-15T00:00:00Z");
+    const lateUTC  = new Date("2026-01-15T22:59:00Z");
+    const schedule = { openHour: 11, openMinute: 0, closeHour: 14, closeMinute: 0, breakMinutes: 0 };
+    const slotsA = generateUnifiedSlots(earlyUTC, 60, schedule);
+    const slotsB = generateUnifiedSlots(lateUTC, 60, schedule);
+    expect(slotsA.map((s) => s.startTime.toISOString())).toEqual(
+      slotsB.map((s) => s.startTime.toISOString())
+    );
   });
 });
 

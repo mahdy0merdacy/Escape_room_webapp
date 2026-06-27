@@ -109,6 +109,78 @@ function emailShell(headerBg: string, headerContent: string, bodyContent: string
 
 // ── Templates ─────────────────────────────────────────────────────────────────
 
+export function bookingRequestReceivedEmail(params: {
+  customerName: string;
+  email: string;
+  roomName: string;
+  startTime: Date;
+  endTime: Date;
+  partySize: number;
+}): EmailPayload {
+  const { customerName, email, roomName, startTime, endTime, partySize } = params;
+
+  const tz = "Africa/Tunis";
+  const dateStr = startTime.toLocaleDateString("en-US", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: tz,
+  });
+  const startStr = startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz });
+  const endStr = endTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz });
+
+  const textContent = `Hi ${customerName},
+
+We received your booking request!
+
+  Room:        ${roomName}
+  Date:        ${dateStr}
+  Time:        ${startStr} – ${endStr}
+  Party size:  ${partySize} ${partySize === 1 ? "person" : "people"}
+
+We'll review it and send you a confirmation email shortly.
+If you don't hear back within a few hours, give us a call: +216 28 720 530
+
+— The elharba Team
+
+📞 +216 28 720 530 · 📍 Manouba, Tunisia`;
+
+  const header = `
+    <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#fde68a;font-weight:600;">Request Received</p>
+    <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">elharba</h1>`;
+
+  const body = `
+    <tr>
+      <td style="padding:28px 32px 8px;">
+        <h2 style="margin:0 0 4px;font-size:20px;color:#fff;font-weight:800;">We got your request!</h2>
+        <p style="margin:0;color:#888;font-size:14px;">Hi ${customerName}, we'll confirm your slot shortly.</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:16px 32px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#1a1a1a;border-radius:8px;overflow:hidden;">
+          ${detailRow("Room", roomName)}
+          ${detailRow("Date", dateStr)}
+          ${detailRow("Time", `${startStr} – ${endStr}`)}
+          ${detailRow("Party size", `${partySize} ${partySize === 1 ? "person" : "people"}`)}
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px 32px 32px;">
+        <p style="margin:0;color:#888;font-size:13px;line-height:1.7;">
+          You'll receive a second email once we confirm your booking.
+          Need to reach us? Call <strong style="color:#f0f0f0;">+216 28 720 530</strong> or reply to this email.
+        </p>
+      </td>
+    </tr>`;
+
+  return {
+    to: email,
+    toName: customerName,
+    subject: `Request Received — ${roomName} · ${dateStr}`,
+    textContent,
+    htmlContent: emailShell("#92400e", header, body),
+  };
+}
+
 export function bookingConfirmationEmail(params: {
   customerName: string;
   email: string;

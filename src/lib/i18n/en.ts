@@ -99,6 +99,8 @@ export const en: Dict = {
     seeAvailable: "See Available Times →",
     checking: "Checking availability…",
     noSlots: "No slots available on this day. Please pick another date.",
+    noSlotsToday: "All slots for today have passed.",
+    tryTomorrow: "Try Tomorrow →",
     changeDate: "Change date",
     changeTime: "← Change time",
     fullName: "Full Name",

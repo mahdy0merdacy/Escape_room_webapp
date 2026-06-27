@@ -81,7 +81,7 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "Africa/Tunis" });
 }
 
-function GlobalScheduleSection({ initial }: { initial: ScheduleConfig; rooms: Room[] }) {
+function GlobalScheduleSection({ initial }: { initial: ScheduleConfig }) {
   const [config, setConfig] = useState<ScheduleConfig>(initial);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -247,15 +247,21 @@ function RoomScheduleCard({ room, globalSchedule }: { room: Room; globalSchedule
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rescheduled, setRescheduled] = useState<RescheduledInfo[]>([]);
+  const [unresolvable, setUnresolvable] = useState<UnresolvableInfo[]>([]);
 
   function update(patch: Partial<ScheduleConfig>) {
     setCfg((prev) => ({ ...prev, ...patch }));
     setSaved(false);
+    setRescheduled([]);
+    setUnresolvable([]);
   }
 
   async function handleSave() {
     setLoading(true);
     setError(null);
+    setRescheduled([]);
+    setUnresolvable([]);
     try {
       const payload = useCustom
         ? JSON.stringify({ useCustom: true, ...cfg })
@@ -265,11 +271,13 @@ function RoomScheduleCard({ room, globalSchedule }: { room: Room; globalSchedule
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ openHours: payload }),
       });
+      const d = await res.json();
       if (!res.ok) {
-        const d = await res.json();
         setError(d.error ?? "Failed to save");
       } else {
         setSaved(true);
+        setRescheduled(d.rescheduled ?? []);
+        setUnresolvable(d.unresolvable ?? []);
       }
     } catch {
       setError("Network error");
@@ -372,9 +380,46 @@ function RoomScheduleCard({ room, globalSchedule }: { room: Room; globalSchedule
         >
           {loading ? "Saving…" : "Save"}
         </button>
-        {saved && <span className="text-xs text-emerald-400">Saved.</span>}
+        {saved && rescheduled.length === 0 && unresolvable.length === 0 && (
+          <span className="text-xs text-emerald-400">Saved — no bookings affected.</span>
+        )}
         {error && <span className="text-xs text-red-400">{error}</span>}
       </div>
+
+      {rescheduled.length > 0 && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-900/10 p-3 space-y-2">
+          <p className="text-xs font-semibold text-amber-400">
+            {rescheduled.length} booking{rescheduled.length > 1 ? "s" : ""} auto-rescheduled → pending reconfirmation
+          </p>
+          <div className="space-y-1">
+            {rescheduled.map((r) => (
+              <div key={r.bookingId} className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-white/60">
+                <span className="font-medium text-white">{r.customerName}</span>
+                <span>{fmtDate(r.originalTime)} {fmtTime(r.originalTime)}</span>
+                <span className="text-amber-400/70">→</span>
+                <span className="text-amber-300">{fmtDate(r.newTime)} {fmtTime(r.newTime)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {unresolvable.length > 0 && (
+        <div className="rounded-xl border border-red-500/30 bg-red-900/10 p-3 space-y-2">
+          <p className="text-xs font-semibold text-red-400">
+            {unresolvable.length} booking{unresolvable.length > 1 ? "s" : ""} couldn't be moved — handle manually
+          </p>
+          <div className="space-y-1">
+            {unresolvable.map((r) => (
+              <div key={r.bookingId} className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-white/60">
+                <span className="font-medium text-white">{r.customerName}</span>
+                <span>{fmtDate(r.originalTime)} {fmtTime(r.originalTime)}</span>
+                <span className="text-red-400/60">(all nearest slots taken)</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -384,7 +429,7 @@ function RoomScheduleCard({ room, globalSchedule }: { room: Room; globalSchedule
 export default function ScheduleForm({ initial, rooms }: Props) {
   return (
     <div className="space-y-8">
-      <GlobalScheduleSection initial={initial} rooms={rooms} />
+      <GlobalScheduleSection initial={initial} />
 
       <section className="space-y-4">
         <div>

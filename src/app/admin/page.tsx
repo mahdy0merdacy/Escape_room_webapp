@@ -6,14 +6,19 @@ export const dynamic = "force-dynamic";
 export default async function AdminDashboard() {
   let roomCount = 0, bookingCount = 0;
   let recentBookings: Awaited<ReturnType<typeof prisma.booking.findMany<{ include: { room: true } }>>> = [];
+  let failedNotifyCount = 0;
   try {
-    [roomCount, bookingCount, recentBookings] = await Promise.all([
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    [roomCount, bookingCount, recentBookings, failedNotifyCount] = await Promise.all([
       prisma.room.count(),
       prisma.booking.count({ where: { status: "confirmed" } }),
       prisma.booking.findMany({
         take: 5,
         orderBy: { createdAt: "desc" },
         include: { room: true },
+      }),
+      prisma.emailLog.count({
+        where: { subject: { startsWith: "[FAILED-NOTIFY]" }, sentAt: { gt: sevenDaysAgo } },
       }),
     ]);
   } catch {
@@ -23,6 +28,20 @@ export default async function AdminDashboard() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 space-y-10">
       <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+
+      {failedNotifyCount > 0 && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-900/10 px-5 py-4 flex items-start gap-3">
+          <span className="text-amber-400 text-lg leading-none mt-0.5">⚠</span>
+          <div>
+            <p className="text-sm font-semibold text-amber-300">
+              {failedNotifyCount} admin notification{failedNotifyCount > 1 ? "s" : ""} failed in the last 7 days
+            </p>
+            <p className="text-xs text-amber-400/70 mt-1">
+              Check your Brevo API key and ADMIN_NOTIFICATION_EMAIL env var. Affected bookings are still recorded normally.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

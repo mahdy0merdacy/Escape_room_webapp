@@ -99,6 +99,8 @@ export const fr: Dict = {
     seeAvailable: "Voir les horaires disponibles →",
     checking: "Vérification en cours…",
     noSlots: "Aucun créneau disponible ce jour. Veuillez choisir une autre date.",
+    noSlotsToday: "Tous les créneaux d'aujourd'hui sont passés.",
+    tryTomorrow: "Essayer demain →",
     changeDate: "Changer de date",
     changeTime: "← Changer l'horaire",
     fullName: "Nom complet",

@@ -79,21 +79,33 @@ export default function BookingWidget({
   const [serverError, setServerError] = useState("");
   const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>(PHONE_COUNTRIES[0]);
   const [phoneOpen, setPhoneOpen] = useState(false);
+  const [allPastToday, setAllPastToday] = useState(false);
 
   async function fetchSlots(date: string) {
     setLoading(true);
     setSlots([]);
     setSelectedSlot(null);
+    setAllPastToday(false);
     try {
       const res = await fetch(`/api/rooms/${roomSlug}/slots?date=${date}`);
       const data = await res.json();
       const now = new Date();
-      const upcoming = (data.slots ?? []).filter((s: Slot) => new Date(s.startTime) > now);
+      const all: Slot[] = data.slots ?? [];
+      const upcoming = all.filter((s: Slot) => new Date(s.startTime) > now);
+      setAllPastToday(all.length > 0 && upcoming.length === 0 && date === today);
       setSlots(upcoming);
       setStep("slot");
     } finally {
       setLoading(false);
     }
+  }
+
+  function goTomorrow() {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const tomorrow = d.toISOString().split("T")[0];
+    setSelectedDate(tomorrow);
+    fetchSlots(tomorrow);
   }
 
   function validate() {
@@ -232,7 +244,20 @@ export default function BookingWidget({
           </div>
 
           {slots.length === 0 ? (
-            <p className="text-white/50 text-sm py-4 text-center">{t.booking.noSlots}</p>
+            allPastToday ? (
+              <div className="py-4 text-center space-y-3">
+                <p className="text-white/50 text-sm">{t.booking.noSlotsToday}</p>
+                <button
+                  onClick={goTomorrow}
+                  className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
+                  style={{ background: colors.accent }}
+                >
+                  {t.booking.tryTomorrow}
+                </button>
+              </div>
+            ) : (
+              <p className="text-white/50 text-sm py-4 text-center">{t.booking.noSlots}</p>
+            )
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {slots.map((slot) => {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendEmail, newBookingAdminEmail } from "@/lib/email";
+import { sendEmail, newBookingAdminEmail, bookingRequestReceivedEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -50,6 +50,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Cannot book a slot in the past" }, { status: 400 });
   }
 
+  // Rate-limit: same email can't submit more than 3 bookings in a 5-minute window.
+  const recentCount = await prisma.booking.count({
+    where: { email: email as string, createdAt: { gt: new Date(Date.now() - 5 * 60 * 1000) } },
+  });
+  if (recentCount >= 3) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a few minutes before trying again." },
+      { status: 429 }
+    );
+  }
+
   try {
     const booking = await prisma.booking.create({
       data: {
@@ -64,7 +75,22 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Admin notification — customer email is sent only after admin confirms
+    const ref = booking.id.slice(0, 8).toUpperCase();
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.ADMIN_EMAIL ?? "";
+
+    // Immediate "request received" confirmation to the customer
+    sendEmail(
+      bookingRequestReceivedEmail({
+        customerName: customerName as string,
+        email: email as string,
+        roomName: room.name,
+        startTime: startDate,
+        endTime: endDate,
+        partySize: parsedPartySize,
+      })
+    ).catch(console.error);
+
+    // Admin notification — log failures to EmailLog so the dashboard can surface them
     sendEmail(
       newBookingAdminEmail({
         customerName: customerName as string,
@@ -76,7 +102,12 @@ export async function POST(request: NextRequest) {
         partySize: parsedPartySize,
         bookingId: booking.id,
       })
-    ).catch(console.error);
+    ).catch(async (err) => {
+      console.error("Admin notification failed for booking", ref, err);
+      await prisma.emailLog
+        .create({ data: { to: adminEmail, subject: `[FAILED-NOTIFY] Booking #${ref}`, body: String(err) } })
+        .catch(() => {});
+    });
 
     return NextResponse.json(booking, { status: 201 });
   } catch (err: unknown) {
