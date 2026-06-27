@@ -12,6 +12,34 @@ interface Slot {
   status: "available" | "taken";
 }
 
+interface PhoneCountry {
+  flag: string;
+  name: string;
+  dial: string;
+  digits: number;
+  placeholder: string;
+}
+
+const PHONE_COUNTRIES: PhoneCountry[] = [
+  { flag: "🇹🇳", name: "Tunisia",      dial: "+216", digits: 8,  placeholder: "XX XXX XXX" },
+  { flag: "🇩🇿", name: "Algeria",      dial: "+213", digits: 9,  placeholder: "XXX XX XX XX" },
+  { flag: "🇲🇦", name: "Morocco",      dial: "+212", digits: 9,  placeholder: "XXX-XXX-XXX" },
+  { flag: "🇱🇾", name: "Libya",        dial: "+218", digits: 9,  placeholder: "XX-XXXXXXX" },
+  { flag: "🇫🇷", name: "France",       dial: "+33",  digits: 9,  placeholder: "X XX XX XX XX" },
+  { flag: "🇩🇪", name: "Germany",      dial: "+49",  digits: 10, placeholder: "XXX XXXXXXX" },
+  { flag: "🇬🇧", name: "UK",           dial: "+44",  digits: 10, placeholder: "XXXX XXXXXX" },
+  { flag: "🇮🇹", name: "Italy",        dial: "+39",  digits: 10, placeholder: "XXX XXX XXXX" },
+  { flag: "🇪🇸", name: "Spain",        dial: "+34",  digits: 9,  placeholder: "XXX XXX XXX" },
+  { flag: "🇧🇪", name: "Belgium",      dial: "+32",  digits: 9,  placeholder: "XXX XX XX XX" },
+  { flag: "🇳🇱", name: "Netherlands",  dial: "+31",  digits: 9,  placeholder: "X XX XX XX XX" },
+  { flag: "🇨🇭", name: "Switzerland",  dial: "+41",  digits: 9,  placeholder: "XX XXX XX XX" },
+  { flag: "🇸🇦", name: "Saudi Arabia", dial: "+966", digits: 9,  placeholder: "XX XXX XXXX" },
+  { flag: "🇦🇪", name: "UAE",          dial: "+971", digits: 9,  placeholder: "XX XXX XXXX" },
+  { flag: "🇶🇦", name: "Qatar",        dial: "+974", digits: 8,  placeholder: "XXXX XXXX" },
+  { flag: "🇰🇼", name: "Kuwait",       dial: "+965", digits: 8,  placeholder: "XXXX XXXX" },
+  { flag: "🇹🇷", name: "Turkey",       dial: "+90",  digits: 10, placeholder: "XXX XXX XXXX" },
+];
+
 interface ThemeColors {
   primary: string;
   secondary: string;
@@ -49,6 +77,8 @@ export default function BookingWidget({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>(PHONE_COUNTRIES[0]);
+  const [phoneOpen, setPhoneOpen] = useState(false);
 
   async function fetchSlots(date: string) {
     setLoading(true);
@@ -71,7 +101,12 @@ export default function BookingWidget({
     if (!form.customerName.trim()) e.customerName = "Name is required.";
     if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       e.email = "Valid email is required.";
-    if (!form.phone.trim()) e.phone = "Phone number is required.";
+    const phoneDigits = form.phone.replace(/\D/g, "");
+    if (!phoneDigits) {
+      e.phone = "Phone number is required.";
+    } else if (phoneDigits.length < phoneCountry.digits - 1 || phoneDigits.length > phoneCountry.digits + 1) {
+      e.phone = `${phoneCountry.name} numbers need ${phoneCountry.digits} digits (you entered ${phoneDigits.length}).`;
+    }
     if (form.partySize < minPlayers || form.partySize > maxPlayers)
       e.partySize = `Party size must be between ${minPlayers} and ${maxPlayers}.`;
     return e;
@@ -94,6 +129,7 @@ export default function BookingWidget({
           startTime: selectedSlot.startTime,
           endTime: selectedSlot.endTime,
           ...form,
+          phone: `${phoneCountry.dial} ${form.phone.trim()}`,
         }),
       });
       const data = await res.json();
@@ -284,14 +320,55 @@ export default function BookingWidget({
           </Field>
 
           <Field label={t.booking.phone} error={errors.phone}>
-            <input
-              type="tel"
-              value={form.phone}
-              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-              placeholder="+216 XX XXX XXX"
-              className="w-full bg-white/10 border border-white/20 rounded px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/50 text-base"
-              aria-label="Phone number"
-            />
+            {/* Transparent backdrop closes dropdown on outside click */}
+            {phoneOpen && (
+              <div className="fixed inset-0 z-40" onClick={() => setPhoneOpen(false)} />
+            )}
+            <div className="relative flex bg-white/10 border border-white/20 rounded overflow-visible focus-within:border-white/50 transition-colors">
+              {/* Country selector button */}
+              <button
+                type="button"
+                onClick={() => setPhoneOpen((o) => !o)}
+                className="flex items-center gap-1 px-3 border-r border-white/15 text-white/80 hover:text-white text-sm shrink-0 relative z-50"
+                aria-label="Select country code"
+              >
+                <span className="text-base leading-none">{phoneCountry.flag}</span>
+                <span className="font-mono text-xs">{phoneCountry.dial}</span>
+                <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-white/30 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2 3.5l3 3 3-3" />
+                </svg>
+              </button>
+
+              {/* Dropdown */}
+              {phoneOpen && (
+                <div className="absolute top-full left-0 mt-1 z-50 bg-[#1a1a1a] border border-white/15 rounded-xl shadow-2xl shadow-black/60 overflow-hidden min-w-[200px] max-h-60 overflow-y-auto">
+                  {PHONE_COUNTRIES.map((c) => (
+                    <button
+                      key={c.dial}
+                      type="button"
+                      onClick={() => { setPhoneCountry(c); setPhoneOpen(false); setForm((f) => ({ ...f, phone: "" })); }}
+                      className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left transition-colors ${
+                        c.dial === phoneCountry.dial ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/8 hover:text-white"
+                      }`}
+                    >
+                      <span className="text-base leading-none">{c.flag}</span>
+                      <span className="flex-1">{c.name}</span>
+                      <span className="text-white/40 font-mono text-xs">{c.dial}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Number input */}
+              <input
+                type="tel"
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                placeholder={phoneCountry.placeholder}
+                className="flex-1 bg-transparent px-3 py-3 text-white placeholder-white/30 focus:outline-none text-base min-w-0"
+                aria-label="Phone number"
+              />
+            </div>
           </Field>
 
           <Field label={`${t.booking.partySize} (${minPlayers}–${maxPlayers})`} error={errors.partySize}>
