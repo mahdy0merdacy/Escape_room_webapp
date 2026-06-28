@@ -65,7 +65,7 @@ export default async function RoomPage({ params }: Props) {
   };
   const headingFont = fontVarMap[room.themeFont] ?? "var(--font-ui)";
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? "https://elharba.tn";
+  const baseUrl = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
   const roomUrl = `${baseUrl}/rooms/${room.slug}`;
 
   const jsonLd = {

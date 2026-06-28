@@ -8,7 +8,7 @@ import "./globals.css";
 const LOGO_URL =
   "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png";
 
-const BASE_URL = process.env.NEXTAUTH_URL ?? "https://elharba.tn";
+const BASE_URL = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
 
 const orgJsonLd = {
   "@context": "https://schema.org",

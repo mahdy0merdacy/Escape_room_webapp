@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const rooms = await prisma.room.findMany({ where: { active: true }, orderBy: { order: "asc" } });
 
-  const base = process.env.NEXTAUTH_URL ?? "https://elharba.tn";
+  const base = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
   const logoUrl = "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png";
 
   const jsonLd = {

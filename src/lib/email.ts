@@ -344,7 +344,7 @@ export function newBookingAdminEmail(params: {
   const { customerName, email, phone, roomName, startTime, endTime, partySize, bookingId } = params;
   const total = getTotalPrice(partySize);
   const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.ADMIN_EMAIL ?? "ahmed.arfaouii11@gmail.com";
-  const siteUrl = process.env.NEXTAUTH_URL ?? "https://elharba.tn";
+  const siteUrl = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
 
   const tz = "Africa/Tunis";
   const dateStr = startTime.toLocaleDateString("en-US", {
