@@ -4,10 +4,10 @@ import { useRef, useEffect, useState } from "react";
 import { useLocale } from "./IntlProvider";
 import type { Locale } from "@/lib/i18n/types";
 
-const OPTIONS: { locale: Locale; flag: string; label: string }[] = [
-  { locale: "en", flag: "🇬🇧", label: "English" },
-  { locale: "fr", flag: "🇫🇷", label: "Français" },
-  { locale: "ar", flag: "🇸🇦", label: "العربية" },
+const OPTIONS: { locale: Locale; flagCode: string; label: string }[] = [
+  { locale: "en", flagCode: "gb", label: "English" },
+  { locale: "fr", flagCode: "fr", label: "Français" },
+  { locale: "ar", flagCode: "sa", label: "العربية" },
 ];
 
 export default function LanguageSwitcher() {
@@ -16,6 +16,9 @@ export default function LanguageSwitcher() {
   const ref = useRef<HTMLDivElement>(null);
 
   const current = OPTIONS.find((o) => o.locale === locale) ?? OPTIONS[0];
+  const Flag = ({ code }: { code: string }) => (
+    <span className={`fi fi-${code} rounded-sm`} style={{ fontSize: "1rem", lineHeight: 1 }} />
+  );
 
   useEffect(() => {
     function onPointerDown(e: PointerEvent) {
@@ -35,7 +38,7 @@ export default function LanguageSwitcher() {
         aria-label="Select language"
         aria-expanded={open}
       >
-        <span className="text-sm leading-none">{current.flag}</span>
+        <Flag code={current.flagCode} />
         <svg
           viewBox="0 0 12 12"
           className={`w-3 h-3 text-white/40 transition-transform ${open ? "rotate-180" : ""}`}
@@ -49,7 +52,7 @@ export default function LanguageSwitcher() {
 
       {open && (
         <div className="absolute top-full mt-1.5 end-0 bg-[#1a1a1a] border border-white/15 rounded-xl shadow-2xl shadow-black/60 overflow-hidden z-50 min-w-[140px]">
-          {OPTIONS.map(({ locale: l, flag, label }) => (
+          {OPTIONS.map(({ locale: l, flagCode, label }) => (
             <button
               key={l}
               onClick={() => { setLocale(l); setOpen(false); }}
@@ -59,7 +62,7 @@ export default function LanguageSwitcher() {
                   : "text-white/70 hover:bg-white/8 hover:text-white"
               }`}
             >
-              <span className="text-base leading-none">{flag}</span>
+              <Flag code={flagCode} />
               <span>{label}</span>
               {locale === l && (
                 <svg viewBox="0 0 12 12" fill="currentColor" className="w-3 h-3 ms-auto text-red-400">

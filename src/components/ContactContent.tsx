@@ -89,9 +89,9 @@ export default function ContactContent({ openStr, closeStr, phone }: { openStr: 
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
           <p className="text-white/40 text-xs uppercase tracking-widest mb-4">{t.contact.languagesLabel}</p>
           <div className="flex justify-center gap-10 text-base font-semibold text-white">
-            <span>🇫🇷 Français</span>
-            <span>🇬🇧 English</span>
-            <span>🇹🇳 العربية</span>
+            <span className="flex items-center gap-1.5"><span className="fi fi-fr rounded-sm" style={{ fontSize: "1rem" }} /> Français</span>
+            <span className="flex items-center gap-1.5"><span className="fi fi-gb rounded-sm" style={{ fontSize: "1rem" }} /> English</span>
+            <span className="flex items-center gap-1.5"><span className="fi fi-tn rounded-sm" style={{ fontSize: "1rem" }} /> العربية</span>
           </div>
         </div>
 

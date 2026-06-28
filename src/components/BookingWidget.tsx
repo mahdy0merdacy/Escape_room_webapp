@@ -13,7 +13,7 @@ interface Slot {
 }
 
 interface PhoneCountry {
-  flag: string;
+  flagCode: string;
   name: string;
   dial: string;
   digits: number;
@@ -21,23 +21,23 @@ interface PhoneCountry {
 }
 
 const PHONE_COUNTRIES: PhoneCountry[] = [
-  { flag: "🇹🇳", name: "Tunisia",      dial: "+216", digits: 8,  placeholder: "XX XXX XXX" },
-  { flag: "🇩🇿", name: "Algeria",      dial: "+213", digits: 9,  placeholder: "XXX XX XX XX" },
-  { flag: "🇲🇦", name: "Morocco",      dial: "+212", digits: 9,  placeholder: "XXX-XXX-XXX" },
-  { flag: "🇱🇾", name: "Libya",        dial: "+218", digits: 9,  placeholder: "XX-XXXXXXX" },
-  { flag: "🇫🇷", name: "France",       dial: "+33",  digits: 9,  placeholder: "X XX XX XX XX" },
-  { flag: "🇩🇪", name: "Germany",      dial: "+49",  digits: 10, placeholder: "XXX XXXXXXX" },
-  { flag: "🇬🇧", name: "UK",           dial: "+44",  digits: 10, placeholder: "XXXX XXXXXX" },
-  { flag: "🇮🇹", name: "Italy",        dial: "+39",  digits: 10, placeholder: "XXX XXX XXXX" },
-  { flag: "🇪🇸", name: "Spain",        dial: "+34",  digits: 9,  placeholder: "XXX XXX XXX" },
-  { flag: "🇧🇪", name: "Belgium",      dial: "+32",  digits: 9,  placeholder: "XXX XX XX XX" },
-  { flag: "🇳🇱", name: "Netherlands",  dial: "+31",  digits: 9,  placeholder: "X XX XX XX XX" },
-  { flag: "🇨🇭", name: "Switzerland",  dial: "+41",  digits: 9,  placeholder: "XX XXX XX XX" },
-  { flag: "🇸🇦", name: "Saudi Arabia", dial: "+966", digits: 9,  placeholder: "XX XXX XXXX" },
-  { flag: "🇦🇪", name: "UAE",          dial: "+971", digits: 9,  placeholder: "XX XXX XXXX" },
-  { flag: "🇶🇦", name: "Qatar",        dial: "+974", digits: 8,  placeholder: "XXXX XXXX" },
-  { flag: "🇰🇼", name: "Kuwait",       dial: "+965", digits: 8,  placeholder: "XXXX XXXX" },
-  { flag: "🇹🇷", name: "Turkey",       dial: "+90",  digits: 10, placeholder: "XXX XXX XXXX" },
+  { flagCode: "tn", name: "Tunisia",      dial: "+216", digits: 8,  placeholder: "XX XXX XXX" },
+  { flagCode: "dz", name: "Algeria",      dial: "+213", digits: 9,  placeholder: "XXX XX XX XX" },
+  { flagCode: "ma", name: "Morocco",      dial: "+212", digits: 9,  placeholder: "XXX-XXX-XXX" },
+  { flagCode: "ly", name: "Libya",        dial: "+218", digits: 9,  placeholder: "XX-XXXXXXX" },
+  { flagCode: "fr", name: "France",       dial: "+33",  digits: 9,  placeholder: "X XX XX XX XX" },
+  { flagCode: "de", name: "Germany",      dial: "+49",  digits: 10, placeholder: "XXX XXXXXXX" },
+  { flagCode: "gb", name: "UK",           dial: "+44",  digits: 10, placeholder: "XXXX XXXXXX" },
+  { flagCode: "it", name: "Italy",        dial: "+39",  digits: 10, placeholder: "XXX XXX XXXX" },
+  { flagCode: "es", name: "Spain",        dial: "+34",  digits: 9,  placeholder: "XXX XXX XXX" },
+  { flagCode: "be", name: "Belgium",      dial: "+32",  digits: 9,  placeholder: "XXX XX XX XX" },
+  { flagCode: "nl", name: "Netherlands",  dial: "+31",  digits: 9,  placeholder: "X XX XX XX XX" },
+  { flagCode: "ch", name: "Switzerland",  dial: "+41",  digits: 9,  placeholder: "XX XXX XX XX" },
+  { flagCode: "sa", name: "Saudi Arabia", dial: "+966", digits: 9,  placeholder: "XX XXX XXXX" },
+  { flagCode: "ae", name: "UAE",          dial: "+971", digits: 9,  placeholder: "XX XXX XXXX" },
+  { flagCode: "qa", name: "Qatar",        dial: "+974", digits: 8,  placeholder: "XXXX XXXX" },
+  { flagCode: "kw", name: "Kuwait",       dial: "+965", digits: 8,  placeholder: "XXXX XXXX" },
+  { flagCode: "tr", name: "Turkey",       dial: "+90",  digits: 10, placeholder: "XXX XXX XXXX" },
 ];
 
 interface ThemeColors {
@@ -357,7 +357,7 @@ export default function BookingWidget({
                 className="flex items-center gap-1 px-3 border-r border-white/15 text-white/80 hover:text-white text-sm shrink-0 relative z-50"
                 aria-label="Select country code"
               >
-                <span className="text-base leading-none">{phoneCountry.flag}</span>
+                <span className={`fi fi-${phoneCountry.flagCode} rounded-sm`} style={{ fontSize: "1rem" }} />
                 <span className="font-mono text-xs">{phoneCountry.dial}</span>
                 <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-white/30 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2 3.5l3 3 3-3" />
@@ -376,7 +376,7 @@ export default function BookingWidget({
                         c.dial === phoneCountry.dial ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/8 hover:text-white"
                       }`}
                     >
-                      <span className="text-base leading-none">{c.flag}</span>
+                      <span className={`fi fi-${c.flagCode} rounded-sm`} style={{ fontSize: "1rem" }} />
                       <span className="flex-1">{c.name}</span>
                       <span className="text-white/40 font-mono text-xs">{c.dial}</span>
                     </button>
