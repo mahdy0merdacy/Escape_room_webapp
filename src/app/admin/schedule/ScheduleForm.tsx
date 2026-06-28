@@ -22,8 +22,9 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => ({
 }));
 
 function formatTime(hour: number, minute: number): string {
-  const d = new Date(2000, 0, 1, hour, minute, 0);
-  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  const ampm = hour < 12 ? "AM" : "PM";
+  const h = hour % 12 || 12;
+  return `${h}:${String(minute).padStart(2, "0")} ${ampm}`;
 }
 
 function totalMinutes(hour: number, minute: number) {
