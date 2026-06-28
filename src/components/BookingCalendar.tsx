@@ -260,12 +260,142 @@ export default function BookingCalendar({
 
   // ── Slot panel ────────────────────────────────────────────────────────────
 
+  function BookingCard({ booking, label }: { booking: Booking; label: string }) {
+    const colors = JSON.parse(
+      rooms.find((r) => r.id === booking.roomId)?.themeColors ?? '{"primary":"#111","accent":"#e11d48"}'
+    ) as { primary: string; accent: string };
+    const isReschedulingThis = rescheduleId === booking.id;
+    return (
+      <div>
+        <div className="px-5 py-4" style={{ background: colors.accent + "10" }}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-white font-bold text-base">{label}</span>
+            <span
+              className={`text-xs px-2.5 py-1 rounded-full border font-semibold ${
+                booking.status === "confirmed"
+                  ? "bg-green-900/40 text-green-400 border-green-500/30"
+                  : booking.status === "pending"
+                  ? "bg-amber-900/40 text-amber-400 border-amber-500/30"
+                  : "bg-red-900/40 text-red-400 border-red-500/30"
+              }`}
+            >
+              {booking.status === "pending" ? "⏳ pending" : booking.status}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 mb-4">
+            <div>
+              <p className="text-white/40 text-[10px] uppercase tracking-widest mb-0.5">Customer</p>
+              <p className="text-white font-semibold text-base">{booking.customerName}</p>
+            </div>
+            <div>
+              <p className="text-white/40 text-[10px] uppercase tracking-widest mb-0.5">Group size</p>
+              <p className="text-white font-semibold text-base">👥 {booking.partySize} people</p>
+            </div>
+            <div>
+              <p className="text-white/40 text-[10px] uppercase tracking-widest mb-0.5">Email</p>
+              <p className="text-white/80 text-sm">{booking.email}</p>
+            </div>
+            <div>
+              <p className="text-white/40 text-[10px] uppercase tracking-widest mb-0.5">Phone</p>
+              <p className="text-white/80 text-sm">{booking.phone}</p>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {booking.status === "pending" && (
+              <button
+                onClick={() => confirmBooking(booking.id)}
+                disabled={pending.has(`confirm-${booking.id}`)}
+                className="px-4 py-2 rounded-lg bg-green-700/60 hover:bg-green-600/70 border border-green-500/40 text-green-300 text-sm font-semibold transition-colors disabled:opacity-40"
+              >
+                {pending.has(`confirm-${booking.id}`) ? "Confirming…" : "✓ Confirm"}
+              </button>
+            )}
+            <button
+              onClick={() => cancelBooking(booking.id)}
+              disabled={pending.has(`cancel-${booking.id}`) || booking.status === "cancelled"}
+              className="px-4 py-2 rounded-lg border border-red-500/40 text-red-400 hover:bg-red-500/15 text-sm font-semibold transition-colors disabled:opacity-40"
+            >
+              {pending.has(`cancel-${booking.id}`) ? "Cancelling…" : "Cancel"}
+            </button>
+            {booking.status !== "cancelled" && (
+              <button
+                onClick={() => isReschedulingThis ? setRescheduleId(null) : setRescheduleId(booking.id)}
+                className="px-4 py-2 rounded-lg border border-white/20 text-white/70 hover:bg-white/10 text-sm font-semibold transition-colors"
+              >
+                {isReschedulingThis ? "Close" : "Reschedule"}
+              </button>
+            )}
+          </div>
+        </div>
+        {isReschedulingThis && (
+          <div className="px-5 py-4 border-t border-white/10 space-y-3 bg-black/20">
+            <p className="text-xs text-white/50 uppercase tracking-widest font-semibold">Move to a new slot</p>
+            <div className="flex gap-2 flex-wrap">
+              <input
+                type="date"
+                min={todayStr}
+                value={rescheduleDate}
+                onChange={(e) => { setRescheduleDate(e.target.value); setRescheduleSlots([]); setRescheduleSlotTime(null); }}
+                className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-white/40"
+                style={{ colorScheme: "dark" }}
+              />
+              <button
+                onClick={() => fetchRescheduleSlots(booking.roomId)}
+                disabled={!rescheduleDate || rescheduleFetching}
+                className="px-4 py-2 rounded-lg border border-white/20 text-white/70 hover:bg-white/10 text-sm transition-colors disabled:opacity-40"
+              >
+                {rescheduleFetching ? "Loading…" : "Load slots"}
+              </button>
+            </div>
+            {rescheduleSlots.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {rescheduleSlots.map((s) => (
+                  <button
+                    key={s.startTime}
+                    onClick={() => setRescheduleSlotTime(s.startTime)}
+                    className="text-sm px-3 py-1.5 rounded-lg border transition-colors"
+                    style={
+                      rescheduleSlotTime === s.startTime
+                        ? { background: colors.accent, color: colors.primary, borderColor: colors.accent }
+                        : { borderColor: "rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.7)" }
+                    }
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            {rescheduleSlots.length === 0 && rescheduleDate && !rescheduleFetching && (
+              <p className="text-sm text-white/30">No available slots on that date.</p>
+            )}
+            {rescheduleSlotTime && (
+              <button
+                onClick={() => confirmReschedule(booking.id)}
+                disabled={pending.has(`reschedule-${booking.id}`)}
+                className="px-5 py-2 rounded-lg font-semibold text-sm transition-opacity disabled:opacity-40"
+                style={{ background: colors.accent, color: colors.primary }}
+              >
+                {pending.has(`reschedule-${booking.id}`) ? "Moving…" : "Confirm Reschedule"}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   function SlotPanel({ day, roomId }: { day: number; roomId: string }) {
     const room = rooms.find((r) => r.id === roomId)!;
     if (!room) return null;
     const colors = JSON.parse(room.themeColors) as { primary: string; accent: string };
     const sessionDate = new Date(year, month - 1, day);
     const slots = generateUnifiedSlots(sessionDate, room.durationMinutes, scheduleConfig);
+
+    // Bookings that don't fall on any current slot (schedule changed after they were booked)
+    const slotTimes = new Set(slots.map((s) => s.startTime.getTime()));
+    const orphanedBookings = (bookingsByDay.get(day) ?? []).filter(
+      (b) => b.roomId === room.id && !slotTimes.has(new Date(b.startTime).getTime())
+    );
 
     return (
       <div className="rounded-2xl border border-white/10 overflow-hidden" style={{ background: colors.primary }}>
@@ -283,6 +413,14 @@ export default function BookingCalendar({
         </div>
 
         <div className="divide-y divide-white/5">
+          {/* Bookings made under a previous schedule — always visible */}
+          {orphanedBookings.map((booking) => {
+            const label = new Date(booking.startTime).toLocaleTimeString("en-US", {
+              hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Africa/Tunis",
+            });
+            return <BookingCard key={booking.id} booking={booking} label={label} />;
+          })}
+
           {slots.map((slot) => {
             const slotIso = slot.startTime.toISOString();
             const booking = bookings.find(
@@ -295,142 +433,10 @@ export default function BookingCalendar({
                 b.roomId === room.id &&
                 new Date(b.slotStart).getTime() === slot.startTime.getTime()
             );
-            const isReschedulingThis = rescheduleId === booking?.id;
 
             // ── Booked slot — prominent card ────────────────────────────────
             if (booking) {
-              return (
-                <div key={slotIso}>
-                  <div className="px-5 py-4" style={{ background: colors.accent + "10" }}>
-                    {/* Time + status */}
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-white font-bold text-base">{slot.label}</span>
-                      <span
-                        className={`text-xs px-2.5 py-1 rounded-full border font-semibold ${
-                          booking.status === "confirmed"
-                            ? "bg-green-900/40 text-green-400 border-green-500/30"
-                            : booking.status === "pending"
-                            ? "bg-amber-900/40 text-amber-400 border-amber-500/30"
-                            : "bg-red-900/40 text-red-400 border-red-500/30"
-                        }`}
-                      >
-                        {booking.status === "pending" ? "⏳ pending" : booking.status}
-                      </span>
-                    </div>
-
-                    {/* Customer details */}
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 mb-4">
-                      <div>
-                        <p className="text-white/40 text-[10px] uppercase tracking-widest mb-0.5">Customer</p>
-                        <p className="text-white font-semibold text-base">{booking.customerName}</p>
-                      </div>
-                      <div>
-                        <p className="text-white/40 text-[10px] uppercase tracking-widest mb-0.5">Group size</p>
-                        <p className="text-white font-semibold text-base">👥 {booking.partySize} people</p>
-                      </div>
-                      <div>
-                        <p className="text-white/40 text-[10px] uppercase tracking-widest mb-0.5">Email</p>
-                        <p className="text-white/80 text-sm">{booking.email}</p>
-                      </div>
-                      <div>
-                        <p className="text-white/40 text-[10px] uppercase tracking-widest mb-0.5">Phone</p>
-                        <p className="text-white/80 text-sm">{booking.phone}</p>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-2 flex-wrap">
-                      {booking.status === "pending" && (
-                        <button
-                          onClick={() => confirmBooking(booking.id)}
-                          disabled={pending.has(`confirm-${booking.id}`)}
-                          className="px-4 py-2 rounded-lg bg-green-700/60 hover:bg-green-600/70 border border-green-500/40 text-green-300 text-sm font-semibold transition-colors disabled:opacity-40"
-                        >
-                          {pending.has(`confirm-${booking.id}`) ? "Confirming…" : "✓ Confirm"}
-                        </button>
-                      )}
-                      <button
-                        onClick={() => cancelBooking(booking.id)}
-                        disabled={pending.has(`cancel-${booking.id}`) || booking.status === "cancelled"}
-                        className="px-4 py-2 rounded-lg border border-red-500/40 text-red-400 hover:bg-red-500/15 text-sm font-semibold transition-colors disabled:opacity-40"
-                      >
-                        {pending.has(`cancel-${booking.id}`) ? "Cancelling…" : "Cancel"}
-                      </button>
-                      {booking.status !== "cancelled" && (
-                        <button
-                          onClick={() =>
-                            isReschedulingThis ? setRescheduleId(null) : setRescheduleId(booking.id)
-                          }
-                          className="px-4 py-2 rounded-lg border border-white/20 text-white/70 hover:bg-white/10 text-sm font-semibold transition-colors"
-                        >
-                          {isReschedulingThis ? "Close" : "Reschedule"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Reschedule form */}
-                  {isReschedulingThis && (
-                    <div className="px-5 py-4 border-t border-white/10 space-y-3 bg-black/20">
-                      <p className="text-xs text-white/50 uppercase tracking-widest font-semibold">
-                        Move to a new slot
-                      </p>
-                      <div className="flex gap-2 flex-wrap">
-                        <input
-                          type="date"
-                          min={todayStr}
-                          value={rescheduleDate}
-                          onChange={(e) => {
-                            setRescheduleDate(e.target.value);
-                            setRescheduleSlots([]);
-                            setRescheduleSlotTime(null);
-                          }}
-                          className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-white/40"
-                          style={{ colorScheme: "dark" }}
-                        />
-                        <button
-                          onClick={() => fetchRescheduleSlots(room.id)}
-                          disabled={!rescheduleDate || rescheduleFetching}
-                          className="px-4 py-2 rounded-lg border border-white/20 text-white/70 hover:bg-white/10 text-sm transition-colors disabled:opacity-40"
-                        >
-                          {rescheduleFetching ? "Loading…" : "Load slots"}
-                        </button>
-                      </div>
-                      {rescheduleSlots.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {rescheduleSlots.map((s) => (
-                            <button
-                              key={s.startTime}
-                              onClick={() => setRescheduleSlotTime(s.startTime)}
-                              className="text-sm px-3 py-1.5 rounded-lg border transition-colors"
-                              style={
-                                rescheduleSlotTime === s.startTime
-                                  ? { background: colors.accent, color: colors.primary, borderColor: colors.accent }
-                                  : { borderColor: "rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.7)" }
-                              }
-                            >
-                              {s.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      {rescheduleSlots.length === 0 && rescheduleDate && !rescheduleFetching && (
-                        <p className="text-sm text-white/30">No available slots on that date.</p>
-                      )}
-                      {rescheduleSlotTime && (
-                        <button
-                          onClick={() => confirmReschedule(booking.id)}
-                          disabled={pending.has(`reschedule-${booking.id}`)}
-                          className="px-5 py-2 rounded-lg font-semibold text-sm transition-opacity disabled:opacity-40"
-                          style={{ background: colors.accent, color: colors.primary }}
-                        >
-                          {pending.has(`reschedule-${booking.id}`) ? "Moving…" : "Confirm Reschedule"}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
+              return <BookingCard key={slotIso} booking={booking} label={slot.label} />;
             }
 
             // ── Blocked / available — compact row ───────────────────────────
