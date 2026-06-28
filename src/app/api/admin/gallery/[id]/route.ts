@@ -15,6 +15,7 @@ export async function PATCH(
     label?: string;
     sub?: string;
     accent?: string;
+    imageUrls?: string[];
     featured?: boolean;
     order?: number;
     active?: boolean;
@@ -26,13 +27,14 @@ export async function PATCH(
       ...(body.label !== undefined && { label: body.label.trim() }),
       ...(body.sub !== undefined && { sub: body.sub.trim() }),
       ...(body.accent !== undefined && { accent: body.accent }),
+      ...(body.imageUrls !== undefined && { imageUrls: JSON.stringify(body.imageUrls) }),
       ...(body.featured !== undefined && { featured: body.featured }),
       ...(body.order !== undefined && { order: body.order }),
       ...(body.active !== undefined && { active: body.active }),
     },
   });
   revalidatePath("/");
-  return NextResponse.json(album);
+  return NextResponse.json({ ...album, imageUrls: JSON.parse(album.imageUrls) });
 }
 
 export async function DELETE(

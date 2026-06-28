@@ -11,9 +11,9 @@ export const en: Dict = {
   },
   home: {
     eyebrow: "Can you escape?",
-    h1a: "Three Rooms.",
+    h1a: "Choose Your Room.",
     h1b: "One Hour.",
-    h1c: "No Mercy.",
+    h1c: "Will You Escape?",
     tagline: "Step into a world of horror, mystery, and suspense. Our immersive escape rooms are designed to challenge, terrify, and thrill.",
     cta: "Book a Room",
     explore: "Explore Rooms",

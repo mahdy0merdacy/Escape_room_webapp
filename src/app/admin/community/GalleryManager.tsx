@@ -42,6 +42,70 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (v: string)
   );
 }
 
+function ImageUrlsEditor({
+  urls,
+  onChange,
+}: {
+  urls: string[];
+  onChange: (urls: string[]) => void;
+}) {
+  const [newUrl, setNewUrl] = useState("");
+
+  function add() {
+    const trimmed = newUrl.trim();
+    if (!trimmed) return;
+    onChange([...urls, trimmed]);
+    setNewUrl("");
+  }
+
+  function remove(i: number) {
+    onChange(urls.filter((_, j) => j !== i));
+  }
+
+  return (
+    <div>
+      <p className="text-xs text-white/40 mb-2">Images (Vercel Blob URLs)</p>
+      {urls.length > 0 && (
+        <div className="space-y-1.5 mb-2">
+          {urls.map((url, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                readOnly
+                value={url}
+                className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-[11px] text-white/50 font-mono truncate min-w-0"
+              />
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="text-white/30 hover:text-red-400 text-sm px-1.5 flex-shrink-0 transition-colors"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="flex gap-2">
+        <input
+          value={newUrl}
+          onChange={(e) => setNewUrl(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && add()}
+          className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 min-w-0 placeholder:text-white/20"
+          placeholder="Paste Vercel blob URL and press Enter…"
+        />
+        <button
+          type="button"
+          onClick={add}
+          disabled={!newUrl.trim()}
+          className="text-xs bg-white/10 hover:bg-white/20 disabled:opacity-30 text-white px-3 py-1.5 rounded transition-colors flex-shrink-0"
+        >
+          + Add
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function AlbumRow({
   album,
   onUpdate,
@@ -55,12 +119,13 @@ function AlbumRow({
   const [label, setLabel] = useState(album.label);
   const [sub, setSub] = useState(album.sub);
   const [accent, setAccent] = useState(album.accent);
+  const [imageUrls, setImageUrls] = useState<string[]>(album.imageUrls);
   const [loading, setLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   async function save() {
     setLoading(true);
-    await onUpdate(album.id, { label, sub, accent });
+    await onUpdate(album.id, { label, sub, accent, imageUrls });
     setLoading(false);
     setEditing(false);
   }
@@ -69,6 +134,7 @@ function AlbumRow({
     setLabel(album.label);
     setSub(album.sub);
     setAccent(album.accent);
+    setImageUrls(album.imageUrls);
     setEditing(false);
   }
 
@@ -96,20 +162,20 @@ function AlbumRow({
         album.active ? "border-white/10 bg-white/[0.03]" : "border-white/5 bg-white/[0.01] opacity-50"
       }`}
     >
-      <div className="flex items-center gap-3 px-4 py-3">
+      <div className="flex items-start gap-3 px-4 py-3">
         <div
-          className="w-4 h-4 rounded-full flex-shrink-0 border border-white/20"
+          className="w-4 h-4 rounded-full flex-shrink-0 border border-white/20 mt-0.5"
           style={{ background: album.accent }}
         />
 
         {album.featured && (
-          <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full mt-0.5 flex-shrink-0">
             Featured
           </span>
         )}
 
         {editing ? (
-          <div className="flex-1 flex flex-col gap-2 min-w-0">
+          <div className="flex-1 flex flex-col gap-3 min-w-0">
             <input
               autoFocus
               value={label}
@@ -124,11 +190,17 @@ function AlbumRow({
               placeholder="Subtitle"
             />
             <ColorPicker value={accent} onChange={setAccent} />
+            <ImageUrlsEditor urls={imageUrls} onChange={setImageUrls} />
           </div>
         ) : (
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-semibold truncate">{album.label}</p>
             {album.sub && <p className="text-white/40 text-xs truncate">{album.sub}</p>}
+            {album.imageUrls.length > 0 && (
+              <p className="text-white/25 text-[10px] mt-0.5">
+                {album.imageUrls.length} image{album.imageUrls.length !== 1 ? "s" : ""}
+              </p>
+            )}
           </div>
         )}
 
@@ -224,6 +296,7 @@ function AddAlbumForm({ onAdd }: { onAdd: (album: GalleryAlbumRow) => void }) {
   const [label, setLabel] = useState("");
   const [sub, setSub] = useState("");
   const [accent, setAccent] = useState("#e11d48");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -235,7 +308,7 @@ function AddAlbumForm({ onAdd }: { onAdd: (album: GalleryAlbumRow) => void }) {
       const res = await fetch("/api/admin/gallery", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ label: label.trim(), sub: sub.trim(), accent }),
+        body: JSON.stringify({ label: label.trim(), sub: sub.trim(), accent, imageUrls }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({})) as { error?: string };
@@ -247,6 +320,7 @@ function AddAlbumForm({ onAdd }: { onAdd: (album: GalleryAlbumRow) => void }) {
       setLabel("");
       setSub("");
       setAccent("#e11d48");
+      setImageUrls([]);
       setOpen(false);
     } catch {
       setError("Network error — please try again");
@@ -294,6 +368,7 @@ function AddAlbumForm({ onAdd }: { onAdd: (album: GalleryAlbumRow) => void }) {
           <label className="text-xs text-white/40 mb-1 block">Accent color</label>
           <ColorPicker value={accent} onChange={setAccent} />
         </div>
+        <ImageUrlsEditor urls={imageUrls} onChange={setImageUrls} />
         {error && <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded px-3 py-2">{error}</p>}
       </div>
       <div className="flex gap-2 pt-1">

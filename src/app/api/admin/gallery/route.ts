@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
     label?: string;
     sub?: string;
     accent?: string;
+    imageUrls?: string[];
     featured?: boolean;
     order?: number;
   };
@@ -34,10 +35,11 @@ export async function POST(request: NextRequest) {
       label: body.label.trim(),
       sub: body.sub?.trim() ?? "",
       accent: body.accent ?? "#e11d48",
+      imageUrls: JSON.stringify(body.imageUrls ?? []),
       featured: body.featured ?? false,
       order: body.order ?? 0,
     },
   });
   revalidatePath("/");
-  return NextResponse.json(album, { status: 201 });
+  return NextResponse.json({ ...album, imageUrls: JSON.parse(album.imageUrls) }, { status: 201 });
 }

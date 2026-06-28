@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useT } from "./IntlProvider";
 
-type Album = { id: string; label: string; sub: string; accent: string; featured: boolean };
+type Album = { id: string; label: string; sub: string; accent: string; featured: boolean; imageUrls: string[] };
 
 const SOCIALS = [
   {
@@ -41,32 +42,94 @@ const SOCIALS = [
 ];
 
 function AlbumCard({ album, large }: { album: Album; large: boolean }) {
+  const images = album.imageUrls;
+  const [idx, setIdx] = useState(0);
+  const hasImages = images.length > 0;
+  const isCarousel = images.length > 1;
+
+  function prev(e: React.MouseEvent) {
+    e.stopPropagation();
+    setIdx((i) => (i - 1 + images.length) % images.length);
+  }
+
+  function next(e: React.MouseEvent) {
+    e.stopPropagation();
+    setIdx((i) => (i + 1) % images.length);
+  }
+
   return (
     <div
-      className={`${large ? "md:col-span-2 md:row-span-2" : ""} relative rounded-2xl overflow-hidden border border-white/10 group cursor-pointer`}
+      className={`${large ? "md:col-span-2 md:row-span-2" : ""} relative rounded-2xl overflow-hidden border border-white/10 group`}
     >
-      <div
-        className="absolute inset-0"
-        style={{ background: `linear-gradient(135deg, ${album.accent}33 0%, #00000099 55%, #000000cc 100%)` }}
-      />
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-        aria-hidden="true"
-      />
-      <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" className="w-16 h-16" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      </div>
-      <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+      {/* Background — real image or gradient placeholder */}
+      {hasImages ? (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url('${images[idx]}')` }}
+        />
+      ) : (
+        <>
+          <div
+            className="absolute inset-0"
+            style={{ background: `linear-gradient(135deg, ${album.accent}33 0%, #00000099 55%, #000000cc 100%)` }}
+          />
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            }}
+            aria-hidden="true"
+          />
+          <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" className="w-16 h-16" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+        </>
+      )}
+
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+
+      {/* Carousel prev/next */}
+      {isCarousel && (
+        <>
+          <button
+            onClick={prev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black/40 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center text-xl leading-none transition-colors opacity-70 group-hover:opacity-100"
+            aria-label="Previous photo"
+          >
+            ‹
+          </button>
+          <button
+            onClick={next}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black/40 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center text-xl leading-none transition-colors opacity-70 group-hover:opacity-100"
+            aria-label="Next photo"
+          >
+            ›
+          </button>
+        </>
+      )}
+
+      {/* Label + dots */}
+      <div className="absolute bottom-0 inset-x-0 p-4">
         <p className="text-xs font-bold uppercase tracking-widest mb-0.5" style={{ color: album.accent }}>
           {album.label}
         </p>
         {album.sub && <p className="text-white/60 text-xs">{album.sub}</p>}
+        {isCarousel && (
+          <div className="flex gap-1 mt-2">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.stopPropagation(); setIdx(i); }}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${i === idx ? "bg-white scale-125" : "bg-white/35 hover:bg-white/60"}`}
+                aria-label={`Photo ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

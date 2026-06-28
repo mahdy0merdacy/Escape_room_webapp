@@ -25,7 +25,7 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black z-10" />
         <div
           className="absolute inset-0 bg-cover bg-center opacity-30"
-          style={{ backgroundImage: "url('https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/hero-bg.webp')" }}
+          style={{ backgroundImage: "url('https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/HARBA%20%282%29%281%29.png')" }}
           aria-hidden="true"
         />
         <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">

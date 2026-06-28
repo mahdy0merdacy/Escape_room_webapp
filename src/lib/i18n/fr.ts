@@ -11,9 +11,9 @@ export const fr: Dict = {
   },
   home: {
     eyebrow: "Pouvez-vous vous échapper ?",
-    h1a: "Trois salles.",
+    h1a: "Choisissez votre salle.",
     h1b: "Une heure.",
-    h1c: "Sans pitié.",
+    h1c: "Pouvez-vous fuir ?",
     tagline: "Plongez dans un univers d'horreur, de mystère et de suspense. Nos escape rooms immersives sont conçues pour vous défier, vous terrifier et vous captiver.",
     cta: "Réserver une salle",
     explore: "Explorer les salles",

@@ -12,9 +12,13 @@ const SEED_ALBUMS = [
 ];
 
 export default async function CommunityAdminPage() {
-  let albums = await prisma.galleryAlbum.findMany({
+  const rawAlbums = await prisma.galleryAlbum.findMany({
     orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-  }).catch(() => [] as typeof SEED_ALBUMS);
+  }).catch(() => []);
+  const albums = rawAlbums.map((a) => ({
+    ...a,
+    imageUrls: JSON.parse(a.imageUrls ?? "[]") as string[],
+  }));
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
@@ -33,6 +37,7 @@ export type GalleryAlbumRow = {
   label: string;
   sub: string;
   accent: string;
+  imageUrls: string[];
   featured: boolean;
   order: number;
   active: boolean;

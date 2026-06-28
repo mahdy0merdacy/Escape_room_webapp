@@ -93,6 +93,7 @@ model GalleryAlbum {
   label     String
   sub       String   @default("")
   accent    String   @default("#e11d48")
+  imageUrls String   @default("[]")
   featured  Boolean  @default(false)
   order     Int      @default(0)
   active    Boolean  @default(true)
