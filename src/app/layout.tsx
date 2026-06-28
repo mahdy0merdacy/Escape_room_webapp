@@ -16,7 +16,6 @@ export const metadata: Metadata = {
     "elharba offers three uniquely themed escape rooms. Book your 60-minute adventure today.",
   metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
   icons: {
-    icon: LOGO_URL,
     apple: LOGO_URL,
   },
 };
