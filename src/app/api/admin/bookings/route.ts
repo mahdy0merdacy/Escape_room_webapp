@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendEmail, bookingConfirmationEmail } from "@/lib/email";
+import { sendEmail, bookingConfirmationEmail, newBookingAdminEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Awaited so Vercel doesn't cut it off before the Brevo request completes
+    // Confirmation to customer
     await sendEmail(
       bookingConfirmationEmail({
         customerName: customerName as string,
@@ -70,6 +70,19 @@ export async function POST(request: NextRequest) {
         pricePerPerson: room.pricePerPerson,
       })
     ).catch(console.error);
+
+    // Owner notification (fire-and-forget — manual bookings still need to reach Ahmed)
+    const adminPayload = newBookingAdminEmail({
+      customerName: customerName as string,
+      email: email as string,
+      phone: phone as string,
+      roomName: room.name,
+      startTime: startDate,
+      endTime: endDate,
+      partySize: parsedPartySize,
+      bookingId: booking.id,
+    });
+    sendEmail({ ...adminPayload, subject: `[Manual] ${adminPayload.subject}` }).catch(console.error);
 
     return NextResponse.json(
       {
