@@ -5,9 +5,10 @@ import { DEFAULT_SCHEDULE, generateUnifiedSlots, type ScheduleConfig } from "@/l
 import { parseRoomSchedule } from "@/lib/room-schedule";
 
 // Creates the ScheduleConfig table if it doesn't exist yet.
-// Idempotent — safe to call on every request.
+// Uses the tagged-template $executeRaw (supported by the Turso driver adapter)
+// rather than $executeRawUnsafe (not supported with driver adapters).
 async function ensureTable() {
-  await prisma.$executeRawUnsafe(`
+  await prisma.$executeRaw`
     CREATE TABLE IF NOT EXISTS "ScheduleConfig" (
       "id"           TEXT     NOT NULL PRIMARY KEY,
       "openHour"     INTEGER  NOT NULL DEFAULT 11,
@@ -17,7 +18,7 @@ async function ensureTable() {
       "breakMinutes" INTEGER  NOT NULL DEFAULT 0,
       "updatedAt"    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
-  `);
+  `;
 }
 
 export async function GET() {
@@ -38,6 +39,7 @@ export async function PATCH(request: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  try {
   const body = (await request.json()) as {
     openHour?: number;
     openMinute?: number;
@@ -182,4 +184,8 @@ export async function PATCH(request: NextRequest) {
   }
 
   return NextResponse.json({ config, rescheduled, unresolvable });
+  } catch (err) {
+    console.error("Schedule PATCH error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
