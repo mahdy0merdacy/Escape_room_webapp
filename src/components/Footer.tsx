@@ -1,4 +1,11 @@
 import Link from "next/link";
+import { getScheduleConfig } from "@/lib/schedule";
+
+function fmtHour(hour: number, minute: number) {
+  const ampm = hour < 12 ? "AM" : "PM";
+  const h = hour % 12 || 12;
+  return minute === 0 ? `${h}:00 ${ampm}` : `${h}:${String(minute).padStart(2, "0")} ${ampm}`;
+}
 
 const LOGO_URL =
   "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png";
@@ -35,7 +42,10 @@ const SOCIALS = [
   },
 ];
 
-export default function Footer() {
+export default async function Footer() {
+  const schedule = await getScheduleConfig();
+  const hours = `Daily ${fmtHour(schedule.openHour, schedule.openMinute)} – ${fmtHour(schedule.closeHour, schedule.closeMinute)}`;
+
   return (
     <footer className="bg-black border-t border-white/10 mt-auto">
       <div className="max-w-6xl mx-auto px-4 py-14">
@@ -95,7 +105,7 @@ export default function Footer() {
                 WhatsApp
               </a>
               <p>Manouba, Tunisia</p>
-              <p>Daily 12:00 PM – 1:00 AM</p>
+              <p>{hours}</p>
             </div>
           </div>
         </div>
