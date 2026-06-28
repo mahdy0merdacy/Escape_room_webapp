@@ -23,10 +23,14 @@ export default function Nav() {
   return (
     <>
       <header
-        className="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10"
+        className="fixed top-0 inset-x-0 z-50 border-b border-white/10"
         style={{ viewTransitionName: "site-header" }}
       >
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        {/* Blur layer is a separate child so the fixed element itself has no backdrop-filter.
+            iOS Safari creates a broken touch-event compositing layer when position:fixed and
+            backdrop-filter are on the same element — keeping them separate avoids the bug. */}
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm pointer-events-none" aria-hidden="true" />
+        <div className="relative max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center shrink-0" aria-label="elharba home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
