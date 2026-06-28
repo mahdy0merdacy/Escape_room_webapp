@@ -91,17 +91,25 @@ export async function PATCH(request: NextRequest) {
 
   const now = new Date();
 
-  const [futureBookings, futureBlocked] = await Promise.all([
-    prisma.booking.findMany({
-      where: { startTime: { gt: now }, status: { in: ["confirmed", "pending"] } },
-      include: { room: { select: { id: true, name: true, durationMinutes: true, openHours: true } } },
-      orderBy: { startTime: "asc" },
-    }),
-    prisma.blockedSlot.findMany({
-      where: { slotStart: { gt: now } },
-      select: { roomId: true, slotStart: true },
-    }),
-  ]);
+  const futureBookings = await prisma.booking.findMany({
+    where: { startTime: { gt: now }, status: { in: ["confirmed", "pending"] } },
+    select: {
+      id: true,
+      roomId: true,
+      startTime: true,
+      endTime: true,
+      status: true,
+      customerName: true,
+      room: { select: { id: true, name: true, durationMinutes: true, openHours: true } },
+    },
+    orderBy: { startTime: "asc" },
+  });
+
+  // BlockedSlot table may not exist yet on older deployments — degrade gracefully
+  const futureBlocked = await prisma.blockedSlot.findMany({
+    where: { slotStart: { gt: now } },
+    select: { roomId: true, slotStart: true },
+  }).catch(() => []);
 
   // Maintain a live set of taken slot keys (roomId|ms) so moves don't collide.
   const takenKeys = new Set<string>([
