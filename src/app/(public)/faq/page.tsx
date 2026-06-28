@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import prisma from "@/lib/prisma";
 import FaqContent from "./FaqContent";
 
@@ -19,5 +20,31 @@ export default async function FaqPage() {
 
   const phone = phoneSetting?.value ?? "+216 28 720 530";
 
-  return <FaqContent items={items} phone={phone} />;
+  const activeItems = items.filter((it) => it.active && it.q_en && it.a_en);
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: activeItems.map((it) => ({
+      "@type": "Question",
+      name: it.q_en,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: it.a_en,
+      },
+    })),
+  };
+
+  return (
+    <>
+      {activeItems.length > 0 && (
+        <Script
+          id="ld-faq"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
+      <FaqContent items={items} phone={phone} />
+    </>
+  );
 }
