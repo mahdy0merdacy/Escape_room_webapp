@@ -44,7 +44,7 @@ export default async function BookingsPage({ searchParams }: Props) {
     prisma.room.findMany({
       where: { active: true },
       select: { id: true, name: true, themeColors: true, durationMinutes: true, minPlayers: true, maxPlayers: true },
-      orderBy: { name: "asc" },
+      orderBy: { order: "asc" },
     }),
   ]);
   const bookings = bookingsRaw;

@@ -10,7 +10,7 @@ export default async function SchedulePage() {
     prisma.room.findMany({
       where: { active: true },
       select: { id: true, name: true, durationMinutes: true, openHours: true },
-      orderBy: { name: "asc" },
+      orderBy: { order: "asc" },
     }),
   ]);
 

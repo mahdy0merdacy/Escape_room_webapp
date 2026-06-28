@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RoomsPage() {
-  const rooms = await prisma.room.findMany({ where: { active: true }, orderBy: { name: "asc" } });
+  const rooms = await prisma.room.findMany({ where: { active: true }, orderBy: { order: "asc" } });
 
   const roomData = rooms.map((room: Room) => ({
     slug: room.slug,

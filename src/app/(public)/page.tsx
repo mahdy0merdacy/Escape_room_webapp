@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const rooms = await prisma.room.findMany({ where: { active: true } });
+  const rooms = await prisma.room.findMany({ where: { active: true }, orderBy: { order: "asc" } });
 
   const jsonLd = {
     "@context": "https://schema.org",

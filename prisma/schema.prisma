@@ -27,6 +27,7 @@ model Room {
   active            Boolean   @default(true)
   roomStatus        String    @default("active")
   showGallery       Boolean   @default(true)
+  order             Int       @default(0)
   seoTitle          String
   seoDescription    String
   bookings          Booking[]
