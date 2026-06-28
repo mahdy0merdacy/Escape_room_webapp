@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const LOGO_URL =
-  "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png";
+  "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/HARBA%20%282%29%281%29.png";
 
 export const metadata: Metadata = {
   title: {
