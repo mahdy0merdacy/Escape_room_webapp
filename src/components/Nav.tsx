@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useT } from "./IntlProvider";
@@ -32,11 +33,13 @@ export default function Nav() {
         <div className="absolute inset-0 bg-black/80 backdrop-blur-sm pointer-events-none" aria-hidden="true" />
         <div className="relative max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center shrink-0" aria-label="elharba home">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png"
               alt="elharba"
+              width={160}
+              height={36}
               className="h-9 w-auto object-contain"
+              style={{ width: "auto" }}
             />
           </Link>
 

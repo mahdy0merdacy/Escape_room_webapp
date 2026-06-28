@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Script from "next/script";
+import Image from "next/image";
 import prisma from "@/lib/prisma";
 import BookingWidget from "@/components/BookingWidget";
 import RoomDescription from "@/components/RoomDescription";
@@ -15,7 +16,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const room = await prisma.room.findUnique({ where: { slug } });
   if (!room) return {};
-  return { title: room.seoTitle, description: room.seoDescription };
+  return {
+    title: room.seoTitle,
+    description: room.seoDescription,
+    alternates: { canonical: `/rooms/${slug}` },
+    openGraph: {
+      title: room.seoTitle,
+      description: room.seoDescription,
+      url: `/rooms/${slug}`,
+      images: [{ url: room.heroImageUrl, alt: `${room.name} escape room` }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: room.seoTitle,
+      description: room.seoDescription,
+      images: [room.heroImageUrl],
+    },
+  };
 }
 
 export async function generateStaticParams() {
@@ -47,19 +65,37 @@ export default async function RoomPage({ params }: Props) {
   };
   const headingFont = fontVarMap[room.themeFont] ?? "var(--font-ui)";
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+  const baseUrl = process.env.NEXTAUTH_URL ?? "https://elharba.tn";
+  const roomUrl = `${baseUrl}/rooms/${room.slug}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": `${roomUrl}#product`,
     name: room.name,
     description: room.seoDescription,
-    url: `${baseUrl}/rooms/${room.slug}`,
+    image: room.heroImageUrl,
+    brand: { "@type": "Brand", name: "elharba" },
+    sku: room.id,
+    url: roomUrl,
     offers: {
       "@type": "Offer",
       price: 30,
       priceCurrency: "TND",
       availability: roomStatus === "active" ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
+      url: roomUrl,
+      seller: { "@type": "Organization", name: "elharba" },
     },
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
+      { "@type": "ListItem", position: 2, name: "Rooms", item: `${baseUrl}/rooms` },
+      { "@type": "ListItem", position: 3, name: room.name, item: roomUrl },
+    ],
   };
 
   return (
@@ -68,6 +104,11 @@ export default async function RoomPage({ params }: Props) {
         id={`ld-room-${room.slug}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <Script
+        id={`ld-breadcrumb-${room.slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       {/* Status banners — sticky below the nav */}
@@ -88,11 +129,13 @@ export default async function RoomPage({ params }: Props) {
           className="relative min-h-[70vh] flex items-end pb-16"
           style={{ background: colors.primary }}
         >
-          <div
-            className="absolute inset-0 bg-cover opacity-40"
-            style={{ backgroundImage: `url('${room.heroImageUrl}')`, backgroundPosition: heroPos }}
-            role="img"
-            aria-label={`Hero image for ${room.name} escape room`}
+          <Image
+            src={room.heroImageUrl}
+            alt={`${room.name} escape room`}
+            fill
+            priority
+            className="object-cover opacity-40"
+            style={{ objectPosition: heroPos }}
           />
           <div
             className="absolute inset-0"

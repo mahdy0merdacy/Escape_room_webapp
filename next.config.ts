@@ -8,6 +8,14 @@ const nextConfig: NextConfig = {
   experimental: {
     viewTransition: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "mcgny6ysyqbf6ib9.public.blob.vercel-storage.com",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

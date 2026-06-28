@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useT } from "./IntlProvider";
 
 const SOCIALS = [
@@ -48,11 +49,13 @@ export default function FooterInner({ hours }: { hours: string }) {
 
           {/* Brand */}
           <div className="md:col-span-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={LOGO_URL}
               alt="elharba"
+              width={200}
+              height={48}
               className="h-12 w-auto object-contain mb-4"
+              style={{ width: "auto" }}
             />
             <p className="text-white/40 text-sm leading-relaxed max-w-xs">
               The leading escape room experience in Tunisia. Three immersive rooms in Manouba — horror, sci-fi, and crime drama.

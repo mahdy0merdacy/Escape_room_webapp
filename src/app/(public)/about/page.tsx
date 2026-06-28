@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   title: "About elharba — Escape Room in Manouba, Tunisia",
   description:
     "Learn about elharba, Tunisia's leading escape room. Our story, values, and what makes our immersive experiences unique.",
+  alternates: { canonical: "/about" },
+  openGraph: { url: "/about" },
 };
 
 type AboutValue = { icon: string; title: string; desc: string };

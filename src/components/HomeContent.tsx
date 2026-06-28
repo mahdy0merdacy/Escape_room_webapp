@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useT } from "./IntlProvider";
 
 type Room = {
@@ -81,10 +82,14 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
                 className="group relative rounded-2xl overflow-hidden border border-white/10 hover:border-white/30 transition-all hover:-translate-y-1 duration-300 flex flex-col"
                 style={{ background: colors.primary }}
               >
-                <div
-                  className="h-52 bg-cover relative"
-                  style={{ backgroundImage: `url('${room.heroImageUrl}')`, backgroundPosition: `center ${colors.heroPosition ?? "50%"}` }}
-                >
+                <div className="h-52 relative">
+                  <Image
+                    src={room.heroImageUrl}
+                    alt={room.name}
+                    fill
+                    className="object-cover"
+                    style={{ objectPosition: `center ${colors.heroPosition ?? "50%"}` }}
+                  />
                   <div
                     className="absolute inset-0"
                     style={{ background: `linear-gradient(to bottom, transparent 40%, ${colors.primary})` }}

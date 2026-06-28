@@ -7,6 +7,8 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "FAQ — elharba Escape Room",
   description: "Answers to the most common questions about elharba escape rooms in Manouba, Tunisia.",
+  alternates: { canonical: "/faq" },
+  openGraph: { url: "/faq" },
 };
 
 export default async function FaqPage() {

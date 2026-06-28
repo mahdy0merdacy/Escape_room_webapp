@@ -6,7 +6,9 @@ import RoomsGrid from "@/components/RoomsGrid";
 export const metadata: Metadata = {
   title: "All Rooms",
   description:
-    "Browse all three elharba escape rooms — horror, retro sci-fi, and crime drama. Book your experience today.",
+    "Browse all three elharba escape rooms in Manouba, Tunisia — horror, retro sci-fi, and crime drama. Book your experience today.",
+  alternates: { canonical: "/rooms" },
+  openGraph: { url: "/rooms" },
 };
 
 export default async function RoomsPage() {

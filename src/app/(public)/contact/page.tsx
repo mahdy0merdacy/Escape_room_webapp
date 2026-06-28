@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   title: "Contact — elharba Escape Room",
   description:
     "Find elharba escape room in Manouba. Call or WhatsApp us, get directions, and check our opening hours.",
+  alternates: { canonical: "/contact" },
+  openGraph: { url: "/contact" },
 };
 
 function formatTime(hour: number, minute: number): string {
