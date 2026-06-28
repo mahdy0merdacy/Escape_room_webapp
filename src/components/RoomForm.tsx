@@ -22,6 +22,7 @@ interface RoomFormData {
   minPlayers: number;
   maxPlayers: number;
   roomStatus: RoomStatus;
+  showGallery: boolean;
   seoTitle: string;
   seoDescription: string;
 }
@@ -71,6 +72,7 @@ export default function RoomForm({ roomId, initial }: Props) {
     minPlayers: initial?.minPlayers ?? 2,
     maxPlayers: initial?.maxPlayers ?? 6,
     roomStatus: initial?.roomStatus ?? "active",
+    showGallery: initial?.showGallery ?? true,
     seoTitle: initial?.seoTitle ?? "",
     seoDescription: initial?.seoDescription ?? "",
   });
@@ -398,6 +400,24 @@ export default function RoomForm({ roomId, initial }: Props) {
             </div>
           )}
         </FormField>
+
+        <div className="flex items-center justify-between py-1">
+          <div>
+            <p className="text-white/70 text-xs font-medium">Gallery section</p>
+            <p className="text-white/30 text-xs">Show or hide the photo gallery on the public room page</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => set("showGallery", !form.showGallery)}
+            className={`text-xs px-3 py-2 rounded font-medium transition-colors ${
+              form.showGallery
+                ? "bg-white/10 text-white/60 hover:bg-white/20"
+                : "bg-white/5 text-white/25 hover:text-white/60"
+            }`}
+          >
+            {form.showGallery ? "Visible" : "Hidden"}
+          </button>
+        </div>
 
         <div className="space-y-2">
           <label className="text-white/70 text-xs font-medium block">Gallery Images (URLs)</label>

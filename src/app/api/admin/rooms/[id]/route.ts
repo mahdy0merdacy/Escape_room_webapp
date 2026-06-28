@@ -18,7 +18,7 @@ export async function PUT(
   const {
     name, tagline, story, heroImageUrl, galleryImageUrls,
     themeColors, themeFont, difficulty, durationMinutes,
-    minPlayers, maxPlayers, roomStatus,
+    minPlayers, maxPlayers, roomStatus, showGallery,
     seoTitle, seoDescription,
   } = body;
 
@@ -42,6 +42,7 @@ export async function PUT(
       maxPlayers: Number(maxPlayers),
       active,
       roomStatus: dbRoomStatus,
+      showGallery: showGallery ?? true,
       seoTitle,
       seoDescription,
     },

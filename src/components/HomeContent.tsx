@@ -20,45 +20,6 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-[#090909]">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black z-10" />
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
-          style={{ backgroundImage: "url('https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/HARBA%20%282%29%281%29.png')" }}
-          aria-hidden="true"
-        />
-        <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
-          <p className="text-red-500 uppercase tracking-[0.3em] text-sm font-semibold mb-4">
-            {t.home.eyebrow}
-          </p>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6 text-white">
-            {t.home.h1a}
-            <br />
-            <span className="text-red-500">{t.home.h1b}</span>
-            <br />
-            {t.home.h1c}
-          </h1>
-          <p className="text-lg md:text-xl text-white/70 mb-10 max-w-xl mx-auto">
-            {t.home.tagline}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/rooms"
-              className="bg-red-600 hover:bg-red-500 text-white font-bold px-8 py-4 rounded text-lg transition-colors tracking-wide"
-            >
-              {t.home.cta}
-            </Link>
-            <Link
-              href="/rooms"
-              className="border border-white/30 hover:border-white/60 text-white px-8 py-4 rounded text-lg transition-colors"
-            >
-              {t.home.explore}
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Rooms preview */}
       <section className="max-w-6xl mx-auto px-4 py-24">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-white">

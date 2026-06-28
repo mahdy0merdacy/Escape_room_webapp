@@ -45,6 +45,7 @@ export default async function EditRoomPage({ params }: Props) {
           minPlayers: room.minPlayers,
           maxPlayers: room.maxPlayers,
           roomStatus,
+          showGallery: room.showGallery ?? true,
           seoTitle: room.seoTitle,
           seoDescription: room.seoDescription,
         }}

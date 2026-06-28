@@ -127,7 +127,7 @@ export default async function RoomPage({ params }: Props) {
 
               <RoomDescription story={storyI18n} headingFont={headingFont} />
 
-              <RoomGallery roomName={room.name} gallery={gallery} />
+              {(room.showGallery ?? true) && <RoomGallery roomName={room.name} gallery={gallery} />}
             </div>
 
             {/* Right: booking widget — shown first on mobile */}
