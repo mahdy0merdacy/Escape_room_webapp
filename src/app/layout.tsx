@@ -31,11 +31,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Apply stored locale before first paint to avoid flash */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var l=localStorage.getItem('locale');if(l==='ar'){document.documentElement.lang='ar';}else if(l==='fr'){document.documentElement.lang='fr';}})();`,
+            __html: `(function(){var l=localStorage.getItem('locale');if(l==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}else if(l==='fr'){document.documentElement.lang='fr';}})();`,
           }}
         />
       </head>
-      <body className="min-h-dvh flex flex-col bg-[#0a0a0a] text-white font-[family-name:var(--font-ui)]">
+      <body className="min-h-dvh flex flex-col bg-[#0a0a0a] text-white font-[family-name:var(--font-ui)] overflow-x-hidden">
         <IntlProvider>{children}</IntlProvider>
       </body>
     </html>

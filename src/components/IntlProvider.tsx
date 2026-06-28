@@ -42,6 +42,7 @@ export function IntlProvider({ children }: { children: ReactNode }) {
 
 function applyLocale(l: Locale) {
   document.documentElement.lang = l;
+  document.documentElement.dir = dicts[l].dir;
 }
 
 export function useT(): Dict {

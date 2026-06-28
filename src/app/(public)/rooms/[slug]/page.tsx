@@ -4,7 +4,7 @@ import Script from "next/script";
 import prisma from "@/lib/prisma";
 import BookingWidget from "@/components/BookingWidget";
 import RoomDescription from "@/components/RoomDescription";
-import { TIERS } from "@/lib/pricing";
+import RoomStats, { RoomGallery, RoomSidebarStatus, RoomStatusBanner } from "@/components/RoomStats";
 import { parseStory } from "@/lib/story";
 
 interface Props {
@@ -21,20 +21,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export async function generateStaticParams() {
   const rooms = await prisma.room.findMany({ where: { active: true }, select: { slug: true } });
   return rooms.map((r: { slug: string }) => ({ slug: r.slug }));
-}
-
-function DifficultyBar({ level }: { level: number }) {
-  return (
-    <div className="flex gap-1" aria-label={`Difficulty ${level} out of 5`}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <div
-          key={i}
-          className="h-1.5 w-6 rounded-full"
-          style={i <= level ? { background: "var(--room-accent)" } : { background: "rgba(255,255,255,0.15)" }}
-        />
-      ))}
-    </div>
-  );
 }
 
 export default async function RoomPage({ params }: Props) {
@@ -85,28 +71,7 @@ export default async function RoomPage({ params }: Props) {
       />
 
       {/* Status banners — sticky below the nav */}
-      {roomStatus === "coming_soon" && (
-        <div className="sticky top-0 z-40 bg-gradient-to-r from-amber-900 to-amber-800 border-b border-amber-600/40">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-            <span className="text-2xl leading-none">🚧</span>
-            <div>
-              <p className="text-amber-100 font-bold text-sm">Coming Soon</p>
-              <p className="text-amber-200/70 text-xs">This room isn&apos;t open for booking yet — check back soon!</p>
-            </div>
-          </div>
-        </div>
-      )}
-      {roomStatus === "unavailable" && (
-        <div className="sticky top-0 z-40 bg-gradient-to-r from-zinc-900 to-zinc-800 border-b border-white/10">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-            <span className="text-2xl leading-none">⛔</span>
-            <div>
-              <p className="text-white font-bold text-sm">Currently Unavailable</p>
-              <p className="text-white/50 text-xs">This room is temporarily closed. We&apos;ll reopen soon.</p>
-            </div>
-          </div>
-        </div>
-      )}
+      {roomStatus !== "active" && <RoomStatusBanner roomStatus={roomStatus} />}
 
       {/* Apply room CSS vars to this subtree */}
       <div
@@ -151,70 +116,18 @@ export default async function RoomPage({ params }: Props) {
         <div style={{ background: colors.primary }}>
           <div className="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Left: story + gallery — shown below booking widget on mobile */}
-            <div className="order-2 lg:order-none lg:col-start-1 lg:col-span-2 space-y-10">
-              {/* Quick stats */}
-              <div className="grid grid-cols-3 gap-4">
-                {[
-                  { label: "Duration", value: `${room.durationMinutes} min` },
-                  { label: "Players", value: `${room.minPlayers}–${room.maxPlayers}` },
-                  { label: "Age", value: "16+" },
-                ].map(({ label, value }) => (
-                  <div
-                    key={label}
-                    className="rounded-xl p-4 border border-white/10 text-center"
-                    style={{ background: colors.secondary }}
-                  >
-                    <p className="text-white/50 text-xs mb-1">{label}</p>
-                    <p className="text-white font-bold">{value}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Pricing tiers */}
-              <div>
-                <p className="text-white/50 text-xs uppercase tracking-widest mb-3">Pricing</p>
-                <div className="grid grid-cols-3 gap-3">
-                  {TIERS.map((t) => (
-                    <div
-                      key={t.label}
-                      className="rounded-xl p-4 border border-white/10 text-center"
-                      style={{ background: colors.secondary }}
-                    >
-                      <p className="text-white/50 text-xs mb-1">{t.label}</p>
-                      <p className="font-bold" style={{ color: "var(--room-accent)" }}>
-                        {t.pricePerPerson} TND
-                      </p>
-                      <p className="text-white/30 text-xs">/ person</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Difficulty */}
-              <div>
-                <p className="text-white/50 text-xs uppercase tracking-widest mb-2">Difficulty</p>
-                <DifficultyBar level={room.difficulty} />
-              </div>
+            <div className="order-2 lg:order-none lg:col-start-1 lg:col-span-2 flex flex-col gap-10">
+              <RoomStats
+                durationMinutes={room.durationMinutes}
+                minPlayers={room.minPlayers}
+                maxPlayers={room.maxPlayers}
+                difficulty={room.difficulty}
+                colors={colors}
+              />
 
               <RoomDescription story={storyI18n} headingFont={headingFont} />
 
-              {/* Gallery */}
-              {gallery.length > 0 && (
-                <div>
-                  <h2 className="text-xl font-bold text-white mb-4">Gallery</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {gallery.map((url, i) => (
-                      <div
-                        key={i}
-                        className="aspect-video rounded-xl bg-cover bg-center border border-white/10"
-                        style={{ backgroundImage: `url('${url}')` }}
-                        role="img"
-                        aria-label={`${room.name} gallery image ${i + 1}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              <RoomGallery roomName={room.name} gallery={gallery} />
             </div>
 
             {/* Right: booking widget — shown first on mobile */}
@@ -230,24 +143,7 @@ export default async function RoomPage({ params }: Props) {
                     durationMinutes={room.durationMinutes}
                   />
                 ) : (
-                  <div
-                    className="rounded-2xl border border-white/10 p-8 text-center space-y-4"
-                    style={{ background: colors.secondary }}
-                  >
-                    <div className="text-4xl">
-                      {roomStatus === "coming_soon" ? "🚧" : "⛔"}
-                    </div>
-                    <div>
-                      <p className="text-white font-bold text-lg mb-1">
-                        {roomStatus === "coming_soon" ? "Coming Soon" : "Unavailable"}
-                      </p>
-                      <p className="text-white/50 text-sm">
-                        {roomStatus === "coming_soon"
-                          ? "Booking for this room will open soon. Check back later!"
-                          : "This room is temporarily closed. We'll reopen soon."}
-                      </p>
-                    </div>
-                  </div>
+                  <RoomSidebarStatus roomStatus={roomStatus} colors={colors} />
                 )}
               </div>
             </div>

@@ -95,4 +95,34 @@ export type Dict = {
     booking: string;
     duration: string;
   };
+  rooms: {
+    eyebrow: string;
+    heading: string;
+    tagline: string;
+    perPerson: string;
+    basedOnGroup: string;
+    viewRoom: string;
+    learnMore: string;
+    comingSoon: string;
+    comingSoonDesc: string;
+    unavailable: string;
+    unavailableDesc: string;
+  };
+  room: {
+    players: string;
+    age: string;
+    ageValue: string;
+    pricing: string;
+    perPerson: string;
+    gallery: string;
+    story: string;
+    comingSoon: string;
+    comingSoonDesc: string;
+    unavailable: string;
+    unavailableDesc: string;
+  };
+  footer: {
+    explore: string;
+    contactHeading: string;
+  };
 };

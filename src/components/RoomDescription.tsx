@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "./IntlProvider";
+import { useLocale, useT } from "./IntlProvider";
 import type { StoryI18n } from "@/lib/story";
 
 export default function RoomDescription({
@@ -11,12 +11,13 @@ export default function RoomDescription({
   headingFont: string;
 }) {
   const { locale } = useLocale();
+  const t = useT();
   const text = story[locale as keyof StoryI18n] || story.en || "";
 
   return (
     <div>
       <h2 className="text-2xl font-bold text-white mb-4" style={{ fontFamily: headingFont }}>
-        {locale === "ar" ? "القصة" : locale === "fr" ? "L'Histoire" : "The Story"}
+        {t.room.story}
       </h2>
       <div className="text-white/70 leading-relaxed space-y-4">
         {text.split("\n\n").map((para, i) => (
