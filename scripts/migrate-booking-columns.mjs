@@ -6,20 +6,51 @@
  *
  * Also adds roomStatus to Room if missing.
  *
- * Safe to run multiple times — uses IF NOT EXISTS / checks column list first.
+ * Safe to run multiple times — checks column list before altering.
  *
- * Usage:
- *   TURSO_DATABASE_URL=... TURSO_AUTH_TOKEN=... node scripts/migrate-booking-columns.mjs
+ * Usage (reads TURSO_* from .env.local automatically):
+ *   node scripts/migrate-booking-columns.mjs
+ *
+ * Or pass credentials explicitly:
+ *   TURSO_DATABASE_URL=libsql://... TURSO_AUTH_TOKEN=eyJ... node scripts/migrate-booking-columns.mjs
  */
 import { createClient } from "@libsql/client";
+import { readFileSync } from "fs";
+
+// Auto-load from .env / .env.local if env vars not already set
+function loadEnvFile(path) {
+  try {
+    const lines = readFileSync(path, "utf8").split("\n");
+    for (const raw of lines) {
+      const line = raw.startsWith("# ") ? raw.slice(2) : raw; // strip leading comment
+      const eq = line.indexOf("=");
+      if (eq === -1) continue;
+      const key = line.slice(0, eq).trim();
+      const val = line.slice(eq + 1).trim().replace(/^"|"$/g, "");
+      if ((key === "TURSO_DATABASE_URL" || key === "TURSO_AUTH_TOKEN") && !process.env[key]) {
+        process.env[key] = val;
+      }
+    }
+  } catch {
+    // file not found — skip
+  }
+}
+
+if (!process.env.TURSO_DATABASE_URL) {
+  loadEnvFile(".env");
+  loadEnvFile(".env.local");
+}
 
 const url = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
 if (!url || !authToken) {
   console.error("Missing TURSO_DATABASE_URL or TURSO_AUTH_TOKEN");
+  console.error("Make sure .env.local has these set (even if commented out), or pass them explicitly.");
   process.exit(1);
 }
+
+console.log("Connecting to:", url);
 
 const db = createClient({ url, authToken });
 
