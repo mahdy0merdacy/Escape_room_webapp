@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { fontUI, fontGothic, fontRetro, fontIndustrial } from "@/lib/fonts";
 import { IntlProvider } from "@/components/IntlProvider";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const LOGO_URL =
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-dvh flex flex-col bg-[#0a0a0a] text-white font-[family-name:var(--font-ui)] overflow-x-hidden">
         <IntlProvider>{children}</IntlProvider>
+        <Analytics />
       </body>
     </html>
   );
