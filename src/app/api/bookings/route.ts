@@ -76,7 +76,6 @@ export async function POST(request: NextRequest) {
     });
 
     const ref = booking.id.slice(0, 8).toUpperCase();
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.ADMIN_EMAIL ?? "";
 
     // Awaited so Vercel doesn't kill the function before the Brevo request resolves
     await sendEmail(
@@ -90,8 +89,7 @@ export async function POST(request: NextRequest) {
       })
     ).catch(console.error);
 
-    // Admin notification — log failures to EmailLog so the dashboard can surface them
-    sendEmail(
+    await sendEmail(
       newBookingAdminEmail({
         customerName: customerName as string,
         email: email as string,
@@ -102,12 +100,7 @@ export async function POST(request: NextRequest) {
         partySize: parsedPartySize,
         bookingId: booking.id,
       })
-    ).catch(async (err) => {
-      console.error("Admin notification failed for booking", ref, err);
-      await prisma.emailLog
-        .create({ data: { to: adminEmail, subject: `[FAILED-NOTIFY] Booking #${ref}`, body: String(err) } })
-        .catch(() => {});
-    });
+    ).catch(console.error);
 
     return NextResponse.json(booking, { status: 201 });
   } catch (err: unknown) {

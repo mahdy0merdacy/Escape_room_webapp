@@ -71,7 +71,6 @@ export async function POST(request: NextRequest) {
       })
     ).catch(console.error);
 
-    // Owner notification (fire-and-forget — manual bookings still need to reach Ahmed)
     const adminPayload = newBookingAdminEmail({
       customerName: customerName as string,
       email: email as string,
@@ -82,7 +81,7 @@ export async function POST(request: NextRequest) {
       partySize: parsedPartySize,
       bookingId: booking.id,
     });
-    sendEmail({ ...adminPayload, subject: `[Manual] ${adminPayload.subject}` }).catch(console.error);
+    await sendEmail({ ...adminPayload, subject: `[Manual] ${adminPayload.subject}` }).catch(console.error);
 
     return NextResponse.json(
       {
