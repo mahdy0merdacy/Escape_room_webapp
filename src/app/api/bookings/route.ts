@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendEmail, newBookingAdminEmail, bookingRequestReceivedEmail } from "@/lib/email";
+import { sendEmail, newBookingAdminEmail, bookingRequestReceivedEmail, type Locale } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -10,13 +10,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { roomId, startTime, endTime, customerName, email, phone, partySize } =
+  const { roomId, startTime, endTime, customerName, email, phone, partySize, locale } =
     body as Record<string, unknown>;
 
   // Validate required fields
   if (!roomId || !startTime || !endTime || !customerName || !email || !phone || !partySize) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
+
+  const safeLocale: Locale = locale === "ar" || locale === "fr" ? (locale as Locale) : "en";
 
   if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
@@ -72,6 +74,7 @@ export async function POST(request: NextRequest) {
         phone: phone as string,
         partySize: parsedPartySize,
         status: "pending",
+        locale: safeLocale,
       },
     });
 
@@ -86,6 +89,7 @@ export async function POST(request: NextRequest) {
         startTime: startDate,
         endTime: endDate,
         partySize: parsedPartySize,
+        locale: safeLocale,
       })
     ).catch(console.error);
 
@@ -99,6 +103,7 @@ export async function POST(request: NextRequest) {
         endTime: endDate,
         partySize: parsedPartySize,
         bookingId: booking.id,
+        locale: safeLocale,
       })
     ).catch(console.error);
 

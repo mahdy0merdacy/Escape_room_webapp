@@ -60,6 +60,7 @@ model Booking {
   amountPaid      Float?
   confirmedPlayed Boolean       @default(false)
   status          String        @default("confirmed")
+  locale          String        @default("en")
   createdAt       DateTime      @default(now())
 
   @@unique([roomId, startTime])

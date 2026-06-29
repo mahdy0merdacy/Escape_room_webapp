@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendEmail, bookingConfirmationEmail, bookingCancellationEmail } from "@/lib/email";
+import { sendEmail, bookingConfirmationEmail, bookingCancellationEmail, type Locale } from "@/lib/email";
 
 export async function PATCH(
   request: NextRequest,
@@ -33,6 +33,7 @@ export async function PATCH(
         endTime: booking.endTime,
         partySize: booking.partySize,
         pricePerPerson: booking.room.pricePerPerson,
+        locale: (booking.locale as Locale) ?? "en",
       })
     ).catch(console.error);
     return NextResponse.json({ ...updated, startTime: updated.startTime.toISOString(), endTime: updated.endTime.toISOString(), createdAt: updated.createdAt.toISOString() });
@@ -51,6 +52,7 @@ export async function PATCH(
         email: booking.email,
         roomName: booking.room.name,
         startTime: booking.startTime,
+        locale: (booking.locale as Locale) ?? "en",
       })
     ).catch(console.error);
     return NextResponse.json(updated);

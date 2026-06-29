@@ -142,6 +142,7 @@ export default function BookingWidget({
           endTime: selectedSlot.endTime,
           ...form,
           phone: `${phoneCountry.dial} ${form.phone.trim()}`,
+          locale: typeof window !== "undefined" ? (localStorage.getItem("locale") ?? "en") : "en",
         }),
       });
       const data = await res.json();
