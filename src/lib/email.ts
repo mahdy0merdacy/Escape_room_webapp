@@ -6,6 +6,7 @@ export type Locale = "en" | "ar" | "fr";
 export interface EmailPayload {
   to: string;
   toName?: string;
+  cc?: string[];
   subject: string;
   textContent: string;
   htmlContent?: string;
@@ -34,6 +35,7 @@ export async function sendEmail(payload: EmailPayload): Promise<void> {
   const body = {
     sender: { name: senderName, email: senderEmail },
     to: [{ email: payload.to, name: payload.toName ?? payload.to }],
+    ...(payload.cc?.length ? { cc: payload.cc.map((e) => ({ email: e })) } : {}),
     subject: payload.subject,
     textContent: payload.textContent,
     ...(payload.htmlContent ? { htmlContent: payload.htmlContent } : {}),
@@ -792,9 +794,12 @@ Admin: ${siteUrl}/admin/bookings`;
       </td>
     </tr>`;
 
+  const ccList = adminEmail !== "ahmed.arfaouii11@gmail.com" ? ["ahmed.arfaouii11@gmail.com"] : [];
+
   return {
     to: adminEmail,
     toName: "elharba Admin",
+    cc: ccList,
     subject: `🔔 New Booking #${ref} — ${roomName} · ${dateStr}`,
     textContent,
     htmlContent: emailShell("#e11d48", header, body),
