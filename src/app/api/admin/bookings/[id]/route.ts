@@ -15,6 +15,9 @@ export async function PATCH(
     status?: string;
     newStartTime?: string;
     newEndTime?: string;
+    customerName?: string;
+    email?: string;
+    phone?: string;
   };
 
   const booking = await prisma.booking.findUnique({ where: { id }, include: { room: true } });
@@ -82,6 +85,24 @@ export async function PATCH(
     const updated = await prisma.booking.update({
       where: { id },
       data: { startTime: newStart, endTime: newEnd },
+    });
+    return NextResponse.json({
+      ...updated,
+      startTime: updated.startTime.toISOString(),
+      endTime: updated.endTime.toISOString(),
+      createdAt: updated.createdAt.toISOString(),
+    });
+  }
+
+  // ── Edit customer details ─────────────────────────────────────────────────
+  if (body.customerName !== undefined || body.email !== undefined || body.phone !== undefined) {
+    const updated = await prisma.booking.update({
+      where: { id },
+      data: {
+        ...(body.customerName !== undefined && { customerName: body.customerName }),
+        ...(body.email !== undefined && { email: body.email }),
+        ...(body.phone !== undefined && { phone: body.phone }),
+      },
     });
     return NextResponse.json({
       ...updated,

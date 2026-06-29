@@ -56,6 +56,7 @@ interface BookingCardProps {
   onCancelBooking: (id: string) => void;
   onFetchRescheduleSlots: (roomId: string) => void;
   onConfirmReschedule: (id: string) => void;
+  onEditBooking: (id: string, data: { customerName: string; email: string; phone: string }) => Promise<boolean>;
 }
 
 function BookingCard({
@@ -63,11 +64,22 @@ function BookingCard({
   rescheduleDate, onSetRescheduleDate, rescheduleSlots, onSetRescheduleSlots,
   rescheduleSlotTime, onSetRescheduleSlotTime, rescheduleFetching,
   onConfirmBooking, onCancelBooking, onFetchRescheduleSlots, onConfirmReschedule,
+  onEditBooking,
 }: BookingCardProps) {
   const colors = JSON.parse(
     rooms.find((r) => r.id === booking.roomId)?.themeColors ?? '{"primary":"#111","accent":"#e11d48"}'
   ) as { primary: string; accent: string };
   const isReschedulingThis = rescheduleId === booking.id;
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({ customerName: booking.customerName, email: booking.email, phone: booking.phone });
+  const [editSaving, setEditSaving] = useState(false);
+
+  async function saveEdit() {
+    setEditSaving(true);
+    const ok = await onEditBooking(booking.id, editForm);
+    setEditSaving(false);
+    if (ok) setIsEditing(false);
+  }
 
   return (
     <div>
@@ -123,7 +135,15 @@ function BookingCard({
           </button>
           {booking.status !== "cancelled" && (
             <button
-              onClick={() => isReschedulingThis ? onSetRescheduleId(null) : onSetRescheduleId(booking.id)}
+              onClick={() => { setIsEditing((v) => !v); onSetRescheduleId(null); }}
+              className="px-4 py-2 rounded-lg border border-white/20 text-white/70 hover:bg-white/10 text-sm font-semibold transition-colors"
+            >
+              {isEditing ? "Close" : "Edit"}
+            </button>
+          )}
+          {booking.status !== "cancelled" && (
+            <button
+              onClick={() => { isReschedulingThis ? onSetRescheduleId(null) : onSetRescheduleId(booking.id); setIsEditing(false); }}
               className="px-4 py-2 rounded-lg border border-white/20 text-white/70 hover:bg-white/10 text-sm font-semibold transition-colors"
             >
               {isReschedulingThis ? "Close" : "Reschedule"}
@@ -131,6 +151,43 @@ function BookingCard({
           )}
         </div>
       </div>
+
+      {isEditing && (
+        <div className="px-5 py-4 border-t border-white/10 space-y-3 bg-black/20">
+          <p className="text-xs text-white/50 uppercase tracking-widest font-semibold">Edit customer details</p>
+          <div className="grid grid-cols-1 gap-2">
+            <input
+              type="text"
+              placeholder="Name"
+              value={editForm.customerName}
+              onChange={(e) => setEditForm((f) => ({ ...f, customerName: e.target.value }))}
+              className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-white/40 w-full"
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={editForm.email}
+              onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+              className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-white/40 w-full"
+            />
+            <input
+              type="text"
+              placeholder="Phone"
+              value={editForm.phone}
+              onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
+              className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-white/40 w-full"
+            />
+          </div>
+          <button
+            onClick={saveEdit}
+            disabled={editSaving}
+            className="px-5 py-2 rounded-lg font-semibold text-sm transition-opacity disabled:opacity-40"
+            style={{ background: colors.accent, color: colors.primary }}
+          >
+            {editSaving ? "Saving…" : "Save changes"}
+          </button>
+        </div>
+      )}
 
       {isReschedulingThis && (
         <div className="px-5 py-4 border-t border-white/10 space-y-3 bg-black/20">
@@ -233,6 +290,7 @@ interface SlotPanelProps {
   onCancelBooking: (id: string) => void;
   onFetchRescheduleSlots: (roomId: string) => void;
   onConfirmReschedule: (id: string) => void;
+  onEditBooking: (id: string, data: { customerName: string; email: string; phone: string }) => Promise<boolean>;
 }
 
 function SlotPanel({
@@ -243,6 +301,7 @@ function SlotPanel({
   rescheduleId, onSetRescheduleId, todayStr, rescheduleDate, onSetRescheduleDate,
   rescheduleSlots, onSetRescheduleSlots, rescheduleSlotTime, onSetRescheduleSlotTime,
   rescheduleFetching, onConfirmBooking, onCancelBooking, onFetchRescheduleSlots, onConfirmReschedule,
+  onEditBooking,
 }: SlotPanelProps) {
   const room = rooms.find((r) => r.id === roomId)!;
   if (!room) return null;
@@ -260,6 +319,7 @@ function SlotPanel({
     rescheduleDate, onSetRescheduleDate, rescheduleSlots, onSetRescheduleSlots,
     rescheduleSlotTime, onSetRescheduleSlotTime, rescheduleFetching,
     onConfirmBooking, onCancelBooking, onFetchRescheduleSlots, onConfirmReschedule,
+    onEditBooking,
   };
 
   return (
@@ -538,6 +598,21 @@ export default function BookingCalendar({
     }
   }
 
+  async function editBooking(id: string, data: { customerName: string; email: string; phone: string }): Promise<boolean> {
+    try {
+      const res = await fetch(`/api/admin/bookings/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) return false;
+      setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, ...data } : b)));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async function fetchRescheduleSlots(roomId: string) {
     if (!rescheduleDate) return;
     setRescheduleFetching(true);
@@ -648,6 +723,7 @@ export default function BookingCalendar({
     rescheduleFetching,
     onConfirmBooking: confirmBooking, onCancelBooking: cancelBooking,
     onFetchRescheduleSlots: fetchRescheduleSlots, onConfirmReschedule: confirmReschedule,
+    onEditBooking: editBooking,
   };
 
   // ── Render ────────────────────────────────────────────────────────────────

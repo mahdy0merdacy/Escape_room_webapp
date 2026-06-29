@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendEmail, newBookingAdminEmail, bookingRequestReceivedEmail, type Locale } from "@/lib/email";
+import { sendEmail, newBookingAdminEmail, bookingConfirmationEmail, type Locale } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         email: email as string,
         phone: phone as string,
         partySize: parsedPartySize,
-        status: "pending",
+        status: "confirmed",
         locale: safeLocale,
       },
     });
@@ -82,13 +82,14 @@ export async function POST(request: NextRequest) {
 
     // Awaited so Vercel doesn't kill the function before the Brevo request resolves
     await sendEmail(
-      bookingRequestReceivedEmail({
+      bookingConfirmationEmail({
         customerName: customerName as string,
         email: email as string,
         roomName: room.name,
         startTime: startDate,
         endTime: endDate,
         partySize: parsedPartySize,
+        pricePerPerson: room.pricePerPerson,
         locale: safeLocale,
       })
     ).catch(console.error);
