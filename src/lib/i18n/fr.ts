@@ -10,7 +10,7 @@ export const fr: Dict = {
     bookNow: "Réserver",
   },
   home: {
-    eyebrow: "Pouvez-vous vous échapper ?",
+    eyebrow: "Le chrono tourne",
     h1a: "Choisissez votre salle.",
     h1b: "Une heure.",
     h1c: "Pouvez-vous fuir ?",

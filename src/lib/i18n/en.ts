@@ -10,7 +10,7 @@ export const en: Dict = {
     bookNow: "Book Now",
   },
   home: {
-    eyebrow: "Can you escape?",
+    eyebrow: "The Clock is Ticking",
     h1a: "Choose Your Room.",
     h1b: "One Hour.",
     h1c: "Will You Escape?",
