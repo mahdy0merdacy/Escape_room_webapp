@@ -1,4 +1,6 @@
 import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import FinanceDashboard from "./FinanceDashboard";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +19,8 @@ function weekBounds(): { from: Date; to: Date } {
 }
 
 export default async function FinancePage() {
+  const session = await auth();
+  if (session?.user?.role === "employee") redirect("/admin");
   const { from, to } = weekBounds();
 
   const bookings = await prisma.booking

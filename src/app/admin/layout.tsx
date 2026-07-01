@@ -23,28 +23,39 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <Link href="/admin" className="hover:text-white transition-colors">
                   Dashboard
                 </Link>
-                <Link href="/admin/rooms" className="hover:text-white transition-colors">
-                  Rooms
-                </Link>
                 <Link href="/admin/bookings" className="hover:text-white transition-colors">
                   Bookings
                 </Link>
-                <Link href="/admin/schedule" className="hover:text-white transition-colors">
-                  Schedule
-                </Link>
-                <Link href="/admin/community" className="hover:text-white transition-colors">
-                  Community
-                </Link>
-                <Link href="/admin/finance" className="hover:text-white transition-colors">
-                  Finance
-                </Link>
-                <Link href="/admin/content" className="hover:text-white transition-colors">
-                  Content
-                </Link>
+                {session.user.role !== "employee" && (
+                  <>
+                    <Link href="/admin/rooms" className="hover:text-white transition-colors">
+                      Rooms
+                    </Link>
+                    <Link href="/admin/schedule" className="hover:text-white transition-colors">
+                      Schedule
+                    </Link>
+                    <Link href="/admin/community" className="hover:text-white transition-colors">
+                      Community
+                    </Link>
+                    <Link href="/admin/finance" className="hover:text-white transition-colors">
+                      Finance
+                    </Link>
+                    <Link href="/admin/content" className="hover:text-white transition-colors">
+                      Content
+                    </Link>
+                  </>
+                )}
               </nav>
             </div>
             <div className="flex items-center gap-3 text-sm text-white/40">
               <span>{session.user?.email}</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
+                session.user.role === "employee"
+                  ? "border-blue-500/30 text-blue-400 bg-blue-900/20"
+                  : "border-white/15 text-white/30"
+              }`}>
+                {session.user.role}
+              </span>
               <AdminSignOut />
             </div>
           </div>

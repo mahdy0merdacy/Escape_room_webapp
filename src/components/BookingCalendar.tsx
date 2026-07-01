@@ -56,7 +56,7 @@ interface BookingCardProps {
   onCancelBooking: (id: string) => void;
   onFetchRescheduleSlots: (roomId: string) => void;
   onConfirmReschedule: (id: string) => void;
-  onEditBooking: (id: string, data: { customerName: string; email: string; phone: string }) => Promise<boolean>;
+  onEditBooking: (id: string, data: { customerName: string; email: string; phone: string; partySize: number }) => Promise<boolean>;
 }
 
 function BookingCard({
@@ -70,8 +70,9 @@ function BookingCard({
     rooms.find((r) => r.id === booking.roomId)?.themeColors ?? '{"primary":"#111","accent":"#e11d48"}'
   ) as { primary: string; accent: string };
   const isReschedulingThis = rescheduleId === booking.id;
+  const room = rooms.find((r) => r.id === booking.roomId);
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ customerName: booking.customerName, email: booking.email, phone: booking.phone });
+  const [editForm, setEditForm] = useState({ customerName: booking.customerName, email: booking.email, phone: booking.phone, partySize: booking.partySize });
   const [editSaving, setEditSaving] = useState(false);
 
   async function saveEdit() {
@@ -175,6 +176,15 @@ function BookingCard({
               placeholder="Phone"
               value={editForm.phone}
               onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
+              className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-white/40 w-full"
+            />
+            <input
+              type="number"
+              placeholder="Party size"
+              min={room?.minPlayers ?? 1}
+              max={room?.maxPlayers ?? 8}
+              value={editForm.partySize}
+              onChange={(e) => setEditForm((f) => ({ ...f, partySize: Number(e.target.value) }))}
               className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-white/40 w-full"
             />
           </div>
@@ -290,7 +300,7 @@ interface SlotPanelProps {
   onCancelBooking: (id: string) => void;
   onFetchRescheduleSlots: (roomId: string) => void;
   onConfirmReschedule: (id: string) => void;
-  onEditBooking: (id: string, data: { customerName: string; email: string; phone: string }) => Promise<boolean>;
+  onEditBooking: (id: string, data: { customerName: string; email: string; phone: string; partySize: number }) => Promise<boolean>;
 }
 
 function SlotPanel({
@@ -598,7 +608,7 @@ export default function BookingCalendar({
     }
   }
 
-  async function editBooking(id: string, data: { customerName: string; email: string; phone: string }): Promise<boolean> {
+  async function editBooking(id: string, data: { customerName: string; email: string; phone: string; partySize: number }): Promise<boolean> {
     try {
       const res = await fetch(`/api/admin/bookings/${id}`, {
         method: "PATCH",
@@ -691,10 +701,18 @@ export default function BookingCalendar({
 
   const bookingsByDay = new Map<number, Booking[]>();
   for (const b of bookings) {
-    const day = parseInt(
-      new Intl.DateTimeFormat("en-US", { day: "numeric", timeZone: "Africa/Tunis" })
-        .format(new Date(b.startTime))
+    const dt = new Date(b.startTime);
+    const tunisHour = parseInt(
+      new Intl.DateTimeFormat("en-US", { hour: "numeric", hour12: false, timeZone: "Africa/Tunis" }).format(dt)
     );
+    let day = parseInt(
+      new Intl.DateTimeFormat("en-US", { day: "numeric", timeZone: "Africa/Tunis" }).format(dt)
+    );
+    // Overnight schedule: a slot whose local hour is before openHour belongs to the previous evening's session
+    if (scheduleConfig.closeHour < scheduleConfig.openHour && tunisHour < scheduleConfig.openHour) {
+      day -= 1;
+    }
+    if (day < 1) continue; // spills into the previous month, not shown in this calendar view
     if (!bookingsByDay.has(day)) bookingsByDay.set(day, []);
     bookingsByDay.get(day)!.push(b);
   }

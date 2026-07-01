@@ -80,6 +80,7 @@ model AdminUser {
   id           String   @id @default(cuid())
   email        String   @unique
   passwordHash String
+  role         String   @default("owner")
   createdAt    DateTime @default(now())
 }
 

@@ -1,4 +1,6 @@
 import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import GalleryManager from "./GalleryManager";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +14,8 @@ const SEED_ALBUMS = [
 ];
 
 export default async function CommunityAdminPage() {
+  const session = await auth();
+  if (session?.user?.role === "employee") redirect("/admin");
   const rawAlbums = await prisma.galleryAlbum.findMany({
     orderBy: [{ order: "asc" }, { createdAt: "asc" }],
   }).catch(() => []);

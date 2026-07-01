@@ -18,6 +18,7 @@ export async function PATCH(
     customerName?: string;
     email?: string;
     phone?: string;
+    partySize?: number;
   };
 
   const booking = await prisma.booking.findUnique({ where: { id }, include: { room: true } });
@@ -95,13 +96,23 @@ export async function PATCH(
   }
 
   // ── Edit customer details ─────────────────────────────────────────────────
-  if (body.customerName !== undefined || body.email !== undefined || body.phone !== undefined) {
+  if (body.customerName !== undefined || body.email !== undefined || body.phone !== undefined || body.partySize !== undefined) {
+    if (body.partySize !== undefined) {
+      const room = booking.room;
+      if (body.partySize < room.minPlayers || body.partySize > room.maxPlayers) {
+        return NextResponse.json(
+          { error: `Party size must be between ${room.minPlayers} and ${room.maxPlayers}` },
+          { status: 400 }
+        );
+      }
+    }
     const updated = await prisma.booking.update({
       where: { id },
       data: {
         ...(body.customerName !== undefined && { customerName: body.customerName }),
         ...(body.email !== undefined && { email: body.email }),
         ...(body.phone !== undefined && { phone: body.phone }),
+        ...(body.partySize !== undefined && { partySize: body.partySize }),
       },
     });
     return NextResponse.json({

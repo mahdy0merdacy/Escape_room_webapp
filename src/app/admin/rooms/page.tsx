@@ -1,10 +1,14 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import RoomsReorderList from "./RoomsReorderList";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminRoomsPage() {
+  const session = await auth();
+  if (session?.user?.role === "employee") redirect("/admin");
   const rooms = await prisma.room.findMany({ orderBy: { order: "asc" } });
 
   const roomData = rooms.map((room) => ({

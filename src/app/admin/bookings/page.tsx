@@ -33,7 +33,7 @@ export default async function BookingsPage({ searchParams }: Props) {
 
   const [bookingsRaw, blockedSlots, rooms] = await Promise.all([
     prisma.booking.findMany({
-      where: { startTime: { gte: monthStart, lt: monthEnd } },
+      where: { startTime: { gte: monthStart, lt: monthEnd }, status: { not: "cancelled" } },
       orderBy: { startTime: "asc" },
       include: { room: { select: { name: true, themeColors: true } } },
     }).catch(() => []),

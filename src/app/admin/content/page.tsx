@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 const SECTIONS = [
   {
@@ -21,7 +23,9 @@ const SECTIONS = [
   },
 ];
 
-export default function ContentPage() {
+export default async function ContentPage() {
+  const session = await auth();
+  if (session?.user?.role === "employee") redirect("/admin");
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold text-white mb-2">Site Content</h1>

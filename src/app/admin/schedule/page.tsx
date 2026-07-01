@@ -1,10 +1,14 @@
 import prisma from "@/lib/prisma";
 import { DEFAULT_SCHEDULE } from "@/lib/slots";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import ScheduleForm from "./ScheduleForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function SchedulePage() {
+  const session = await auth();
+  if (session?.user?.role === "employee") redirect("/admin");
   const [configRow, rooms] = await Promise.all([
     prisma.scheduleConfig.findUnique({ where: { id: "default" } }).catch(() => null),
     prisma.room.findMany({

@@ -398,15 +398,29 @@ export default function BookingWidget({
           </Field>
 
           <Field label={`${t.booking.partySize} (${minPlayers}–${maxPlayers})`} error={errors.partySize}>
-            <input
-              type="number"
-              min={minPlayers}
-              max={maxPlayers}
-              value={form.partySize}
-              onChange={(e) => setForm((f) => ({ ...f, partySize: parseInt(e.target.value) || minPlayers }))}
-              className="w-full bg-white/10 border border-white/20 rounded px-4 py-3 text-white focus:outline-none focus:border-white/50 text-base"
-              aria-label="Party size"
-            />
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, partySize: Math.max(minPlayers, f.partySize - 1) }))}
+                disabled={form.partySize <= minPlayers}
+                className="w-11 h-11 rounded-lg bg-white/10 border border-white/20 text-white text-xl font-bold flex items-center justify-center transition-colors hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                aria-label="Decrease party size"
+              >
+                −
+              </button>
+              <span className="flex-1 text-center text-white font-semibold text-base">
+                {form.partySize} {form.partySize === 1 ? "person" : "people"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, partySize: Math.min(maxPlayers, f.partySize + 1) }))}
+                disabled={form.partySize >= maxPlayers}
+                className="w-11 h-11 rounded-lg bg-white/10 border border-white/20 text-white text-xl font-bold flex items-center justify-center transition-colors hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                aria-label="Increase party size"
+              >
+                +
+              </button>
+            </div>
           </Field>
 
           <div className="rounded-lg border border-white/10 px-4 py-3 space-y-1 text-sm">
