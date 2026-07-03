@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { generateUnifiedSlots, type ScheduleConfig } from "@/lib/slots";
+import { ADJACENCY_MAP } from "@/lib/adjacency";
 
 type Booking = {
   id: string;
@@ -17,7 +18,7 @@ type Booking = {
 };
 
 type BlockedSlot = { roomId: string; slotStart: string };
-type Room = { id: string; name: string; themeColors: string; durationMinutes: number; minPlayers: number; maxPlayers: number };
+type Room = { id: string; slug: string; name: string; themeColors: string; durationMinutes: number; minPlayers: number; maxPlayers: number };
 
 interface RescheduleSlot {
   startTime: string;
@@ -33,6 +34,7 @@ interface Props {
   year: number;
   month: number;
   scheduleConfig: ScheduleConfig;
+  adjacencyEnabled: boolean;
 }
 
 // ── BookingCard ───────────────────────────────────────────────────────────────
@@ -301,6 +303,7 @@ interface SlotPanelProps {
   onFetchRescheduleSlots: (roomId: string) => void;
   onConfirmReschedule: (id: string) => void;
   onEditBooking: (id: string, data: { customerName: string; email: string; phone: string; partySize: number }) => Promise<boolean>;
+  adjacencyEnabled: boolean;
 }
 
 function SlotPanel({
@@ -311,7 +314,7 @@ function SlotPanel({
   rescheduleId, onSetRescheduleId, todayStr, rescheduleDate, onSetRescheduleDate,
   rescheduleSlots, onSetRescheduleSlots, rescheduleSlotTime, onSetRescheduleSlotTime,
   rescheduleFetching, onConfirmBooking, onCancelBooking, onFetchRescheduleSlots, onConfirmReschedule,
-  onEditBooking,
+  onEditBooking, adjacencyEnabled,
 }: SlotPanelProps) {
   const room = rooms.find((r) => r.id === roomId)!;
   if (!room) return null;
@@ -320,6 +323,12 @@ function SlotPanel({
   const slots = generateUnifiedSlots(sessionDate, room.durationMinutes, scheduleConfig);
 
   const slotTimes = new Set(slots.map((s) => s.startTime.getTime()));
+
+  // Pre-compute adjacent room IDs for adjacency-blocked slot detection
+  const adjacentRoomIds = new Set(
+    (ADJACENCY_MAP[room.slug] ?? [])
+      .flatMap((adjSlug) => rooms.filter((r) => r.slug === adjSlug).map((r) => r.id))
+  );
   const orphanedBookings = (bookingsByDay.get(day) ?? []).filter(
     (b) => b.roomId === room.id && !slotTimes.has(new Date(b.startTime).getTime())
   );
@@ -374,12 +383,30 @@ function SlotPanel({
           const slotKey = `${slotIso}|${room.id}`;
           const isBookingThis = newBookingSlot === slotKey;
 
+          const isAdjacencyBlocked =
+            adjacencyEnabled &&
+            !isBlocked &&
+            adjacentRoomIds.size > 0 &&
+            bookings.some(
+              (b) =>
+                adjacentRoomIds.has(b.roomId) &&
+                new Date(b.startTime).getTime() === slot.startTime.getTime()
+            );
+
           return (
             <div key={slotIso}>
               <div className="flex items-center gap-3 px-5 py-2.5">
-                <span className="text-white/35 text-sm font-mono w-24 shrink-0">{slot.label}</span>
-                <span className="flex-1 text-sm text-white/20">
-                  {isBlocked ? "🔒 Disabled" : "—"}
+                <span className={`text-sm font-mono w-24 shrink-0 ${isAdjacencyBlocked ? "text-white/20" : "text-white/35"}`}>
+                  {slot.label}
+                </span>
+                <span className="flex-1 text-sm">
+                  {isBlocked ? (
+                    <span className="text-white/20">🔒 Disabled</span>
+                  ) : isAdjacencyBlocked ? (
+                    <span className="text-amber-500/50">🔇 Adjacent room booked</span>
+                  ) : (
+                    <span className="text-white/20">—</span>
+                  )}
                 </span>
                 {isBlocked ? (
                   <button
@@ -403,10 +430,12 @@ function SlotPanel({
                       style={
                         isBookingThis
                           ? { borderColor: colors.accent, background: colors.accent + "22", color: colors.accent }
+                          : isAdjacencyBlocked
+                          ? { borderColor: "rgba(245,158,11,0.25)", color: "rgba(245,158,11,0.5)" }
                           : { borderColor: "rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.6)" }
                       }
                     >
-                      {isBookingThis ? "Close" : "📞 Book"}
+                      {isBookingThis ? "Close" : isAdjacencyBlocked ? "📞 Override" : "📞 Book"}
                     </button>
                     <button
                       onClick={() => onBlockSlot(room.id, slotIso)}
@@ -504,6 +533,7 @@ export default function BookingCalendar({
   year,
   month,
   scheduleConfig,
+  adjacencyEnabled,
 }: Props) {
   const today = new Date();
   const defaultDay =
@@ -742,6 +772,7 @@ export default function BookingCalendar({
     onConfirmBooking: confirmBooking, onCancelBooking: cancelBooking,
     onFetchRescheduleSlots: fetchRescheduleSlots, onConfirmReschedule: confirmReschedule,
     onEditBooking: editBooking,
+    adjacencyEnabled,
   };
 
   // ── Render ────────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { getScheduleConfig } from "@/lib/schedule";
 import BookingCalendar from "@/components/BookingCalendar";
+import AdjacencyToggle from "./AdjacencyToggle";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +32,7 @@ export default async function BookingsPage({ searchParams }: Props) {
   const closeBuffer = schedule.closeHour < schedule.openHour ? schedule.closeHour + 2 : 2;
   const monthEnd = new Date(Date.UTC(year, month, 1) - TUNIS_OFFSET_MS + closeBuffer * 60 * 60 * 1000);
 
-  const [bookingsRaw, blockedSlots, rooms] = await Promise.all([
+  const [bookingsRaw, blockedSlots, rooms, adjacencySetting] = await Promise.all([
     prisma.booking.findMany({
       where: { startTime: { gte: monthStart, lt: monthEnd }, status: { not: "cancelled" } },
       orderBy: { startTime: "asc" },
@@ -43,9 +44,10 @@ export default async function BookingsPage({ searchParams }: Props) {
     }).catch(() => []),
     prisma.room.findMany({
       where: { active: true },
-      select: { id: true, name: true, themeColors: true, durationMinutes: true, minPlayers: true, maxPlayers: true },
+      select: { id: true, slug: true, name: true, themeColors: true, durationMinutes: true, minPlayers: true, maxPlayers: true },
       orderBy: { order: "asc" },
     }),
+    prisma.siteSettings.findUnique({ where: { key: "adjacencyBlocking" } }).catch(() => null),
   ]);
   const bookings = bookingsRaw;
 
@@ -73,7 +75,9 @@ export default async function BookingsPage({ searchParams }: Props) {
     <div className="max-w-6xl mx-auto px-4 py-12 space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h1 className="text-3xl font-bold text-white">Reservations</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4 flex-wrap">
+          <AdjacencyToggle initialEnabled={adjacencySetting?.value === "true"} />
+          <div className="flex items-center gap-2">
           <Link
             href={`/admin/bookings?month=${prevMonth}`}
             className="w-9 h-9 flex items-center justify-center rounded-lg border border-white/20 text-white/60 hover:text-white hover:border-white/40 transition-colors"
@@ -87,6 +91,7 @@ export default async function BookingsPage({ searchParams }: Props) {
           >
             →
           </Link>
+          </div>
         </div>
       </div>
 
@@ -98,6 +103,7 @@ export default async function BookingsPage({ searchParams }: Props) {
         year={year}
         month={month}
         scheduleConfig={schedule}
+        adjacencyEnabled={adjacencySetting?.value === "true"}
       />
     </div>
   );

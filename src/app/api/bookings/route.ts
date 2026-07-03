@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendEmail, newBookingAdminEmail, bookingConfirmationEmail, type Locale } from "@/lib/email";
+import { getAdjacentSlugs } from "@/lib/adjacency";
 
 export async function POST(request: NextRequest) {
-  let body: unknown;
+  let body: unknown;  
   try {
     body = await request.json();
   } catch {
@@ -50,6 +51,27 @@ export async function POST(request: NextRequest) {
 
   if (startDate <= new Date()) {
     return NextResponse.json({ error: "Cannot book a slot in the past" }, { status: 400 });
+  }
+
+  // Adjacency blocking — prevent booking if an adjacent room is already booked at this slot
+  const adjacentSlugs = getAdjacentSlugs(room.slug);
+  if (adjacentSlugs.length > 0) {
+    const adjacencySetting = await prisma.siteSettings.findUnique({ where: { key: "adjacencyBlocking" } });
+    if (adjacencySetting?.value === "true") {
+      const adjacentConflict = await prisma.booking.findFirst({
+        where: {
+          room: { slug: { in: adjacentSlugs } },
+          startTime: startDate,
+          status: { in: ["confirmed", "pending"] },
+        },
+      });
+      if (adjacentConflict) {
+        return NextResponse.json(
+          { error: "That time slot is unavailable due to an adjacent room booking. Please choose another time." },
+          { status: 409 }
+        );
+      }
+    }
   }
 
   // Rate-limit: same email can't submit more than 3 bookings in a 5-minute window.

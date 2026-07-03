@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { generateUnifiedSlots } from "@/lib/slots";
 import { getScheduleConfig, slotWindow } from "@/lib/schedule";
 import { parseRoomSchedule } from "@/lib/room-schedule";
+import { getAdjacentSlugs } from "@/lib/adjacency";
 
 export async function GET(
   request: NextRequest,
@@ -31,7 +32,9 @@ export async function GET(
   const allSlots = generateUnifiedSlots(sessionDate, room.durationMinutes, schedule);
   const [windowStart, windowEnd] = slotWindow(year, month, day, schedule);
 
-  const [booked, blocked] = await Promise.all([
+  const adjacentSlugs = getAdjacentSlugs(slug);
+
+  const [booked, blocked, adjacencySetting, adjacentBooked] = await Promise.all([
     prisma.booking.findMany({
       where: { roomId: room.id, status: { in: ["confirmed", "pending"] }, startTime: { gte: windowStart, lte: windowEnd } },
       select: { startTime: true },
@@ -40,10 +43,25 @@ export async function GET(
       where: { roomId: room.id, slotStart: { gte: windowStart, lte: windowEnd } },
       select: { slotStart: true },
     }),
+    prisma.siteSettings.findUnique({ where: { key: "adjacencyBlocking" } }),
+    adjacentSlugs.length > 0
+      ? prisma.booking.findMany({
+          where: {
+            room: { slug: { in: adjacentSlugs } },
+            status: { in: ["confirmed", "pending"] },
+            startTime: { gte: windowStart, lte: windowEnd },
+          },
+          select: { startTime: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   const bookedMs = new Set(booked.map((b) => b.startTime.getTime()));
   const blockedMs = new Set(blocked.map((b) => b.slotStart.getTime()));
+
+  if (adjacencySetting?.value === "true") {
+    for (const b of adjacentBooked) bookedMs.add(b.startTime.getTime());
+  }
 
   return NextResponse.json({
     slots: allSlots.map((s) => {
