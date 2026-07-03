@@ -44,7 +44,7 @@ export default function AdjacencyToggle({ initialEnabled }: { initialEnabled: bo
           }`}
         />
       </span>
-      🔇 Noise isolation
+      🔇 Sync
     </button>
   );
 }
