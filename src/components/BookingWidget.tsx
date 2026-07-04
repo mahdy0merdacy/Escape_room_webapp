@@ -73,6 +73,7 @@ export default function BookingWidget({
     email: "",
     phone: "",
     partySize: minPlayers,
+    gameLanguage: "fr" as "fr" | "en",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -143,6 +144,7 @@ export default function BookingWidget({
           ...form,
           phone: `${phoneCountry.dial} ${form.phone.trim()}`,
           locale: typeof window !== "undefined" ? (localStorage.getItem("locale") ?? "en") : "en",
+          gameLanguage: form.gameLanguage,
         }),
       });
       const data = await res.json();
@@ -422,6 +424,50 @@ export default function BookingWidget({
               </button>
             </div>
           </Field>
+
+          {/* Game language preference */}
+          <div className="space-y-2">
+            <span className="text-white/70 text-xs font-medium block">{t.booking.gameLanguagePref}</span>
+            <div className="grid grid-cols-2 gap-2.5">
+              {([
+                { value: "fr", flag: "🇫🇷", label: t.booking.gameLangFr },
+                { value: "en", flag: "🇬🇧", label: t.booking.gameLangEn },
+              ] as const).map(({ value, flag, label }) => {
+                const selected = form.gameLanguage === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, gameLanguage: value }))}
+                    className="relative flex flex-col items-center gap-2 py-4 px-3 rounded-xl border-2 transition-all duration-150"
+                    style={
+                      selected
+                        ? { borderColor: colors.accent, background: `${colors.accent}22` }
+                        : { borderColor: "rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)" }
+                    }
+                  >
+                    <span className="text-3xl leading-none">{flag}</span>
+                    <span
+                      className="text-sm font-semibold tracking-wide transition-colors"
+                      style={{ color: selected ? colors.accent : "rgba(255,255,255,0.45)" }}
+                    >
+                      {label}
+                    </span>
+                    {selected && (
+                      <span
+                        className="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center"
+                        style={{ background: colors.accent }}
+                      >
+                        <svg viewBox="0 0 10 10" className="w-2.5 h-2.5" fill="none" stroke="white" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2 5.5l2 2 4-4" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <div className="rounded-lg border border-white/10 px-4 py-3 space-y-1 text-sm">
             <div className="flex justify-between text-white/50">

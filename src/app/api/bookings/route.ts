@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { roomId, startTime, endTime, customerName, email, phone, partySize, locale } =
+  const { roomId, startTime, endTime, customerName, email, phone, partySize, locale, gameLanguage } =
     body as Record<string, unknown>;
 
   // Validate required fields
@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
   }
 
   const safeLocale: Locale = locale === "ar" || locale === "fr" ? (locale as Locale) : "en";
+  const safeGameLanguage = gameLanguage === "en" ? "en" : "fr";
 
   if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
         partySize: parsedPartySize,
         status: "confirmed",
         locale: safeLocale,
+        gameLanguage: safeGameLanguage,
       },
     });
 
@@ -127,6 +129,7 @@ export async function POST(request: NextRequest) {
         partySize: parsedPartySize,
         bookingId: booking.id,
         locale: safeLocale,
+        gameLanguage: safeGameLanguage,
       })
     ).catch(console.error);
 

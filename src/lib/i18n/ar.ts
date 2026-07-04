@@ -112,6 +112,9 @@ export const ar: Dict = {
     confirm: "تأكيد الحجز",
     booking: "جارٍ الحجز…",
     duration: "المدة",
+    gameLanguagePref: "لغة اللعب المفضلة",
+    gameLangFr: "Français",
+    gameLangEn: "English",
   },
   rooms: {
     eyebrow: "اختر مهمتك",

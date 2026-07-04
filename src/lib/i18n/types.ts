@@ -94,6 +94,9 @@ export type Dict = {
     confirm: string;
     booking: string;
     duration: string;
+    gameLanguagePref: string;
+    gameLangFr: string;
+    gameLangEn: string;
   };
   rooms: {
     eyebrow: string;

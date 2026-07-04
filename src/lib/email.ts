@@ -714,8 +714,9 @@ export function newBookingAdminEmail(params: {
   partySize: number;
   bookingId: string;
   locale?: Locale;
+  gameLanguage?: string;
 }): EmailPayload {
-  const { customerName, email, phone, roomName, startTime, endTime, partySize, bookingId, locale = "en" } = params;
+  const { customerName, email, phone, roomName, startTime, endTime, partySize, bookingId, locale = "en", gameLanguage = "fr" } = params;
   const total = getTotalPrice(partySize);
   const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.ADMIN_EMAIL ?? "ahmed.arfaouii11@gmail.com";
   const siteUrl = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
@@ -725,19 +726,20 @@ export function newBookingAdminEmail(params: {
   const endStr = fmtTime(endTime, "en");
   const ref = bookingId.slice(0, 8).toUpperCase();
   const localeLabel = locale === "ar" ? " 🇹🇳 AR" : locale === "fr" ? " 🇫🇷 FR" : "";
+  const gameLangLabel = gameLanguage === "en" ? "🇬🇧 English" : "🇫🇷 Français";
 
   const textContent = `New booking #${ref}
 
-  Room:       ${roomName}
-  Date:       ${dateStr}
-  Time:       ${startStr} – ${endStr}
-  Party:      ${partySize} people
-  Revenue:    ${total} TND
+  Room:          ${roomName}
+  Date:          ${dateStr}
+  Time:          ${startStr} – ${endStr}
+  Party:         ${partySize} people
+  Revenue:       ${total} TND
 
-  Customer:   ${customerName}
-  Email:      ${email}
-  Phone:      ${phone}
-  Locale:     ${locale.toUpperCase()}
+  Customer:      ${customerName}
+  Email:         ${email}
+  Phone:         ${phone}
+  Game language: ${gameLangLabel}
 
 Admin: ${siteUrl}/admin/bookings`;
 
@@ -775,7 +777,8 @@ Admin: ${siteUrl}/admin/bookings`;
           ${detailRow("Name", customerName)}
           ${detailRow("Email", `<a href="mailto:${email}" style="color:#e11d48;text-decoration:none;">${email}</a>`)}
           ${detailRow("Phone", `<a href="tel:${phone}" style="color:#e11d48;text-decoration:none;">${phone}</a>`)}
-          ${detailRow("Language", locale.toUpperCase())}
+          ${detailRow("Game language", gameLangLabel)}
+          ${detailRow("UI locale", locale.toUpperCase())}
         </table>
       </td>
     </tr>

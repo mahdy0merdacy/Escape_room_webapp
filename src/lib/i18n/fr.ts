@@ -112,6 +112,9 @@ export const fr: Dict = {
     confirm: "Confirmer la réservation",
     booking: "Réservation…",
     duration: "Durée",
+    gameLanguagePref: "Langue de jeu préférée",
+    gameLangFr: "Français",
+    gameLangEn: "English",
   },
   rooms: {
     eyebrow: "Choisissez votre mission",

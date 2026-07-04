@@ -61,6 +61,7 @@ model Booking {
   confirmedPlayed Boolean       @default(false)
   status          String        @default("confirmed")
   locale          String        @default("en")
+  gameLanguage    String        @default("fr")
   createdAt       DateTime      @default(now())
 
   @@unique([roomId, startTime])
