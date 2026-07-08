@@ -27,10 +27,14 @@ const nextConfig: NextConfig = {
       { source: "/contact-us", destination: "/contact", permanent: true },
       { source: "/en/contact-us", destination: "/contact", permanent: true },
       { source: "/privacy-policy", destination: "/", permanent: true },
-      { source: "/blog", destination: "/", permanent: true },
-      { source: "/blog/:path*", destination: "/", permanent: true },
-      { source: "/escape-room-tunisie", destination: "/", permanent: true },
-      { source: "/top-5-des-raisons-dessayer-une-escape-room-en-tunisie", destination: "/faq", permanent: true },
+      { source: "/blog", destination: "/guides", permanent: true },
+      { source: "/blog/:path*", destination: "/guides", permanent: true },
+      { source: "/escape-room-tunisie", destination: "/guides/escape-room-tunisie", permanent: true },
+      {
+        source: "/top-5-des-raisons-dessayer-une-escape-room-en-tunisie",
+        destination: "/guides/top-reasons-to-try-an-escape-room-in-tunisia",
+        permanent: true,
+      },
     ];
   },
 };

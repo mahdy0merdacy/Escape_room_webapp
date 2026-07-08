@@ -125,3 +125,19 @@ model SiteSettings {
   value     String   @default("")
   updatedAt DateTime @updatedAt
 }
+
+model Guide {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  excerpt        String   @default("")
+  content        String   @default("")
+  heroImageUrl   String   @default("")
+  pillar         Boolean  @default(false)
+  active         Boolean  @default(true)
+  order          Int      @default(0)
+  seoTitle       String   @default("")
+  seoDescription String   @default("")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
