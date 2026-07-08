@@ -66,7 +66,7 @@ This experience is rated our most terrifying. Not recommended for those with hea
       pricePerPerson: 25,
       openHours: JSON.stringify(OPEN_HOURS),
       active: true,
-      seoTitle: "Annabelle Escape Room — Face Your Darkest Fear | EscapeZone",
+      seoTitle: "Annabelle Escape Room — Face Your Darkest Fear | elharba",
       seoDescription:
         "Can you survive 60 minutes with the most haunted doll in history? Annabelle is our most terrifying escape room — for those brave enough to enter.",
     },
@@ -94,7 +94,7 @@ You have 60 minutes to rescue Will before the Demogorgon finds him. Locate Eleve
       pricePerPerson: 22,
       openHours: JSON.stringify(OPEN_HOURS),
       active: true,
-      seoTitle: "Stranger Things Escape Room — Enter the Upside Down | EscapeZone",
+      seoTitle: "Stranger Things Escape Room — Enter the Upside Down | elharba",
       seoDescription:
         "Step into Hawkins, 1983. Find Will, close the gate, and outrun the Demogorgon in our 80s retro sci-fi escape room. Groups of 2–8.",
     },
@@ -123,7 +123,7 @@ You've been sent in as the cleanup crew. Find the product, scrub the evidence, a
       pricePerPerson: 23,
       openHours: JSON.stringify(OPEN_HOURS),
       active: true,
-      seoTitle: "Breaking Bad Escape Room — Cook, Clean, Escape | EscapeZone",
+      seoTitle: "Breaking Bad Escape Room — Cook, Clean, Escape | elharba",
       seoDescription:
         "Enter Walter White's superlab before the DEA arrives. 60 minutes. Industrial-themed. The chemistry must be perfect — or you don't walk out.",
     },

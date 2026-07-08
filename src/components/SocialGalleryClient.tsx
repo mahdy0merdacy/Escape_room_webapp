@@ -64,6 +64,8 @@ function AlbumCard({ album, large }: { album: Album; large: boolean }) {
       {/* Background — real image or gradient placeholder */}
       {hasImages ? (
         <div
+          role="img"
+          aria-label={`${album.label} escape room photo, elharba Manouba`}
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url('${images[idx]}')` }}
         />

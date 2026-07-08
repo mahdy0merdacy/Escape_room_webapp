@@ -16,6 +16,23 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      { source: "/en", destination: "/", permanent: true },
+      { source: "/en/rooms", destination: "/rooms", permanent: true },
+      { source: "/en/rooms/annabelle-horror", destination: "/rooms/annabelle", permanent: true },
+      { source: "/en/rooms/stranger-things", destination: "/rooms/stranger-things", permanent: true },
+      { source: "/breaking-bad", destination: "/rooms/breaking-bad", permanent: true },
+      { source: "/en/about-us-escape-room-elharba", destination: "/about", permanent: true },
+      { source: "/contact-us", destination: "/contact", permanent: true },
+      { source: "/en/contact-us", destination: "/contact", permanent: true },
+      { source: "/privacy-policy", destination: "/", permanent: true },
+      { source: "/blog", destination: "/", permanent: true },
+      { source: "/blog/:path*", destination: "/", permanent: true },
+      { source: "/escape-room-tunisie", destination: "/", permanent: true },
+      { source: "/top-5-des-raisons-dessayer-une-escape-room-en-tunisie", destination: "/faq", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import RoomsGrid from "@/components/RoomsGrid";
 
 export const metadata: Metadata = {
-  title: "All Rooms",
+  title: "Escape Rooms in Tunis, Tunisia",
   description:
     "Browse all three elharba escape rooms in Manouba, Tunisia — horror, retro sci-fi, and crime drama. Book your experience today.",
   alternates: { canonical: "/rooms" },

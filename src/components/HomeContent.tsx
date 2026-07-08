@@ -85,7 +85,7 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
                 <div className="h-52 relative">
                   <Image
                     src={room.heroImageUrl}
-                    alt={room.name}
+                    alt={`${room.name} escape room`}
                     fill
                     className="object-cover"
                     style={{ objectPosition: `center ${colors.heroPosition ?? "50%"}` }}
