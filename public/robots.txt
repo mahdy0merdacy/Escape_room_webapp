@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api
 
-Sitemap: https://elharba.tn/sitemap.xml
+Sitemap: https://www.elharba.tn/sitemap.xml
