@@ -81,6 +81,7 @@ export default function FooterInner({ hours }: { hours: string }) {
             <p className="text-white/70 text-xs font-semibold uppercase tracking-widest mb-4">{t.footer.explore}</p>
             <nav className="flex flex-col gap-2.5 text-sm text-white/50">
               <Link href="/rooms" className="hover:text-white transition-colors">{t.nav.rooms}</Link>
+              <Link href="/guides" className="hover:text-white transition-colors">{t.nav.guides}</Link>
               <Link href="/faq" className="hover:text-white transition-colors">{t.nav.faq}</Link>
               <Link href="/contact" className="hover:text-white transition-colors">{t.nav.contact}</Link>
             </nav>

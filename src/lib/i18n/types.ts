@@ -7,6 +7,7 @@ export type Dict = {
   nav: {
     rooms: string;
     about: string;
+    guides: string;
     faq: string;
     contact: string;
     bookNow: string;

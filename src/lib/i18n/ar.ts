@@ -5,6 +5,7 @@ export const ar: Dict = {
   nav: {
     rooms: "الغرف",
     about: "من نحن",
+    guides: "الأدلة",
     faq: "الأسئلة الشائعة",
     contact: "اتصل بنا",
     bookNow: "احجز الآن",

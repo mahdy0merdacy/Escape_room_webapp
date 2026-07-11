@@ -5,6 +5,7 @@ export const fr: Dict = {
   nav: {
     rooms: "Salles",
     about: "À propos",
+    guides: "Guides",
     faq: "FAQ",
     contact: "Contact",
     bookNow: "Réserver",
