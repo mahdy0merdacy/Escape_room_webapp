@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import prisma from "@/lib/prisma";
 import { getTotalPrice, formatTND } from "@/lib/pricing";
 import type { Metadata } from "next";

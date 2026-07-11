@@ -129,4 +129,14 @@ export type Dict = {
     explore: string;
     contactHeading: string;
   };
+  guides: {
+    eyebrow: string;
+    heading: string;
+    tagline: string;
+    startHere: string;
+    ctaHeading: string;
+    ctaSub: string;
+    viewAllRooms: string;
+    contactUs: string;
+  };
 };

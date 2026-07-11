@@ -1,22 +1,50 @@
 import prisma from "@/lib/prisma";
 import type { Metadata } from "next";
-import Script from "next/script";
 import GoogleReviews from "@/components/GoogleReviews";
 import SocialGallery from "@/components/SocialGallery";
 import HomeContent from "@/components/HomeContent";
 import HomeCTA from "@/components/HomeCTA";
+import { localePath, localeAlternates } from "@/lib/i18n/locale-url";
+import type { Locale } from "@/lib/i18n/types";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "elharba — Escape Rooms",
-  description:
-    "Three uniquely themed escape rooms in Manouba, Tunisia. Horror, 80s Sci-Fi, and Crime Drama. Book your 60-minute adventure.",
-  alternates: { canonical: "/" },
-  openGraph: { url: "/" },
+const SEO: Record<Locale, { title: string; description: string }> = {
+  en: {
+    title: "Tunisia's #1 Rated Escape Room | elharba",
+    description:
+      "Tunisia's top-rated escape room on Google. Three uniquely themed rooms — Horror, 80s Sci-Fi, and Crime Drama — in Tunis. Book your 60-minute adventure today.",
+  },
+  fr: {
+    title: "La Escape Room la Mieux Notée de Tunisie | elharba",
+    description:
+      "La escape room la mieux notée de Tunisie sur Google. Trois salles à thème uniques — Horreur, Science-Fiction 80s, et Crime — à Tunis. Réservez votre aventure de 60 minutes dès aujourd'hui.",
+  },
+  ar: {
+    title: "أفضل غرفة هروب في تونس (الأعلى تقييمًا) | elharba",
+    description:
+      "أفضل غرفة هروب في تونس وفق تقييمات جوجل. ثلاث غرف بطوابع فريدة — رعب، خيال علمي، وجريمة — في تونس. احجز مغامرتك التي تستغرق 60 دقيقة اليوم.",
+  },
 };
 
-export default async function HomePage() {
+interface Props {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const l = (locale as Locale) in SEO ? (locale as Locale) : "en";
+  const seo = SEO[l];
+  return {
+    title: { absolute: seo.title },
+    description: seo.description,
+    alternates: { canonical: localePath(l, "/"), languages: localeAlternates("/") },
+    openGraph: { title: seo.title, url: localePath(l, "/") },
+  };
+}
+
+export default async function HomePage({ params }: Props) {
+  const { locale } = await params;
   const rooms = await prisma.room.findMany({ where: { active: true }, orderBy: { order: "asc" } });
 
   const base = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
@@ -27,8 +55,8 @@ export default async function HomePage() {
     "@type": "LocalBusiness",
     "@id": `${base}/#business`,
     name: "elharba",
-    description: "Three uniquely themed escape rooms in Manouba, Tunisia — horror, retro sci-fi, and crime drama. Book your 60-minute adventure.",
-    url: base,
+    description: "Tunisia's top-rated escape room on Google — three uniquely themed rooms in Tunis: horror, retro sci-fi, and crime drama. Book your 60-minute adventure.",
+    url: `${base}${localePath(locale as Locale, "/")}`,
     image: logoUrl,
     logo: logoUrl,
     telephone: "+21628720530",
@@ -69,7 +97,7 @@ export default async function HomePage() {
           "@type": "Service",
           name: r.name,
           description: r.tagline,
-          url: `${base}/rooms/${r.slug}`,
+          url: `${base}${localePath(locale as Locale, `/rooms/${r.slug}`)}`,
         },
       })),
     },
@@ -89,7 +117,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <Script
+      <script
         id="ld-local-business"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

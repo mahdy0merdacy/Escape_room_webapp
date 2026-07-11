@@ -3,11 +3,19 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
+type Locale = "en" | "fr" | "ar";
+
 interface GuideFormData {
   slug: string;
   title: string;
   excerpt: string;
   content: string;
+  titleFr: string;
+  excerptFr: string;
+  contentFr: string;
+  titleAr: string;
+  excerptAr: string;
+  contentAr: string;
   heroImageUrl: string;
   pillar: boolean;
   active: boolean;
@@ -21,6 +29,20 @@ interface Props {
   initial?: Partial<GuideFormData>;
 }
 
+const LANG_TABS: { key: Locale; flag: string; label: string }[] = [
+  { key: "en", flag: "🇬🇧", label: "English" },
+  { key: "fr", flag: "🇫🇷", label: "Français" },
+  { key: "ar", flag: "🇸🇦", label: "العربية" },
+];
+
+type LocalizedFieldKey = "title" | "excerpt" | "content" | "titleFr" | "excerptFr" | "contentFr" | "titleAr" | "excerptAr" | "contentAr";
+
+const FIELD_BY_LANG: Record<Locale, { title: LocalizedFieldKey; excerpt: LocalizedFieldKey; content: LocalizedFieldKey }> = {
+  en: { title: "title", excerpt: "excerpt", content: "content" },
+  fr: { title: "titleFr", excerpt: "excerptFr", content: "contentFr" },
+  ar: { title: "titleAr", excerpt: "excerptAr", content: "contentAr" },
+};
+
 export default function GuideForm({ guideId, initial }: Props) {
   const router = useRouter();
 
@@ -29,6 +51,12 @@ export default function GuideForm({ guideId, initial }: Props) {
     title: initial?.title ?? "",
     excerpt: initial?.excerpt ?? "",
     content: initial?.content ?? "",
+    titleFr: initial?.titleFr ?? "",
+    excerptFr: initial?.excerptFr ?? "",
+    contentFr: initial?.contentFr ?? "",
+    titleAr: initial?.titleAr ?? "",
+    excerptAr: initial?.excerptAr ?? "",
+    contentAr: initial?.contentAr ?? "",
     heroImageUrl: initial?.heroImageUrl ?? "",
     pillar: initial?.pillar ?? false,
     active: initial?.active ?? true,
@@ -37,6 +65,7 @@ export default function GuideForm({ guideId, initial }: Props) {
     seoDescription: initial?.seoDescription ?? "",
   });
 
+  const [lang, setLang] = useState<Locale>("en");
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -87,16 +116,6 @@ export default function GuideForm({ guideId, initial }: Props) {
           Basic Info
         </h2>
 
-        <FormField label="Title" required>
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => set("title", e.target.value)}
-            className={inputCls}
-            required
-          />
-        </FormField>
-
         <FormField label="Slug (URL)" required>
           <input
             type="text"
@@ -111,28 +130,77 @@ export default function GuideForm({ guideId, initial }: Props) {
           </p>
         </FormField>
 
-        <FormField label="Excerpt">
-          <textarea
-            value={form.excerpt}
-            onChange={(e) => set("excerpt", e.target.value)}
-            rows={2}
-            className={`${inputCls} resize-y`}
-            placeholder="One or two sentences shown on the guides listing page."
-          />
-        </FormField>
+        {/* Language tabs — title/excerpt/content per locale */}
+        <div>
+          <label className="text-white/70 text-xs font-medium block mb-2">
+            Title, Excerpt &amp; Content
+          </label>
+          <div className="flex gap-1 mb-3">
+            {LANG_TABS.map(({ key, flag, label }) => {
+              const f = FIELD_BY_LANG[key];
+              const filled = key === "en" ? true : Boolean(form[f.title] || form[f.content]);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setLang(key)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    lang === key
+                      ? "bg-red-600 text-white"
+                      : "bg-white/5 text-white/50 hover:text-white border border-white/10"
+                  }`}
+                >
+                  <span>{flag}</span>
+                  <span>{label}</span>
+                  {key !== "en" && (
+                    <span className={`w-1.5 h-1.5 rounded-full ${lang === key ? "bg-white/60" : filled ? "bg-emerald-400" : "bg-white/15"}`} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
-        <FormField label="Content">
-          <textarea
-            value={form.content}
-            onChange={(e) => set("content", e.target.value)}
-            rows={16}
-            className={`${inputCls} resize-y font-mono text-xs`}
-            placeholder={"Plain text. Blank line = new paragraph.\n## Heading = subheading\n- item = bullet list"}
-          />
+          {LANG_TABS.map(({ key, flag }) => {
+            const f = FIELD_BY_LANG[key];
+            if (lang !== key) return null;
+            return (
+              <div key={key} className="space-y-3" dir={key === "ar" ? "rtl" : "ltr"}>
+                <FormField label="Title" required={key === "en"}>
+                  <input
+                    type="text"
+                    value={form[f.title]}
+                    onChange={(e) => set(f.title, e.target.value)}
+                    className={inputCls}
+                    required={key === "en"}
+                    placeholder={key === "en" ? undefined : `Title in ${flag === "🇫🇷" ? "French" : "Arabic"} — falls back to English if left blank`}
+                  />
+                </FormField>
+                <FormField label="Excerpt">
+                  <textarea
+                    value={form[f.excerpt]}
+                    onChange={(e) => set(f.excerpt, e.target.value)}
+                    rows={2}
+                    className={`${inputCls} resize-y`}
+                    placeholder="One or two sentences shown on the guides listing page."
+                  />
+                </FormField>
+                <FormField label="Content">
+                  <textarea
+                    value={form[f.content]}
+                    onChange={(e) => set(f.content, e.target.value)}
+                    rows={16}
+                    className={`${inputCls} resize-y font-mono text-xs`}
+                    placeholder={"Plain text. Blank line = new paragraph.\n## Heading = subheading\n- item = bullet list"}
+                  />
+                </FormField>
+              </div>
+            );
+          })}
           <p className="text-white/25 text-xs mt-1">
             Blank line = new paragraph. Line starting with &quot;## &quot; = subheading. Lines starting with &quot;- &quot; = bullet list.
+            French and Arabic are optional — the site falls back to English wherever they&apos;re left blank.
           </p>
-        </FormField>
+        </div>
       </section>
 
       <section className="space-y-4">

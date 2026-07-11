@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { useT } from "./IntlProvider";
 
@@ -65,7 +65,7 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {rooms.map((room) => {
+          {rooms.map((room, roomIdx) => {
             const colors = JSON.parse(room.themeColors) as {
               primary: string;
               secondary: string;
@@ -87,6 +87,8 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
                     src={room.heroImageUrl}
                     alt={`${room.name} escape room`}
                     fill
+                    priority={roomIdx === 0}
+                    sizes="(min-width: 768px) 33vw, 100vw"
                     className="object-cover"
                     style={{ objectPosition: `center ${colors.heroPosition ?? "50%"}` }}
                   />

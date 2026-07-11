@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useT } from "@/components/IntlProvider";
 import { useLocale } from "@/components/IntlProvider";
 

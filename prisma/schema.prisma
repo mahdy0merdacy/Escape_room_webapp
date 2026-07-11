@@ -132,6 +132,12 @@ model Guide {
   title          String
   excerpt        String   @default("")
   content        String   @default("")
+  titleFr        String   @default("")
+  excerptFr      String   @default("")
+  contentFr      String   @default("")
+  titleAr        String   @default("")
+  excerptAr      String   @default("")
+  contentAr      String   @default("")
   heroImageUrl   String   @default("")
   pillar         Boolean  @default(false)
   active         Boolean  @default(true)

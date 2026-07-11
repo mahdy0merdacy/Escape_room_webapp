@@ -14,6 +14,7 @@ export async function PUT(
   const body = await request.json();
   const {
     title, excerpt, content, heroImageUrl,
+    titleFr, excerptFr, contentFr, titleAr, excerptAr, contentAr,
     pillar, active, order, seoTitle, seoDescription,
   } = body;
 
@@ -23,6 +24,12 @@ export async function PUT(
       title,
       excerpt,
       content,
+      titleFr: titleFr ?? "",
+      excerptFr: excerptFr ?? "",
+      contentFr: contentFr ?? "",
+      titleAr: titleAr ?? "",
+      excerptAr: excerptAr ?? "",
+      contentAr: contentAr ?? "",
       heroImageUrl,
       pillar: pillar ?? false,
       active: active ?? true,

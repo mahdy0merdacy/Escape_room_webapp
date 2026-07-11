@@ -1,15 +1,17 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useT } from "./IntlProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { stripLocalePath } from "@/lib/i18n/locale-url";
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  const pathname = stripLocalePath(rawPathname);
   const t = useT();
 
   const hideBookNow =

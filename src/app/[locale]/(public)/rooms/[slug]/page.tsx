@@ -1,29 +1,31 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Script from "next/script";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
 import BookingWidget from "@/components/BookingWidget";
 import RoomDescription from "@/components/RoomDescription";
 import RoomStats, { RoomGallery, RoomSidebarStatus, RoomStatusBanner } from "@/components/RoomStats";
 import { parseStory } from "@/lib/story";
+import { localePath, localeAlternates } from "@/lib/i18n/locale-url";
+import type { Locale } from "@/lib/i18n/types";
 
 interface Props {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const room = await prisma.room.findUnique({ where: { slug } });
   if (!room) return {};
+  const path = `/rooms/${slug}`;
   return {
-    title: room.seoTitle,
+    title: { absolute: room.seoTitle },
     description: room.seoDescription,
-    alternates: { canonical: `/rooms/${slug}` },
+    alternates: { canonical: localePath(locale as Locale, path), languages: localeAlternates(path) },
     openGraph: {
       title: room.seoTitle,
       description: room.seoDescription,
-      url: `/rooms/${slug}`,
+      url: localePath(locale as Locale, path),
       images: [{ url: room.heroImageUrl, alt: `${room.name} escape room` }],
       type: "website",
     },
@@ -42,7 +44,7 @@ export async function generateStaticParams() {
 }
 
 export default async function RoomPage({ params }: Props) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const room = await prisma.room.findUnique({ where: { slug } });
   // active:false → hidden (404). coming_soon / unavailable → still visible with banner
   if (!room || !room.active) notFound();
@@ -66,7 +68,7 @@ export default async function RoomPage({ params }: Props) {
   const headingFont = fontVarMap[room.themeFont] ?? "var(--font-ui)";
 
   const baseUrl = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
-  const roomUrl = `${baseUrl}/rooms/${room.slug}`;
+  const roomUrl = `${baseUrl}${localePath(locale as Locale, `/rooms/${room.slug}`)}`;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -92,20 +94,20 @@ export default async function RoomPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
-      { "@type": "ListItem", position: 2, name: "Rooms", item: `${baseUrl}/rooms` },
+      { "@type": "ListItem", position: 1, name: "Home", item: `${baseUrl}${localePath(locale as Locale, "/")}` },
+      { "@type": "ListItem", position: 2, name: "Rooms", item: `${baseUrl}${localePath(locale as Locale, "/rooms")}` },
       { "@type": "ListItem", position: 3, name: room.name, item: roomUrl },
     ],
   };
 
   return (
     <>
-      <Script
+      <script
         id={`ld-room-${room.slug}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Script
+      <script
         id={`ld-breadcrumb-${room.slug}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}

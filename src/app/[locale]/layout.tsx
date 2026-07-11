@@ -1,9 +1,14 @@
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { fontUI, fontGothic, fontRetro, fontIndustrial } from "@/lib/fonts";
 import { IntlProvider } from "@/components/IntlProvider";
+import { dicts, LOCALES } from "@/lib/i18n";
+import type { Locale } from "@/lib/i18n/types";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import "./globals.css";
+import "../globals.css";
+
+const GOOGLE_ADS_ID = "AW-18259724274";
 
 const LOGO_URL =
   "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png";
@@ -54,18 +59,42 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
+
+// This is a root layout (renders <html>/<body>) — [locale] is the only segment that
+// actually receives the `locale` param, which is why lang/dir can't be set correctly
+// from the true top-level app/layout.tsx. Admin has its own separate root for the
+// same reason (see src/app/admin/layout.tsx) — Next.js's "multiple root layouts" pattern.
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await params;
+  if (!LOCALES.includes(rawLocale as Locale)) notFound();
+  const locale = rawLocale as Locale;
+  const dir = dicts[locale].dir;
+
   return (
     <html
-      lang="en"
-      dir="ltr"
+      lang={locale}
+      dir={dir}
       className={`${fontUI.variable} ${fontGothic.variable} ${fontRetro.variable} ${fontIndustrial.variable} antialiased`}
     >
       <head>
-        {/* Apply stored locale before first paint to avoid flash */}
+        {/* Google tag (gtag.js) — placed immediately after <head>, exactly as Google's
+            snippet instructs, so conversion tracking fires as early/reliably as possible. */}
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var l=localStorage.getItem('locale');if(l==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}else if(l==='fr'){document.documentElement.lang='fr';}})();`,
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GOOGLE_ADS_ID}');`,
           }}
         />
         <script
@@ -74,7 +103,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-dvh flex flex-col bg-[#0a0a0a] text-white font-[family-name:var(--font-ui)] overflow-x-hidden">
-        <IntlProvider>{children}</IntlProvider>
+        <IntlProvider locale={locale}>{children}</IntlProvider>
         <Analytics />
         <SpeedInsights />
       </body>

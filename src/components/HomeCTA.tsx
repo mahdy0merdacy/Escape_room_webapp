@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useT } from "./IntlProvider";
 
 export default function HomeCTA() {

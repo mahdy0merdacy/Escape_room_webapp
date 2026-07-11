@@ -1,7 +1,10 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useLocale } from "./IntlProvider";
+import { stripLocalePath } from "@/lib/i18n/locale-url";
 import type { Locale } from "@/lib/i18n/types";
 
 const OPTIONS: { locale: Locale; flagCode: string; label: string }[] = [
@@ -11,11 +14,13 @@ const OPTIONS: { locale: Locale; flagCode: string; label: string }[] = [
 ];
 
 export default function LanguageSwitcher() {
-  const { locale, setLocale } = useLocale();
+  const { locale } = useLocale();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const current = OPTIONS.find((o) => o.locale === locale) ?? OPTIONS[0];
+  const restOfPath = stripLocalePath(pathname);
   const Flag = ({ code }: { code: string }) => (
     <span className={`fi fi-${code} rounded-sm`} style={{ fontSize: "1rem", lineHeight: 1 }} />
   );
@@ -53,9 +58,10 @@ export default function LanguageSwitcher() {
       {open && (
         <div className="absolute top-full mt-1.5 end-0 bg-[#1a1a1a] border border-white/15 rounded-xl shadow-2xl shadow-black/60 overflow-hidden z-50 min-w-[140px]">
           {OPTIONS.map(({ locale: l, flagCode, label }) => (
-            <button
+            <Link
               key={l}
-              onClick={() => { setLocale(l); setOpen(false); }}
+              href={`/${l}${restOfPath === "/" ? "" : restOfPath}`}
+              onClick={() => setOpen(false)}
               className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors text-start ${
                 locale === l
                   ? "bg-red-600/20 text-white"
@@ -69,7 +75,7 @@ export default function LanguageSwitcher() {
                   <path d="M10.28 2.28a1 1 0 0 0-1.42 0L4.5 6.64 3.14 5.28a1 1 0 0 0-1.42 1.42l2.07 2.07a1 1 0 0 0 1.42 0l5.07-5.07a1 1 0 0 0 0-1.42z"/>
                 </svg>
               )}
-            </button>
+            </Link>
           ))}
         </div>
       )}

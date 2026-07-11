@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const {
     slug, title, excerpt, content, heroImageUrl,
+    titleFr, excerptFr, contentFr, titleAr, excerptAr, contentAr,
     pillar, active, order, seoTitle, seoDescription,
   } = body;
 
@@ -23,6 +24,12 @@ export async function POST(request: NextRequest) {
         title,
         excerpt: excerpt ?? "",
         content: content ?? "",
+        titleFr: titleFr ?? "",
+        excerptFr: excerptFr ?? "",
+        contentFr: contentFr ?? "",
+        titleAr: titleAr ?? "",
+        excerptAr: excerptAr ?? "",
+        contentAr: contentAr ?? "",
         heroImageUrl: heroImageUrl ?? "",
         pillar: pillar ?? false,
         active: active ?? true,

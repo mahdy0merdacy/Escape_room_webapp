@@ -31,7 +31,7 @@ export const fr: Dict = {
       { n: "03", title: "Réserver en ligne", desc: "Saisissez vos informations — sans paiement à l'avance." },
       { n: "04", title: "Arriver et s'échapper", desc: "Arrivez, payez sur place et battez le chrono." },
     ],
-    ctaH: "Prêt à affronter vos peurs ?",
+    ctaH: "Pensez-vous pouvoir vous échapper ?",
     ctaSub: "Groupes de 2 à 8 personnes. 60 minutes au chrono. La porte se ferme derrière vous.",
     ctaBtn: "Voir toutes les salles",
   },
@@ -61,7 +61,7 @@ export const fr: Dict = {
       { q: "Combien de personnes peuvent jouer ?", a: "Nos salles accueillent entre 2 et 7 joueurs par session. Pour une expérience optimale, nous recommandons des groupes de 4 à 5 personnes. Les grands groupes privés peuvent nous contacter pour des réservations exclusives." },
       { q: "Combien de temps dure une session ?", a: "Le jeu dure 60 minutes. Veuillez arriver 10 minutes avant pour le briefing avec notre maître du jeu. Le temps total au lieu — briefing et débriefing compris — est d'environ 80 minutes." },
       { q: "Faut-il de l'expérience pour jouer ?", a: "Pas du tout. Nos salles sont conçues pour tous les niveaux, des débutants complets aux vétérans des escape rooms. Notre équipe vous briefera soigneusement avant le début, et vous pouvez demander des indices pendant le jeu." },
-      { q: "Est-ce adapté aux enfants ?", a: "Nous recommandons un âge minimum de 16 ans en raison de l'intensité de certaines salles, notamment Annabelle qui contient de forts éléments d'horreur. Les moins de 16 ans doivent être accompagnés d'un parent ou tuteur." },
+      { q: "Est-ce adapté aux enfants ?", a: "Nous recommandons un âge minimum de 13 ans en raison de l'intensité de certaines salles, notamment Annabelle qui contient de forts éléments d'horreur. Les moins de 13 ans doivent être accompagnés d'un parent ou tuteur." },
       { q: "Annabelle est-elle très effrayante ?", a: "Annabelle est notre expérience d'horreur la plus intense — lumières vacillantes, effets sonores, accessoires animés et atmosphère profondément déstabilisante. Déconseillée aux personnes souffrant d'anxiété sévère, de problèmes cardiaques ou de claustrophobie." },
       { q: "Quelles langues proposez-vous ?", a: "Nous proposons l'expérience complète en français, arabe et anglais. Indiquez simplement votre préférence lors de la réservation et notre maître du jeu vous guidera dans votre langue." },
       { q: "Où êtes-vous situés ?", a: "Nous sommes à Manouba, Tunisie — facilement accessible depuis Tunis, La Marsa, Ariana et Bardo. Parking gratuit disponible sur place." },
@@ -133,7 +133,7 @@ export const fr: Dict = {
   room: {
     players: "Joueurs",
     age: "Âge",
-    ageValue: "16+",
+    ageValue: "13+",
     pricing: "Tarifs",
     perPerson: "/ personne",
     gallery: "Galerie",
@@ -146,5 +146,15 @@ export const fr: Dict = {
   footer: {
     explore: "Explorer",
     contactHeading: "Contact",
+  },
+  guides: {
+    eyebrow: "Guides Escape Room",
+    heading: "Guides et Astuces Escape Room",
+    tagline: "Tout ce qu'il faut savoir sur les escape rooms à Tunis, Tunisie — avant de réserver votre première (ou cinquantième) salle.",
+    startHere: "Commencez ici",
+    ctaHeading: "Prêt à tenter l'expérience ?",
+    ctaSub: "Réservez l'une de nos trois escape rooms à thème à Tunis, Tunisie — 60 minutes, aucune expérience requise.",
+    viewAllRooms: "Voir toutes les salles",
+    contactUs: "Nous contacter",
   },
 };

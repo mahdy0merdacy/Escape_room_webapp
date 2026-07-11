@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import MapEmbed from "./MapEmbed";
 import { useT } from "./IntlProvider";
 

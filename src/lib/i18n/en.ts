@@ -31,7 +31,7 @@ export const en: Dict = {
       { n: "03", title: "Book Instantly", desc: "Enter your details — no payment upfront." },
       { n: "04", title: "Show Up & Escape", desc: "Arrive, pay on the day, beat the clock." },
     ],
-    ctaH: "Ready to face your fears?",
+    ctaH: "Think You Can Escape?",
     ctaSub: "Groups of 2–8. 60 minutes on the clock. The door locks behind you.",
     ctaBtn: "View All Rooms",
   },
@@ -61,7 +61,7 @@ export const en: Dict = {
       { q: "How many people can play?", a: "Our rooms accommodate between 2 and 7 players per session. For the best experience, we recommend groups of 4 to 5. Larger private groups can contact us to discuss exclusive bookings." },
       { q: "How long does a session last?", a: "The game itself runs for 60 minutes. Please arrive 10 minutes early for a briefing from our game master. Total time at the venue — including briefing and debrief — is approximately 80 minutes." },
       { q: "Do I need experience to play?", a: "Not at all. Our rooms are designed for all levels, from complete beginners to seasoned escape room veterans. Our staff will brief you thoroughly before you start, and you can request hints during the game if you get stuck." },
-      { q: "Is it suitable for children?", a: "We recommend a minimum age of 16 due to the intensity of some rooms, particularly Annabelle which contains strong horror elements. Children under 16 must be accompanied by a parent or guardian." },
+      { q: "Is it suitable for children?", a: "We recommend a minimum age of 13 due to the intensity of some rooms, particularly Annabelle which contains strong horror elements. Children under 13 must be accompanied by a parent or guardian." },
       { q: "How scary is Annabelle?", a: "Annabelle is our most intense horror experience — flickering lights, sound effects, moving props, and a deeply unsettling atmosphere. It is not recommended for people with severe anxiety, heart conditions, or a fear of the dark." },
       { q: "What languages do you offer?", a: "We offer the full experience in French, Arabic, and English. Just let us know your preference when booking and our game master will guide you in your chosen language." },
       { q: "Where are you located?", a: "We're in Manouba, Tunisia — easily accessible from Tunis, La Marsa, Ariana, and Bardo. Free parking is available on site." },
@@ -133,7 +133,7 @@ export const en: Dict = {
   room: {
     players: "Players",
     age: "Age",
-    ageValue: "16+",
+    ageValue: "13+",
     pricing: "Pricing",
     perPerson: "/ person",
     gallery: "Gallery",
@@ -146,5 +146,15 @@ export const en: Dict = {
   footer: {
     explore: "Explore",
     contactHeading: "Contact",
+  },
+  guides: {
+    eyebrow: "Escape Room Guides",
+    heading: "Escape Room Guides & Tips",
+    tagline: "Everything you need to know about escape rooms in Tunis, Tunisia — before you book your first (or fiftieth) room.",
+    startHere: "Start Here",
+    ctaHeading: "Ready to try it yourself?",
+    ctaSub: "Book one of our three themed escape rooms in Tunis, Tunisia — 60 minutes, no experience needed.",
+    viewAllRooms: "View All Rooms",
+    contactUs: "Contact Us",
   },
 };

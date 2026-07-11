@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getPricePerPerson, getTotalPrice } from "@/lib/pricing";
-import { useT } from "./IntlProvider";
+import { useT, useLocale } from "./IntlProvider";
+import { localePath } from "@/lib/i18n/locale-url";
 
 interface Slot {
   startTime: string;
@@ -63,6 +64,7 @@ export default function BookingWidget({
 }) {
   const router = useRouter();
   const t = useT();
+  const { locale } = useLocale();
   const today = new Date().toISOString().split("T")[0];
   const [step, setStep] = useState<"date" | "slot" | "details">("date");
   const [selectedDate, setSelectedDate] = useState(today);
@@ -152,7 +154,7 @@ export default function BookingWidget({
         setServerError(data.error ?? "Something went wrong. Please try again.");
         return;
       }
-      router.push(`/booking/confirmed?bookingId=${data.id}`);
+      router.push(`${localePath(locale, "/booking/confirmed")}?bookingId=${data.id}`);
     } catch {
       setServerError("Network error. Please try again.");
     } finally {

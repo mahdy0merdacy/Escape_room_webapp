@@ -1,55 +1,37 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 import type { Locale, Dict } from "@/lib/i18n/types";
-import { dicts, DEFAULT_LOCALE, LOCALES } from "@/lib/i18n";
+import { dicts, DEFAULT_LOCALE } from "@/lib/i18n";
 
-type IntlContextValue = { locale: Locale; t: Dict; setLocale: (l: Locale) => void };
+type IntlContextValue = { locale: Locale; t: Dict };
 
 const IntlContext = createContext<IntlContextValue>({
   locale: DEFAULT_LOCALE,
   t: dicts[DEFAULT_LOCALE],
-  setLocale: () => {},
 });
 
-function readLocale(): Locale {
-  if (typeof window === "undefined") return DEFAULT_LOCALE;
-  const stored = localStorage.getItem("locale") as Locale | null;
-  return stored && LOCALES.includes(stored) ? stored : DEFAULT_LOCALE;
-}
-
-export function IntlProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
-
+/**
+ * Locale is decided server-side by the URL's [locale] segment, not localStorage —
+ * that's what makes each language crawlable at its own URL. We still write to
+ * localStorage so a later visit to "/" can offer to redirect to the remembered
+ * language, but it never controls what actually renders.
+ */
+export function IntlProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
   useEffect(() => {
-    const l = readLocale();
-    setLocaleState(l);
-    applyLocale(l);
-  }, []);
-
-  function setLocale(l: Locale) {
-    localStorage.setItem("locale", l);
-    setLocaleState(l);
-    applyLocale(l);
-  }
+    localStorage.setItem("locale", locale);
+  }, [locale]);
 
   return (
-    <IntlContext.Provider value={{ locale, t: dicts[locale], setLocale }}>
-      {children}
-    </IntlContext.Provider>
+    <IntlContext.Provider value={{ locale, t: dicts[locale] }}>{children}</IntlContext.Provider>
   );
-}
-
-function applyLocale(l: Locale) {
-  document.documentElement.lang = l;
-  document.documentElement.dir = dicts[l].dir;
 }
 
 export function useT(): Dict {
   return useContext(IntlContext).t;
 }
 
-export function useLocale(): { locale: Locale; setLocale: (l: Locale) => void } {
-  const { locale, setLocale } = useContext(IntlContext);
-  return { locale, setLocale };
+export function useLocale(): { locale: Locale } {
+  const { locale } = useContext(IntlContext);
+  return { locale };
 }

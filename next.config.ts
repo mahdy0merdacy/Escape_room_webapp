@@ -18,21 +18,33 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/en", destination: "/", permanent: true },
-      { source: "/en/rooms", destination: "/rooms", permanent: true },
-      { source: "/en/rooms/annabelle-horror", destination: "/rooms/annabelle", permanent: true },
-      { source: "/en/rooms/stranger-things", destination: "/rooms/stranger-things", permanent: true },
-      { source: "/breaking-bad", destination: "/rooms/breaking-bad", permanent: true },
-      { source: "/en/about-us-escape-room-elharba", destination: "/about", permanent: true },
-      { source: "/contact-us", destination: "/contact", permanent: true },
-      { source: "/en/contact-us", destination: "/contact", permanent: true },
-      { source: "/privacy-policy", destination: "/", permanent: true },
-      { source: "/blog", destination: "/guides", permanent: true },
-      { source: "/blog/:path*", destination: "/guides", permanent: true },
-      { source: "/escape-room-tunisie", destination: "/guides/escape-room-tunisie", permanent: true },
+      // --- New locale-URL structure: every previously-bare page now lives under /en ---
+      // NOTE: "/en", "/en/rooms", and "/en/rooms/stranger-things" are deliberately NOT
+      // listed here — those exact paths are now real routes (English homepage, rooms
+      // listing, and the stranger-things room), so redirecting them would create a loop.
+      { source: "/", destination: "/en", permanent: true },
+      { source: "/rooms", destination: "/en/rooms", permanent: true },
+      { source: "/rooms/:slug", destination: "/en/rooms/:slug", permanent: true },
+      { source: "/about", destination: "/en/about", permanent: true },
+      { source: "/contact", destination: "/en/contact", permanent: true },
+      { source: "/faq", destination: "/en/faq", permanent: true },
+      { source: "/guides", destination: "/en/guides", permanent: true },
+      { source: "/guides/:slug", destination: "/en/guides/:slug", permanent: true },
+      { source: "/booking/confirmed", destination: "/en/booking/confirmed", permanent: true },
+
+      // --- Legacy pre-relaunch WordPress URLs ---
+      { source: "/en/rooms/annabelle-horror", destination: "/en/rooms/annabelle", permanent: true },
+      { source: "/breaking-bad", destination: "/en/rooms/breaking-bad", permanent: true },
+      { source: "/en/about-us-escape-room-elharba", destination: "/en/about", permanent: true },
+      { source: "/contact-us", destination: "/en/contact", permanent: true },
+      { source: "/en/contact-us", destination: "/en/contact", permanent: true },
+      { source: "/privacy-policy", destination: "/en", permanent: true },
+      { source: "/blog", destination: "/en/guides", permanent: true },
+      { source: "/blog/:path*", destination: "/en/guides", permanent: true },
+      { source: "/escape-room-tunisie", destination: "/en/guides/escape-room-tunisie", permanent: true },
       {
         source: "/top-5-des-raisons-dessayer-une-escape-room-en-tunisie",
-        destination: "/guides/top-reasons-to-try-an-escape-room-in-tunisia",
+        destination: "/en/guides/top-reasons-to-try-an-escape-room-in-tunisia",
         permanent: true,
       },
     ];

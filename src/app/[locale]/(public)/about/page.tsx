@@ -1,16 +1,25 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import prisma from "@/lib/prisma";
+import { localePath, localeAlternates } from "@/lib/i18n/locale-url";
+import type { Locale } from "@/lib/i18n/types";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "About elharba — Escape Room in Manouba, Tunisia",
-  description:
-    "Learn about elharba, Tunisia's leading escape room. Our story, values, and what makes our immersive experiences unique.",
-  alternates: { canonical: "/about" },
-  openGraph: { url: "/about" },
-};
+interface Props {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "About Us — Escape Room in Tunis, Tunisia",
+    description:
+      "Learn about elharba, Tunisia's top-rated escape room. Our story, values, and what makes our immersive experiences unique.",
+    alternates: { canonical: localePath(locale as Locale, "/about"), languages: localeAlternates("/about") },
+    openGraph: { url: localePath(locale as Locale, "/about") },
+  };
+}
 
 type AboutValue = { icon: string; title: string; desc: string };
 type AboutFeature = { label: string; desc: string };
