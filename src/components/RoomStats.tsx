@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useT } from "./IntlProvider";
 import { TIERS } from "@/lib/pricing";
 
@@ -30,11 +31,17 @@ export function RoomGallery({ roomName, gallery }: { roomName: string; gallery: 
         {gallery.map((url, i) => (
           <div
             key={i}
-            className="aspect-video rounded-xl bg-cover bg-center border border-white/10"
-            style={{ backgroundImage: `url('${url}')` }}
-            role="img"
-            aria-label={`${roomName} gallery image ${i + 1}`}
-          />
+            className="relative aspect-video rounded-xl overflow-hidden border border-white/10"
+          >
+            <Image
+              src={url}
+              alt={`${roomName} escape room gallery photo ${i + 1}`}
+              fill
+              loading="lazy"
+              sizes="(min-width: 640px) 33vw, 100vw"
+              className="object-cover"
+            />
+          </div>
         ))}
       </div>
     </div>

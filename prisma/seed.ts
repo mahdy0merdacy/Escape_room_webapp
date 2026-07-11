@@ -44,10 +44,26 @@ async function main() {
   });
   console.log(`Admin created: ${email}`);
 
+  const ANNABELLE_GALLERY = [
+    "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/ChatGPT%20Image%2011%20juil.%202026%2C%2014_35_42.png",
+    "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/ChatGPT%20Image%2011%20juil.%202026%2C%2014_51_22.png",
+    "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/Gemini_Generated_Image_db0ypbdb0ypbdb0y-clean.png",
+  ];
+  const STRANGER_THINGS_GALLERY = [
+    "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/Gemini_Generated_Image_56txwv56txwv56tx-clean.png",
+    "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/Gemini_Generated_Image_7zaxdd7zaxdd7zax-clean.png",
+    "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/Gemini_Generated_Image_qq9syhqq9syhqq9s-clean.png",
+  ];
+
   // Annabelle (horror)
   await prisma.room.upsert({
     where: { slug: "annabelle" },
-    update: { heroImageUrl: "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/annabelle-hero.webp", tagline: "She was never just a doll. She was a doorway.", story: `Years ago, a doll maker and a missing girl vanished from the same hut, the same night. Neither was ever found. Now the hut has been reopened, and your team has been called in to investigate. You have 60 minutes to find out what happened — and to deal with whatever was left behind. The dolls don't always stay still. Past investigators didn't all make it out.\n\nThis experience is rated our most terrifying. Not recommended for those with heart conditions, severe anxiety, or a fear of the dark. You have been warned.` },
+    update: {
+      heroImageUrl: "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/annabelle-hero.webp",
+      tagline: "She was never just a doll. She was a doorway.",
+      galleryImageUrls: JSON.stringify(ANNABELLE_GALLERY),
+      story: `Years ago, a doll maker and a missing girl vanished from the same hut, the same night. Neither was ever found. Now the hut has been reopened, and your team has been called in to investigate. You have 60 minutes to find out what happened — and to deal with whatever was left behind. The dolls don't always stay still. Past investigators didn't all make it out.\n\nThis experience is rated our most terrifying. Not recommended for those with heart conditions, severe anxiety, or a fear of the dark. You have been warned.`,
+    },
     create: {
       slug: "annabelle",
       name: "Annabelle",
@@ -56,7 +72,7 @@ async function main() {
 
 This experience is rated our most terrifying. Not recommended for those with heart conditions, severe anxiety, or a fear of the dark. You have been warned.`,
       heroImageUrl: "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/annabelle-hero.webp",
-      galleryImageUrls: JSON.stringify([]),
+      galleryImageUrls: JSON.stringify(ANNABELLE_GALLERY),
       themeColors: JSON.stringify({ primary: "#1a0a0a", secondary: "#4a0000", accent: "#cc2200" }),
       themeFont: "gothic",
       difficulty: 5,
@@ -75,7 +91,10 @@ This experience is rated our most terrifying. Not recommended for those with hea
   // Stranger Things (80s/retro sci-fi)
   await prisma.room.upsert({
     where: { slug: "stranger-things" },
-    update: { heroImageUrl: "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/strangerthings-hero.jpg" },
+    update: {
+      heroImageUrl: "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/strangerthings-hero.jpg",
+      galleryImageUrls: JSON.stringify(STRANGER_THINGS_GALLERY),
+    },
     create: {
       slug: "stranger-things",
       name: "Stranger Things",
@@ -84,7 +103,7 @@ This experience is rated our most terrifying. Not recommended for those with hea
 
 You have 60 minutes to rescue Will before the Demogorgon finds him. Locate Eleven's powers, crack the lab's code, and close the gate. The Mind Flayer is already aware of your presence. Ride like your life depends on it — because it does.`,
       heroImageUrl: "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/strangerthings-hero.jpg",
-      galleryImageUrls: JSON.stringify([]),
+      galleryImageUrls: JSON.stringify(STRANGER_THINGS_GALLERY),
       themeColors: JSON.stringify({ primary: "#0d0d1a", secondary: "#1a1a3e", accent: "#e8003d" }),
       themeFont: "retro",
       difficulty: 3,
