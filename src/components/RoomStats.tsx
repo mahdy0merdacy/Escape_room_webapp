@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useT } from "./IntlProvider";
 import { TIERS } from "@/lib/pricing";
@@ -21,6 +22,7 @@ interface RoomStatsProps {
 
 export function RoomGallery({ roomName, gallery }: { roomName: string; gallery: string[] }) {
   const t = useT();
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   if (gallery.length === 0) return null;
 
@@ -29,9 +31,11 @@ export function RoomGallery({ roomName, gallery }: { roomName: string; gallery: 
       <h2 className="text-xl font-bold text-white mb-4">{t.room.gallery}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {gallery.map((url, i) => (
-          <div
+          <button
             key={i}
-            className="relative aspect-video rounded-xl overflow-hidden border border-white/10"
+            type="button"
+            onClick={() => setOpenIdx(i)}
+            className="relative aspect-video rounded-xl overflow-hidden border border-white/10 cursor-zoom-in"
           >
             <Image
               src={url}
@@ -41,9 +45,65 @@ export function RoomGallery({ roomName, gallery }: { roomName: string; gallery: 
               sizes="(min-width: 640px) 33vw, 100vw"
               className="object-cover"
             />
-          </div>
+          </button>
         ))}
       </div>
+
+      {openIdx !== null && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 sm:p-10"
+          onClick={() => setOpenIdx(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setOpenIdx(null)}
+            aria-label="Close"
+            className="absolute top-4 right-4 text-white/70 hover:text-white text-3xl leading-none w-10 h-10 flex items-center justify-center"
+          >
+            ×
+          </button>
+
+          {gallery.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenIdx((i) => (i === null ? i : (i - 1 + gallery.length) % gallery.length));
+                }}
+                aria-label="Previous image"
+                className="absolute left-2 sm:left-6 text-white/70 hover:text-white text-4xl leading-none w-12 h-12 flex items-center justify-center"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenIdx((i) => (i === null ? i : (i + 1) % gallery.length));
+                }}
+                aria-label="Next image"
+                className="absolute right-2 sm:right-6 text-white/70 hover:text-white text-4xl leading-none w-12 h-12 flex items-center justify-center"
+              >
+                ›
+              </button>
+            </>
+          )}
+
+          <div
+            className="relative w-full h-full max-w-5xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={gallery[openIdx]}
+              alt={`${roomName} escape room gallery photo ${openIdx + 1}, full size`}
+              fill
+              sizes="100vw"
+              className="object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
