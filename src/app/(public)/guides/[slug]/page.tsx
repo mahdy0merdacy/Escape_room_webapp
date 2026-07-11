@@ -34,7 +34,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const guides = await prisma.guide.findMany({ where: { active: true }, select: { slug: true } });
+  const guides = await prisma.guide
+    .findMany({ where: { active: true }, select: { slug: true } })
+    .catch(() => []);
   return guides.map((g: { slug: string }) => ({ slug: g.slug }));
 }
 

@@ -14,10 +14,12 @@ export const metadata: Metadata = {
 };
 
 export default async function GuidesPage() {
-  const guides = await prisma.guide.findMany({
-    where: { active: true },
-    orderBy: [{ pillar: "desc" }, { order: "asc" }],
-  });
+  const guides = await prisma.guide
+    .findMany({
+      where: { active: true },
+      orderBy: [{ pillar: "desc" }, { order: "asc" }],
+    })
+    .catch(() => []);
 
   const base = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
 
