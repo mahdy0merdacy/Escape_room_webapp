@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalizedPath } from "@/lib/revalidate-locales";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
@@ -33,7 +33,7 @@ export async function PATCH(
       ...(body.active !== undefined && { active: body.active }),
     },
   });
-  revalidatePath("/");
+  revalidateLocalizedPath("/");
   return NextResponse.json({ ...album, imageUrls: JSON.parse(album.imageUrls) });
 }
 
@@ -46,6 +46,6 @@ export async function DELETE(
 
   const { id } = await params;
   await prisma.galleryAlbum.delete({ where: { id } });
-  revalidatePath("/");
+  revalidateLocalizedPath("/");
   return NextResponse.json({ ok: true });
 }

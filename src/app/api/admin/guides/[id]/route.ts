@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalizedPath } from "@/lib/revalidate-locales";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
@@ -39,8 +39,8 @@ export async function PUT(
     },
   });
 
-  revalidatePath(`/guides/${guide.slug}`);
-  revalidatePath("/guides");
+  revalidateLocalizedPath(`/guides/${guide.slug}`);
+  revalidateLocalizedPath("/guides");
 
   return NextResponse.json(guide);
 }

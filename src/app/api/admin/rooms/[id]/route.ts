@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalizedPath } from "@/lib/revalidate-locales";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { parseRoomSchedule } from "@/lib/room-schedule";
@@ -48,9 +48,9 @@ export async function PUT(
     },
   });
 
-  revalidatePath(`/rooms/${room.slug}`);
-  revalidatePath("/rooms");
-  revalidatePath("/");
+  revalidateLocalizedPath(`/rooms/${room.slug}`);
+  revalidateLocalizedPath("/rooms");
+  revalidateLocalizedPath("/");
 
   return NextResponse.json(room);
 }

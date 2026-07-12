@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalizedPath } from "@/lib/revalidate-locales";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
@@ -40,6 +40,6 @@ export async function POST(request: NextRequest) {
       order: body.order ?? 0,
     },
   });
-  revalidatePath("/");
+  revalidateLocalizedPath("/");
   return NextResponse.json({ ...album, imageUrls: JSON.parse(album.imageUrls) }, { status: 201 });
 }

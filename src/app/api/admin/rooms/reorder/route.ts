@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import { revalidateLocalizedPath } from "@/lib/revalidate-locales";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
@@ -21,8 +22,8 @@ export async function PATCH(request: NextRequest) {
     )
   );
 
-  revalidatePath("/");
-  revalidatePath("/rooms");
+  revalidateLocalizedPath("/");
+  revalidateLocalizedPath("/rooms");
   revalidatePath("/admin/rooms");
 
   return NextResponse.json({ ok: true });
