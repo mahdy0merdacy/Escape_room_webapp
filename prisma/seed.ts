@@ -50,7 +50,7 @@ async function main() {
     "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/Gemini_Generated_Image_db0ypbdb0ypbdb0y-clean.png",
   ];
   const STRANGER_THINGS_GALLERY = [
-    "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/Gemini_Generated_Image_56txwv56txwv56tx-clean.png",
+    "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/WhatsApp%20Image%202026-07-11%20at%2016.27.26.jpeg",
     "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/Gemini_Generated_Image_7zaxdd7zaxdd7zax-clean.png",
     "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/rooms/rooms/Gemini_Generated_Image_qq9syhqq9syhqq9s-clean.png",
   ];
