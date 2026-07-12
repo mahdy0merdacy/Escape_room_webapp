@@ -37,6 +37,7 @@ export default async function EditRoomPage({ params }: Props) {
           tagline: room.tagline,
           storyI18n: parseStory(room.story),
           heroImageUrl: room.heroImageUrl,
+          trailerUrl: room.trailerUrl ?? "",
           galleryImageUrls: [...gallery, "", ""].slice(0, 3),
           themeColors: colors,
           themeFont: room.themeFont as "gothic" | "retro" | "industrial",

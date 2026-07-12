@@ -5,7 +5,9 @@ import prisma from "@/lib/prisma";
 import BookingWidget from "@/components/BookingWidget";
 import RoomDescription from "@/components/RoomDescription";
 import RoomStats, { RoomGallery, RoomSidebarStatus, RoomStatusBanner } from "@/components/RoomStats";
+import RoomTrailer from "@/components/RoomTrailer";
 import { parseStory } from "@/lib/story";
+import { getVideoEmbed } from "@/lib/video-embed";
 import { localePath, localeAlternates } from "@/lib/i18n/locale-url";
 import type { Locale } from "@/lib/i18n/types";
 
@@ -66,6 +68,7 @@ export default async function RoomPage({ params }: Props) {
     industrial: "var(--font-industrial)",
   };
   const headingFont = fontVarMap[room.themeFont] ?? "var(--font-ui)";
+  const trailer = getVideoEmbed(room.trailerUrl ?? "");
 
   const baseUrl = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
   const roomUrl = `${baseUrl}${localePath(locale as Locale, `/rooms/${room.slug}`)}`;
@@ -127,35 +130,53 @@ export default async function RoomPage({ params }: Props) {
         }
       >
         {/* Hero */}
-        <section
-          className="relative min-h-[70vh] flex items-end pb-16"
-          style={{ background: colors.primary }}
-        >
-          <Image
-            src={room.heroImageUrl}
-            alt={`${room.name} escape room`}
-            fill
-            priority
-            className="object-cover opacity-40"
-            style={{ objectPosition: heroPos }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: `linear-gradient(to bottom, transparent 20%, ${colors.primary} 90%)` }}
-          />
-          <div className="relative z-10 max-w-6xl mx-auto px-4 w-full">
-            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-4" style={{ color: colors.accent }}>
-              Escape Room Experience
-            </p>
-            <h1
-              className="text-5xl md:text-7xl font-black leading-tight text-white mb-4"
-              style={{ fontFamily: headingFont }}
-            >
-              {room.name}
-            </h1>
-            <p className="text-lg md:text-xl italic text-white/70 max-w-xl">{room.tagline}</p>
-          </div>
-        </section>
+        {trailer ? (
+          <section style={{ background: colors.primary }}>
+            <div className="max-w-6xl mx-auto px-4 pt-16 pb-8 text-center">
+              <p className="text-xs font-bold tracking-[0.3em] uppercase mb-4" style={{ color: colors.accent }}>
+                Escape Room Experience
+              </p>
+              <h1
+                className="text-5xl md:text-7xl font-black leading-tight text-white mb-4"
+                style={{ fontFamily: headingFont }}
+              >
+                {room.name}
+              </h1>
+              <p className="text-lg md:text-xl italic text-white/70 max-w-xl mx-auto">{room.tagline}</p>
+            </div>
+            <RoomTrailer url={room.trailerUrl} roomName={room.name} />
+          </section>
+        ) : (
+          <section
+            className="relative min-h-[70vh] flex items-end pb-16"
+            style={{ background: colors.primary }}
+          >
+            <Image
+              src={room.heroImageUrl}
+              alt={`${room.name} escape room`}
+              fill
+              priority
+              className="object-cover opacity-40"
+              style={{ objectPosition: heroPos }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: `linear-gradient(to bottom, transparent 20%, ${colors.primary} 90%)` }}
+            />
+            <div className="relative z-10 max-w-6xl mx-auto px-4 w-full">
+              <p className="text-xs font-bold tracking-[0.3em] uppercase mb-4" style={{ color: colors.accent }}>
+                Escape Room Experience
+              </p>
+              <h1
+                className="text-5xl md:text-7xl font-black leading-tight text-white mb-4"
+                style={{ fontFamily: headingFont }}
+              >
+                {room.name}
+              </h1>
+              <p className="text-lg md:text-xl italic text-white/70 max-w-xl">{room.tagline}</p>
+            </div>
+          </section>
+        )}
 
         {/* Main content */}
         <div style={{ background: colors.primary }}>

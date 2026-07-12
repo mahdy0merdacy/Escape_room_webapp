@@ -15,6 +15,7 @@ model Room {
   tagline           String
   story             String
   heroImageUrl      String
+  trailerUrl        String    @default("")
   galleryImageUrls  String
   themeColors       String
   themeFont         String

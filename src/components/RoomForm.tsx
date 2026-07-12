@@ -14,6 +14,7 @@ interface RoomFormData {
   tagline: string;
   storyI18n: StoryI18n;
   heroImageUrl: string;
+  trailerUrl: string;
   galleryImageUrls: string[];
   themeColors: { primary: string; secondary: string; accent: string; heroPosition?: string };
   themeFont: ThemeFont;
@@ -64,6 +65,7 @@ export default function RoomForm({ roomId, initial }: Props) {
     tagline: initial?.tagline ?? "",
     storyI18n: initialStory,
     heroImageUrl: initial?.heroImageUrl ?? "",
+    trailerUrl: initial?.trailerUrl ?? "",
     galleryImageUrls: initial?.galleryImageUrls ?? ["", "", ""],
     themeColors: initial?.themeColors ?? { primary: "#000000", secondary: "#111111", accent: "#ff0000" },
     themeFont: initial?.themeFont ?? "gothic",
@@ -399,6 +401,21 @@ export default function RoomForm({ roomId, initial }: Props) {
               </p>
             </div>
           )}
+        </FormField>
+
+        <FormField label="Video Trailer URL">
+          <input
+            type="text"
+            value={form.trailerUrl}
+            onChange={(e) => set("trailerUrl", e.target.value)}
+            className={inputCls}
+            placeholder="https://youtube.com/watch?v=... or a direct .mp4 link"
+          />
+          <p className="text-white/25 text-xs mt-1">
+            Optional. YouTube, Vimeo, or a direct video file link all work. When set, this replaces
+            the hero image at the top of this room&apos;s page with the trailer — the hero image is
+            still used on the /rooms listing page and for link previews either way.
+          </p>
         </FormField>
 
         <div className="flex items-center justify-between py-1">

@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const {
-    slug, name, tagline, story, heroImageUrl, galleryImageUrls,
+    slug, name, tagline, story, heroImageUrl, trailerUrl, galleryImageUrls,
     themeColors, themeFont, difficulty, durationMinutes,
     minPlayers, maxPlayers, roomStatus,
     seoTitle, seoDescription, openHours,
@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
         tagline: tagline ?? "",
         story: story ?? "",
         heroImageUrl: heroImageUrl ?? "",
+        trailerUrl: trailerUrl ?? "",
         galleryImageUrls: JSON.stringify(galleryImageUrls ?? []),
         themeColors: JSON.stringify(themeColors ?? { primary: "#000", secondary: "#111", accent: "#fff" }),
         themeFont: themeFont ?? "gothic",

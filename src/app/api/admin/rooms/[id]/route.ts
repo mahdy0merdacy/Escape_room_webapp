@@ -16,7 +16,7 @@ export async function PUT(
   const { id } = await params;
   const body = await request.json();
   const {
-    name, tagline, story, heroImageUrl, galleryImageUrls,
+    name, tagline, story, heroImageUrl, trailerUrl, galleryImageUrls,
     themeColors, themeFont, difficulty, durationMinutes,
     minPlayers, maxPlayers, roomStatus, showGallery,
     seoTitle, seoDescription,
@@ -33,6 +33,7 @@ export async function PUT(
       tagline,
       story,
       heroImageUrl,
+      trailerUrl: trailerUrl ?? "",
       galleryImageUrls: JSON.stringify(galleryImageUrls ?? []),
       themeColors: JSON.stringify(themeColors),
       themeFont,
