@@ -19,6 +19,7 @@ export default function DashboardRecentBookings({ initialBookings }: { initialBo
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ customerName: "", email: "", phone: "", partySize: 1 });
   const [saving, setSaving] = useState(false);
+  const [cancelling, setCancelling] = useState<Set<string>>(new Set());
 
   function startEdit(b: Booking) {
     setEditingId(b.id);
@@ -39,6 +40,25 @@ export default function DashboardRecentBookings({ initialBookings }: { initialBo
       }
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function cancelBooking(id: string) {
+    if (cancelling.has(id)) return;
+    setCancelling((prev) => new Set(prev).add(id));
+    try {
+      const res = await fetch(`/api/admin/bookings/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "cancelled" }),
+      });
+      if (res.ok) setBookings((prev) => prev.filter((b) => b.id !== id));
+    } finally {
+      setCancelling((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   }
 
@@ -111,12 +131,19 @@ export default function DashboardRecentBookings({ initialBookings }: { initialBo
                     <td className="px-5 py-3 text-center">
                       <span className="text-white font-semibold">{b.partySize}</span>
                     </td>
-                    <td className="px-5 py-3 text-right">
+                    <td className="px-5 py-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => (isEditing ? setEditingId(null) : startEdit(b))}
                         className="text-xs text-white/40 hover:text-white border border-white/15 hover:border-white/30 px-3 py-1.5 rounded-lg transition-colors"
                       >
                         {isEditing ? "Close" : "Edit"}
+                      </button>
+                      <button
+                        onClick={() => cancelBooking(b.id)}
+                        disabled={cancelling.has(b.id)}
+                        className="ms-2 text-xs text-red-400/70 hover:text-red-400 border border-red-500/25 hover:border-red-500/50 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+                      >
+                        {cancelling.has(b.id) ? "Cancelling…" : "Cancel"}
                       </button>
                     </td>
                   </tr>
