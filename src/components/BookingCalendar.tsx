@@ -365,19 +365,32 @@ function SlotPanel({
 
         {slots.map((slot) => {
           const slotIso = slot.startTime.toISOString();
-          const booking = bookings.find(
-            (b) =>
-              b.roomId === room.id &&
-              new Date(b.startTime).getTime() === slot.startTime.getTime()
-          );
+          // A slot can hold more than one booking — a cancelled one plus whatever
+          // was rebooked in its place. Show all of them, active ones first, so the
+          // cancellation stays visible as history instead of vanishing.
+          const slotBookings = bookings
+            .filter(
+              (b) =>
+                b.roomId === room.id &&
+                new Date(b.startTime).getTime() === slot.startTime.getTime()
+            )
+            .sort((a, b) => (a.status === "cancelled" ? 1 : 0) - (b.status === "cancelled" ? 1 : 0));
+          const hasActiveBooking = slotBookings.some((b) => b.status !== "cancelled");
+          const cancelledOnly = slotBookings.length > 0 && !hasActiveBooking;
           const isBlocked = blocked.some(
             (b) =>
               b.roomId === room.id &&
               new Date(b.slotStart).getTime() === slot.startTime.getTime()
           );
 
-          if (booking) {
-            return <BookingCard key={slotIso} booking={booking} label={slot.label} {...bookingCardProps} />;
+          if (hasActiveBooking) {
+            return (
+              <div key={slotIso} className="divide-y divide-white/5">
+                {slotBookings.map((booking) => (
+                  <BookingCard key={booking.id} booking={booking} label={slot.label} {...bookingCardProps} />
+                ))}
+              </div>
+            );
           }
 
           const slotKey = `${slotIso}|${room.id}`;
@@ -390,11 +403,20 @@ function SlotPanel({
             bookings.some(
               (b) =>
                 adjacentRoomIds.has(b.roomId) &&
+                b.status !== "cancelled" &&
                 new Date(b.startTime).getTime() === slot.startTime.getTime()
             );
 
           return (
             <div key={slotIso}>
+              {/* Slot is open (or was cancelled and never rebooked) — cancelled history stays visible above the still-bookable row */}
+              {cancelledOnly && (
+                <div className="divide-y divide-white/5 border-b border-white/5">
+                  {slotBookings.map((booking) => (
+                    <BookingCard key={booking.id} booking={booking} label={slot.label} {...bookingCardProps} />
+                  ))}
+                </div>
+              )}
               <div className="flex items-center gap-3 px-5 py-2.5">
                 <span className={`text-sm font-mono w-24 shrink-0 ${isAdjacencyBlocked ? "text-white/20" : "text-white/35"}`}>
                   {slot.label}
@@ -597,7 +619,11 @@ export default function BookingCalendar({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "cancelled" }),
       });
-      if (res.ok) setBookings((prev) => prev.filter((b) => b.id !== bookingId));
+      if (res.ok) {
+        setBookings((prev) =>
+          prev.map((b) => (b.id === bookingId ? { ...b, status: "cancelled" } : b))
+        );
+      }
     } finally {
       setPendingKey(key, false);
     }
@@ -729,6 +755,9 @@ export default function BookingCalendar({
 
   // ── Calendar data ─────────────────────────────────────────────────────────
 
+  // Cancelled bookings stay in `bookings`/`bookingsByDay` so they show as history
+  // in the slot panel, but summary counts (day cells, room tabs) only count
+  // active ones so a cancel-then-rebook doesn't look like two reservations.
   const bookingsByDay = new Map<number, Booking[]>();
   for (const b of bookings) {
     const dt = new Date(b.startTime);
@@ -745,6 +774,11 @@ export default function BookingCalendar({
     if (day < 1) continue; // spills into the previous month, not shown in this calendar view
     if (!bookingsByDay.has(day)) bookingsByDay.set(day, []);
     bookingsByDay.get(day)!.push(b);
+  }
+
+  const activeBookingsByDay = new Map<number, Booking[]>();
+  for (const [day, dayBookings] of bookingsByDay) {
+    activeBookingsByDay.set(day, dayBookings.filter((b) => b.status !== "cancelled"));
   }
 
   const firstDow = new Date(year, month - 1, 1).getDay();
@@ -796,7 +830,7 @@ export default function BookingCalendar({
                 <div key={`blank-${i}`} className="h-12 sm:h-20 border-t border-r border-white/5 bg-white/[0.02]" />
               );
 
-            const dayBookings = bookingsByDay.get(day) ?? [];
+            const dayBookings = activeBookingsByDay.get(day) ?? [];
             const isToday =
               today.getFullYear() === year &&
               today.getMonth() + 1 === month &&
@@ -814,7 +848,7 @@ export default function BookingCalendar({
                     setSelectedDay(day);
                     setRescheduleId(null);
                     setNewBookingSlot(null);
-                    const dayBkgs = bookingsByDay.get(day) ?? [];
+                    const dayBkgs = activeBookingsByDay.get(day) ?? [];
                     if (dayBkgs.length > 0) {
                       const countByRoom = new Map<string, number>();
                       for (const b of dayBkgs) countByRoom.set(b.roomId, (countByRoom.get(b.roomId) ?? 0) + 1);
@@ -883,7 +917,7 @@ export default function BookingCalendar({
               {rooms.map((room) => {
                 const c = JSON.parse(room.themeColors) as { primary: string; accent: string };
                 const isActive = selectedRoomId === room.id;
-                const roomCount = (bookingsByDay.get(selectedDay) ?? []).filter(
+                const roomCount = (activeBookingsByDay.get(selectedDay) ?? []).filter(
                   (b) => b.roomId === room.id
                 ).length;
                 return (
@@ -932,7 +966,9 @@ export default function BookingCalendar({
 
       {selectedDay === null && (
         <p className="text-white/30 text-sm text-center py-6">
-          {bookings.length === 0 ? "No reservations this month" : "Click a day to manage its slots"}
+          {bookings.every((b) => b.status === "cancelled")
+            ? "No reservations this month"
+            : "Click a day to manage its slots"}
         </p>
       )}
     </div>

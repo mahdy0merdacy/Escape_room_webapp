@@ -34,7 +34,10 @@ export default async function BookingsPage({ searchParams }: Props) {
 
   const [bookingsRaw, blockedSlots, rooms, adjacencySetting] = await Promise.all([
     prisma.booking.findMany({
-      where: { startTime: { gte: monthStart, lt: monthEnd }, status: { not: "cancelled" } },
+      // Cancelled bookings are included on purpose — the calendar shows them
+      // alongside whatever replaced them in the same slot, as history. Active-only
+      // counts (day cells, room tabs) are computed separately in BookingCalendar.
+      where: { startTime: { gte: monthStart, lt: monthEnd } },
       orderBy: { startTime: "asc" },
       include: { room: { select: { name: true, themeColors: true } } },
     }).catch(() => []),
