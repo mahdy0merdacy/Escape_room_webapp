@@ -2,6 +2,7 @@ import Link from "@/components/LocaleLink";
 import prisma from "@/lib/prisma";
 import { getTotalPrice, formatTND } from "@/lib/pricing";
 import type { Metadata } from "next";
+import GtagPageView from "@/components/GtagPageView";
 
 export const metadata: Metadata = {
   title: "Booking Confirmed",
@@ -63,6 +64,7 @@ export default async function ConfirmedPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
+      <GtagPageView />
       <div className="max-w-lg w-full text-center space-y-8">
         {/* Clock icon */}
         <div
