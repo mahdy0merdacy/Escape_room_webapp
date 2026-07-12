@@ -84,4 +84,71 @@ describe("Double-booking prevention", () => {
     });
     expect(bookings).toHaveLength(1);
   });
+
+  it("a cancelled booking's slot can be booked again", async () => {
+    const room = await prisma.room.upsert({
+      where: { slug: "test-double-book-room" },
+      update: {},
+      create: {
+        slug: "test-double-book-room",
+        name: "Test Room",
+        tagline: "Test",
+        story: "Test",
+        heroImageUrl: "",
+        galleryImageUrls: "[]",
+        themeColors: '{"primary":"#000","secondary":"#111","accent":"#fff"}',
+        themeFont: "gothic",
+        difficulty: 1,
+        durationMinutes: 60,
+        minPlayers: 2,
+        maxPlayers: 6,
+        pricePerPerson: 10,
+        openHours: "{}",
+        active: true,
+        seoTitle: "Test",
+        seoDescription: "Test",
+      },
+    });
+
+    const startTime = new Date("2099-12-26T14:00:00.000Z");
+    const endTime = new Date("2099-12-26T15:00:00.000Z");
+
+    const original = await prisma.booking.create({
+      data: {
+        roomId: room.id,
+        startTime,
+        endTime,
+        customerName: "Person A",
+        email: "dbtest@test.test",
+        phone: "555-0001",
+        partySize: 2,
+        status: "confirmed",
+      },
+    });
+
+    await prisma.booking.update({ where: { id: original.id }, data: { status: "cancelled" } });
+
+    // Rebooking the same slot after cancellation must succeed, not hit a unique-constraint error.
+    const rebooked = await prisma.booking.create({
+      data: {
+        roomId: room.id,
+        startTime,
+        endTime,
+        customerName: "Person B",
+        email: "dbtest@test.test",
+        phone: "555-0002",
+        partySize: 2,
+        status: "confirmed",
+      },
+    });
+
+    expect(rebooked.status).toBe("confirmed");
+
+    const bookings = await prisma.booking.findMany({
+      where: { roomId: room.id, startTime },
+    });
+    expect(bookings).toHaveLength(2);
+    expect(bookings.filter((b) => b.status === "cancelled")).toHaveLength(1);
+    expect(bookings.filter((b) => b.status === "confirmed")).toHaveLength(1);
+  });
 });

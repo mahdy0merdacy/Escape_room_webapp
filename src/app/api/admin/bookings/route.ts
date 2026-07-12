@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendEmail, bookingConfirmationEmail, newBookingAdminEmail } from "@/lib/email";
+import { isUniqueConstraintError } from "@/lib/db-errors";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -93,8 +94,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (err: unknown) {
-    const pgErr = err as { code?: string };
-    if (pgErr.code === "P2002") {
+    if (isUniqueConstraintError(err)) {
       return NextResponse.json({ error: "That slot is already booked." }, { status: 409 });
     }
     console.error("Admin booking creation error:", err);

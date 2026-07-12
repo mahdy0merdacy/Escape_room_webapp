@@ -64,7 +64,15 @@ model Booking {
   gameLanguage    String        @default("fr")
   createdAt       DateTime      @default(now())
 
-  @@unique([roomId, startTime])
+  // No @@unique here on purpose. Double-booking protection on (roomId, startTime)
+  // is enforced by a PARTIAL unique index (WHERE status != 'cancelled') added in
+  // migration 20260712000000_partial_unique_active_booking — Prisma's schema DSL
+  // can't express a filtered index, so it only exists in the migration SQL. Do not
+  // add a plain @@unique([roomId, startTime]) back here: a full-table unique index
+  // would let a soft-cancelled row permanently block that slot from ever being
+  // rebooked, which was the original bug this migration fixed. If you run
+  // `prisma migrate dev` and it offers to "fix" drift by dropping this index,
+  // decline it.
 }
 
 model ScheduleConfig {

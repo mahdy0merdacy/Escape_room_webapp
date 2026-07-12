@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendEmail, newBookingAdminEmail, bookingConfirmationEmail, type Locale } from "@/lib/email";
 import { getAdjacentSlugs } from "@/lib/adjacency";
+import { isUniqueConstraintError } from "@/lib/db-errors";
 
 export async function POST(request: NextRequest) {
   let body: unknown;  
@@ -135,9 +136,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(booking, { status: 201 });
   } catch (err: unknown) {
-    const pgErr = err as { code?: string };
     // Unique constraint violation on (roomId, startTime) = double-booking
-    if (pgErr.code === "P2002") {
+    if (isUniqueConstraintError(err)) {
       return NextResponse.json(
         { error: "That slot was just booked by someone else. Please choose another time." },
         { status: 409 }
