@@ -55,6 +55,7 @@ export const metadata: Metadata = {
     images: [LOGO_URL],
   },
   icons: {
+    icon: "/icon.png",
     apple: LOGO_URL,
   },
 };
