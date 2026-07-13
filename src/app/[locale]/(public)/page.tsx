@@ -11,17 +11,17 @@ export const revalidate = 3600;
 
 const SEO: Record<Locale, { title: string; description: string }> = {
   en: {
-    title: "Tunisia's #1 Rated Escape Room | elharba",
+    title: "Tunisia's #1 Rated Escape Room | Escape Room Elharba",
     description:
       "Tunisia's top-rated escape room on Google. Three uniquely themed rooms — Horror, 80s Sci-Fi, and Crime Drama — in Tunis. Book your 60-minute adventure today.",
   },
   fr: {
-    title: "La Escape Room la Mieux Notée de Tunisie | elharba",
+    title: "La Escape Room la Mieux Notée de Tunisie | Escape Room Elharba",
     description:
       "La escape room la mieux notée de Tunisie sur Google. Trois salles à thème uniques — Horreur, Science-Fiction 80s, et Crime — à Tunis. Réservez votre aventure de 60 minutes dès aujourd'hui.",
   },
   ar: {
-    title: "أفضل غرفة هروب في تونس (الأعلى تقييمًا) | elharba",
+    title: "أفضل غرفة هروب في تونس (الأعلى تقييمًا) | Escape Room Elharba",
     description:
       "أفضل غرفة هروب في تونس وفق تقييمات جوجل. ثلاث غرف بطوابع فريدة — رعب، خيال علمي، وجريمة — في تونس. احجز مغامرتك التي تستغرق 60 دقيقة اليوم.",
   },
@@ -54,7 +54,7 @@ export default async function HomePage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "@id": `${base}/#business`,
-    name: "elharba",
+    name: "Escape Room Elharba",
     description: "Tunisia's top-rated escape room on Google — three uniquely themed rooms in Tunis: horror, retro sci-fi, and crime drama. Book your 60-minute adventure.",
     url: `${base}${localePath(locale as Locale, "/")}`,
     image: logoUrl,

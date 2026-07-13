@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: "Contact Us — Escape Room Tunisia",
     description:
-      "Find elharba escape room in Manouba. Call or WhatsApp us, get directions, and check our opening hours.",
+      "Find Escape Room Elharba in Manouba. Call or WhatsApp us, get directions, and check our opening hours.",
     alternates: { canonical: localePath(locale as Locale, "/contact"), languages: localeAlternates("/contact") },
     openGraph: { url: localePath(locale as Locale, "/contact") },
   };

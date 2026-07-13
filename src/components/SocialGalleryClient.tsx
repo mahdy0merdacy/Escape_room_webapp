@@ -30,7 +30,7 @@ const SOCIALS = [
   },
   {
     label: "Facebook",
-    handle: "elharba Escape Room",
+    handle: "Escape Room Elharba",
     href: "https://www.facebook.com/elharbaescaperoom",
     color: "#1877F2",
     icon: (

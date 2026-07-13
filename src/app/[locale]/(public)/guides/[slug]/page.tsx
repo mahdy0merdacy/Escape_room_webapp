@@ -57,8 +57,8 @@ export default async function GuidePage({ params }: Props) {
     description: guide.seoDescription || guide.excerpt,
     image: guide.heroImageUrl || undefined,
     url: guideUrl,
-    author: { "@type": "Organization", name: "elharba" },
-    publisher: { "@type": "Organization", name: "elharba" },
+    author: { "@type": "Organization", name: "Escape Room Elharba" },
+    publisher: { "@type": "Organization", name: "Escape Room Elharba" },
     datePublished: guide.createdAt.toISOString(),
     dateModified: guide.updatedAt.toISOString(),
   };

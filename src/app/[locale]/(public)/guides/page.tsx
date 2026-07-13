@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: "Escape Room Guides & Tips",
     description:
-      "Everything you need to know about escape rooms in Tunis, Tunisia — tips, comparisons, and guides from elharba.",
+      "Everything you need to know about escape rooms in Tunis, Tunisia — tips, comparisons, and guides from Escape Room Elharba.",
     alternates: { canonical: localePath(locale as Locale, "/guides"), languages: localeAlternates("/guides") },
     openGraph: { url: localePath(locale as Locale, "/guides") },
   };

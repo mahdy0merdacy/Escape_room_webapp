@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: "About Us — Escape Room in Tunis, Tunisia",
     description:
-      "Learn about elharba, Tunisia's top-rated escape room. Our story, values, and what makes our immersive experiences unique.",
+      "Learn about Escape Room Elharba, Tunisia's top-rated escape room. Our story, values, and what makes our immersive experiences unique.",
     alternates: { canonical: localePath(locale as Locale, "/about"), languages: localeAlternates("/about") },
     openGraph: { url: localePath(locale as Locale, "/about") },
   };
@@ -68,7 +68,7 @@ export default async function AboutPage() {
           Tunisia&apos;s Leading Escape Room Experience
         </h1>
         <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
-          Welcome to elharba — built with one goal: to give Tunisia a fun, challenging,
+          Welcome to Escape Room Elharba — built with one goal: to give Tunisia a fun, challenging,
           and deeply immersive experience that brings people together around a shared adventure.
         </p>
       </section>
@@ -78,7 +78,7 @@ export default async function AboutPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
           <div className="space-y-5 text-white/60 leading-relaxed">
             <p>
-              elharba started with a simple question: why should Tunis be any different from
+              Escape Room Elharba started with a simple question: why should Tunis be any different from
               the cities around the world where escape rooms have become one of the most loved
               social activities?
             </p>

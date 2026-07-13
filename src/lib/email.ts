@@ -15,7 +15,7 @@ export interface EmailPayload {
 export async function sendEmail(payload: EmailPayload): Promise<void> {
   const apiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.BREVO_SENDER_EMAIL;
-  const senderName = process.env.BREVO_SENDER_NAME ?? "elharba";
+  const senderName = process.env.BREVO_SENDER_NAME ?? "Escape Room Elharba";
 
   if (!apiKey || !senderEmail) {
     console.error(
@@ -122,7 +122,7 @@ function emailShell(
         <tr>
           <td style="padding:18px 32px;border-top:1px solid #222;text-align:center;">
             <p style="margin:0;color:#555;font-size:12px;">📞 +216 28 720 530 &nbsp;·&nbsp; 📍 ${lang === "ar" ? "منوبة، تونس" : lang === "fr" ? "Manouba, Tunisie" : "Manouba, Tunisia"}</p>
-            <p style="margin:4px 0 0;color:#333;font-size:11px;">© ${new Date().getFullYear()} elharba Escape Room</p>
+            <p style="margin:4px 0 0;color:#333;font-size:11px;">© ${new Date().getFullYear()} Escape Room Elharba</p>
           </td>
         </tr>
 
@@ -165,11 +165,11 @@ export function bookingRequestReceivedEmail(params: {
 سنتواصل معك قريباً لتأكيد الموعد.
 للاستفسار: +216 28 720 530
 
-— فريق الحربة`;
+— فريق Escape Room Elharba`;
 
     const header = `
       <p style="margin:0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#fde68a;font-weight:600;">طلب مستلم</p>
-      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">الحربة</h1>`;
+      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">Escape Room Elharba</h1>`;
 
     const body = `
       <tr>
@@ -220,11 +220,11 @@ Votre demande de réservation a bien été reçue !
 Nous vous confirmerons votre créneau très prochainement.
 Pour toute question : +216 28 720 530
 
-— L'équipe elharba`;
+— L'équipe Escape Room Elharba`;
 
     const header = `
       <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#fde68a;font-weight:600;">Demande Reçue</p>
-      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">elharba</h1>`;
+      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">Escape Room Elharba</h1>`;
 
     const body = `
       <tr>
@@ -275,11 +275,11 @@ We received your booking request!
 We'll review it and send you a confirmation email shortly.
 If you don't hear back within a few hours, give us a call: +216 28 720 530
 
-— The elharba Team`;
+— The Escape Room Elharba Team`;
 
   const header = `
     <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#fde68a;font-weight:600;">Request Received</p>
-    <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">elharba</h1>`;
+    <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">Escape Room Elharba</h1>`;
 
   const body = `
     <tr>
@@ -349,11 +349,11 @@ export function bookingConfirmationEmail(params: {
 يُرجى الحضور قبل 10 دقائق من الموعد للاستماع إلى الإحاطة.
 
 نراك قريباً!
-— فريق الحربة`;
+— فريق Escape Room Elharba`;
 
     const header = `
       <p style="margin:0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#fecdd3;font-weight:600;">تأكيد الحجز</p>
-      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">الحربة</h1>`;
+      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">Escape Room Elharba</h1>`;
 
     const body = `
       <tr>
@@ -389,7 +389,7 @@ export function bookingConfirmationEmail(params: {
           <table cellpadding="0" cellspacing="0" border="0">
             <tr>
               <td style="background:#e11d48;border-radius:8px;">
-                <a href="https://elharba.tn/contact" style="display:inline-block;padding:13px 28px;color:#fff;font-weight:700;text-decoration:none;font-size:14px;">
+                <a href="https://elharba.tn/ar/contact" style="display:inline-block;padding:13px 28px;color:#fff;font-weight:700;text-decoration:none;font-size:14px;">
                   احصل على الاتجاهات →
                 </a>
               </td>
@@ -422,11 +422,11 @@ Votre réservation de salle d'évasion est confirmée !
 Merci d'arriver 10 minutes à l'avance pour le briefing.
 
 À bientôt !
-— L'équipe elharba`;
+— L'équipe Escape Room Elharba`;
 
     const header = `
       <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#fecdd3;font-weight:600;">Réservation Confirmée</p>
-      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">elharba</h1>`;
+      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">Escape Room Elharba</h1>`;
 
     const body = `
       <tr>
@@ -462,7 +462,7 @@ Merci d'arriver 10 minutes à l'avance pour le briefing.
           <table cellpadding="0" cellspacing="0" border="0">
             <tr>
               <td style="background:#e11d48;border-radius:8px;">
-                <a href="https://elharba.tn/contact" style="display:inline-block;padding:13px 28px;color:#fff;font-weight:700;text-decoration:none;font-size:14px;">
+                <a href="https://elharba.tn/fr/contact" style="display:inline-block;padding:13px 28px;color:#fff;font-weight:700;text-decoration:none;font-size:14px;">
                   Voir l'itinéraire →
                 </a>
               </td>
@@ -495,11 +495,11 @@ Your escape room booking is confirmed!
 Please arrive 10 minutes early for your briefing.
 
 See you there!
-— The elharba Team`;
+— The Escape Room Elharba Team`;
 
   const header = `
     <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#fecdd3;font-weight:600;">Booking Confirmation</p>
-    <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">elharba</h1>`;
+    <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">Escape Room Elharba</h1>`;
 
   const body = `
     <tr>
@@ -535,7 +535,7 @@ See you there!
         <table cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td style="background:#e11d48;border-radius:8px;">
-              <a href="https://elharba.tn/contact" style="display:inline-block;padding:13px 28px;color:#fff;font-weight:700;text-decoration:none;font-size:14px;">
+              <a href="https://elharba.tn/en/contact" style="display:inline-block;padding:13px 28px;color:#fff;font-weight:700;text-decoration:none;font-size:14px;">
                 Get Directions →
               </a>
             </td>
@@ -573,11 +573,11 @@ export function bookingCancellationEmail(params: {
 
 هل لديك أي تساؤلات؟ اتصل بنا على +216 28 720 530 أو أجب على هذا البريد الإلكتروني.
 
-— فريق الحربة`;
+— فريق Escape Room Elharba`;
 
     const header = `
       <p style="margin:0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#a1a1aa;font-weight:600;">تحديث الحجز</p>
-      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">الحربة</h1>`;
+      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">Escape Room Elharba</h1>`;
 
     const body = `
       <tr>
@@ -619,11 +619,11 @@ Votre réservation pour ${roomName} le ${dateStr} à ${startStr} a été annulé
 
 Des questions ? Appelez-nous au +216 28 720 530 ou répondez à cet e-mail.
 
-— L'équipe elharba`;
+— L'équipe Escape Room Elharba`;
 
     const header = `
       <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a1a1aa;font-weight:600;">Mise à jour</p>
-      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">elharba</h1>`;
+      <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">Escape Room Elharba</h1>`;
 
     const body = `
       <tr>
@@ -665,11 +665,11 @@ Your booking for ${roomName} on ${dateStr} at ${startStr} has been cancelled.
 
 If you have questions, call us at +216 28 720 530 or reply to this email.
 
-— The elharba Team`;
+— The Escape Room Elharba Team`;
 
   const header = `
     <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a1a1aa;font-weight:600;">Booking Update</p>
-    <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">elharba</h1>`;
+    <h1 style="margin:8px 0 0;font-size:26px;font-weight:900;color:#fff;letter-spacing:1px;">Escape Room Elharba</h1>`;
 
   const body = `
     <tr>
@@ -750,7 +750,7 @@ Admin: ${siteUrl}/admin/bookings`;
   const body = `
     <tr>
       <td style="padding:24px 32px 8px;">
-        <p style="margin:0;color:#888;font-size:13px;">A new reservation was confirmed on elharba.</p>
+        <p style="margin:0;color:#888;font-size:13px;">A new reservation was confirmed on Escape Room Elharba.</p>
       </td>
     </tr>
 
@@ -801,7 +801,7 @@ Admin: ${siteUrl}/admin/bookings`;
 
   return {
     to: adminEmail,
-    toName: "elharba Admin",
+    toName: "Escape Room Elharba Admin",
     cc: ccList,
     subject: `🔔 New Booking #${ref} — ${roomName} · ${dateStr}`,
     textContent,

@@ -51,7 +51,7 @@ export default function FooterInner({ hours }: { hours: string }) {
           <div className="md:col-span-2">
             <Image
               src={LOGO_URL}
-              alt="elharba"
+              alt="Escape Room Elharba"
               width={200}
               height={48}
               className="h-12 w-auto object-contain mb-4"
@@ -109,7 +109,7 @@ export default function FooterInner({ hours }: { hours: string }) {
         </div>
 
         <div className="border-t border-white/10 pt-6 text-xs text-white/30 text-center">
-          <p>© {new Date().getFullYear()} elharba. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Escape Room Elharba. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -9,17 +9,17 @@ const SEO: Record<Locale, { title: string; description: string }> = {
   en: {
     title: "Escape Rooms in Tunis, Tunisia",
     description:
-      "Browse all three elharba escape rooms in Tunis, Tunisia — horror, retro sci-fi, and crime drama. Book your experience today.",
+      "Browse all three Escape Room Elharba experiences in Tunis, Tunisia — horror, retro sci-fi, and crime drama. Book your experience today.",
   },
   fr: {
     title: "Escape Rooms à Tunis, Tunisie",
     description:
-      "Découvrez nos trois escape rooms à Tunis, Tunisie — horreur, science-fiction rétro et crime. Réservez votre expérience dès aujourd'hui.",
+      "Découvrez nos trois escape rooms chez Escape Room Elharba à Tunis, Tunisie — horreur, science-fiction rétro et crime. Réservez votre expérience dès aujourd'hui.",
   },
   ar: {
     title: "غرف الهروب في تونس",
     description:
-      "تصفح غرف الهروب الثلاث لدى إلحربة في تونس — رعب، خيال علمي، وجريمة. احجز تجربتك اليوم.",
+      "تصفح غرف الهروب الثلاث لدى Escape Room Elharba في تونس — رعب، خيال علمي، وجريمة. احجز تجربتك اليوم.",
   },
 };
 

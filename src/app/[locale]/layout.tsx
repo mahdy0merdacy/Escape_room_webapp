@@ -19,7 +19,7 @@ const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "@id": `${BASE_URL}/#organization`,
-  name: "elharba",
+  name: "Escape Room Elharba",
   url: BASE_URL,
   logo: LOGO_URL,
   telephone: "+21628720530",
@@ -38,17 +38,17 @@ const orgJsonLd = {
 
 export const metadata: Metadata = {
   title: {
-    default: "elharba — Escape Rooms",
-    template: "%s | elharba",
+    default: "Escape Room Elharba",
+    template: "%s | Escape Room Elharba",
   },
   description:
-    "elharba offers three uniquely themed escape rooms in Manouba, Tunisia. Book your 60-minute adventure today.",
+    "Escape Room Elharba offers three uniquely themed escape rooms in Manouba, Tunisia. Book your 60-minute adventure today.",
   metadataBase: new URL(BASE_URL),
   openGraph: {
-    siteName: "elharba",
+    siteName: "Escape Room Elharba",
     type: "website",
     locale: "en_US",
-    images: [{ url: LOGO_URL, alt: "elharba Escape Rooms" }],
+    images: [{ url: LOGO_URL, alt: "Escape Room Elharba" }],
   },
   twitter: {
     card: "summary_large_image",

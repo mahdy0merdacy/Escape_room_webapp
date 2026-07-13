@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   return {
     title: "FAQ — Escape Room Tunisia",
-    description: "Answers to the most common questions about elharba escape rooms in Manouba, Tunisia.",
+    description: "Answers to the most common questions about Escape Room Elharba in Manouba, Tunisia.",
     alternates: { canonical: localePath(locale as Locale, "/faq"), languages: localeAlternates("/faq") },
     openGraph: { url: localePath(locale as Locale, "/faq") },
   };

@@ -35,10 +35,10 @@ export default function Nav() {
             backdrop-filter are on the same element — keeping them separate avoids the bug. */}
         <div className="absolute inset-0 bg-black/80 backdrop-blur-sm pointer-events-none" aria-hidden="true" />
         <div className="relative max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center shrink-0" aria-label="elharba home">
+          <Link href="/" className="flex items-center shrink-0" aria-label="Escape Room Elharba home">
             <Image
               src="https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png"
-              alt="elharba"
+              alt="Escape Room Elharba"
               width={160}
               height={36}
               className="h-9 w-auto object-contain"

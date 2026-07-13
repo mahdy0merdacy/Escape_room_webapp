@@ -82,7 +82,7 @@ This experience is rated our most terrifying. Not recommended for those with hea
       pricePerPerson: 25,
       openHours: JSON.stringify(OPEN_HOURS),
       active: true,
-      seoTitle: "Annabelle Escape Room — Face Your Darkest Fear | elharba",
+      seoTitle: "Annabelle Escape Room — Face Your Darkest Fear | Escape Room Elharba",
       seoDescription:
         "Can you survive 60 minutes with the most haunted doll in history? Annabelle is our most terrifying escape room — for those brave enough to enter.",
     },
@@ -113,7 +113,7 @@ You have 60 minutes to rescue Will before the Demogorgon finds him. Locate Eleve
       pricePerPerson: 22,
       openHours: JSON.stringify(OPEN_HOURS),
       active: true,
-      seoTitle: "Stranger Things Escape Room — Enter the Upside Down | elharba",
+      seoTitle: "Stranger Things Escape Room — Enter the Upside Down | Escape Room Elharba",
       seoDescription:
         "Step into Hawkins, 1983. Find Will, close the gate, and outrun the Demogorgon in our 80s retro sci-fi escape room. Groups of 2–8.",
     },
@@ -142,7 +142,7 @@ You've been sent in as the cleanup crew. Find the product, scrub the evidence, a
       pricePerPerson: 23,
       openHours: JSON.stringify(OPEN_HOURS),
       active: true,
-      seoTitle: "Breaking Bad Escape Room — Cook, Clean, Escape | elharba",
+      seoTitle: "Breaking Bad Escape Room — Cook, Clean, Escape | Escape Room Elharba",
       seoDescription:
         "Enter Walter White's superlab before the DEA arrives. 60 minutes. Industrial-themed. The chemistry must be perfect — or you don't walk out.",
     },
@@ -158,7 +158,7 @@ You've been sent in as the cleanup crew. Find the product, scrub the evidence, a
     pillar: true,
     order: 0,
     heroImageUrl: "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png",
-    seoTitle: "Escape Room in Tunis, Tunisia — The Complete Guide | elharba",
+    seoTitle: "Escape Room in Tunis, Tunisia — The Complete Guide | Escape Room Elharba",
     seoDescription:
       "Planning to try an escape room in Tunis, Tunisia? Here's everything you need to know — themes, pricing, group sizes, difficulty levels, and how to book.",
     content: `Looking for the best escape room in Tunis, Tunisia? You're in the right place. An escape room is a live, physical puzzle adventure: your group is locked in a themed space and has 60 minutes to find clues, crack codes, and complete a mission before the clock runs out. It's part game night, part theatre, and part team sport — and it has become one of the most popular things to do in Tunisia for friends, families, couples, and coworkers alike.
@@ -186,7 +186,7 @@ Not all escape rooms are the same, so it's worth thinking about:
 - Difficulty — some rooms are beginner-friendly, others are built for veteran players
 - Location — proximity to Tunis, parking, and opening hours all matter for planning a session
 
-At elharba, we run three themed escape rooms in Tunisia — a horror room, an 80s sci-fi room, and a crime-drama room — so you can pick the intensity level that matches your group.
+At Escape Room Elharba, we run three themed escape rooms in Tunisia — a horror room, an 80s sci-fi room, and a crime-drama room — so you can pick the intensity level that matches your group.
 
 ## How to Book
 
@@ -221,7 +221,7 @@ Toutes les escape rooms ne se valent pas, voici les critères à considérer :
 - La difficulté — certaines salles sont adaptées aux débutants, d'autres pensées pour les joueurs expérimentés
 - L'emplacement — la proximité de Tunis, le parking et les horaires d'ouverture comptent pour organiser une session
 
-Chez elharba, nous proposons trois escape rooms à thème en Tunisie — une salle horreur, une salle science-fiction rétro années 80, et une salle crime — pour que vous puissiez choisir le niveau d'intensité adapté à votre groupe.
+Chez Escape Room Elharba, nous proposons trois escape rooms à thème en Tunisie — une salle horreur, une salle science-fiction rétro années 80, et une salle crime — pour que vous puissiez choisir le niveau d'intensité adapté à votre groupe.
 
 ## Comment réserver
 
@@ -275,7 +275,7 @@ Prêt à savoir si vous pouvez vous échapper ? Parcourez nos salles et réserve
     excerpt:
       "From team building to birthday parties — here are the best reasons to book an escape room in Tunisia this month.",
     order: 1,
-    seoTitle: "Top Reasons to Try an Escape Room in Tunisia | elharba",
+    seoTitle: "Top Reasons to Try an Escape Room in Tunisia | Escape Room Elharba",
     seoDescription:
       "Not sure if an escape room is for you? Here are the top reasons thousands of players in Tunisia are hooked on escape rooms.",
     content: `If you've never tried an escape room before, it's easy to wonder what the fuss is about. Here are the biggest reasons players across Tunisia keep coming back for more.
@@ -383,7 +383,7 @@ Que vous cherchiez une montée d'adrénaline, organisiez un anniversaire, ou che
     excerpt:
       "New to escape rooms? Here's exactly what happens inside one, how the puzzles work, and what to expect on your first visit.",
     order: 2,
-    seoTitle: "What Is an Escape Room? A Beginner's Guide | elharba",
+    seoTitle: "What Is an Escape Room? A Beginner's Guide | Escape Room Elharba",
     seoDescription:
       "Never done an escape room before? This beginner's guide explains exactly what an escape room is, how it works, and what to expect.",
     content: `An escape room is a live, physical puzzle game. A group of players is "locked" inside a themed room and has a fixed amount of time — usually 60 minutes — to find hidden clues, solve puzzles, and complete a final objective before time runs out.
@@ -497,7 +497,7 @@ Si c'est votre première fois, choisissez une salle de difficulté modérée, ve
     excerpt:
       "\"Escape room\" and \"escape game\" are often used interchangeably — but are they really the same thing? Here's the real answer.",
     order: 3,
-    seoTitle: "Escape Room vs Escape Game: What's the Difference? | elharba",
+    seoTitle: "Escape Room vs Escape Game: What's the Difference? | Escape Room Elharba",
     seoDescription:
       "Is an escape room the same as an escape game? We break down the terminology, the history, and what actually matters when you book.",
     content: `If you've searched for things to do in Tunis, you've probably seen both terms — "escape room" and "escape game" — used for what looks like the exact same activity. So what's the actual difference?
@@ -596,7 +596,7 @@ Qu'un établissement se présente comme une escape room ou un escape game, vous 
     excerpt:
       "Tired of the same corporate team-building exercises? Here's why an escape room might be the most effective one you'll try.",
     order: 4,
-    seoTitle: "Escape Rooms for Team Building & Corporate Events | elharba",
+    seoTitle: "Escape Rooms for Team Building & Corporate Events | Escape Room Elharba",
     seoDescription:
       "Looking for a corporate team-building activity that actually works? Here's why escape rooms are becoming the go-to choice for companies in Tunisia.",
     content: `Trust falls and awkward icebreakers rarely build real teamwork. An escape room does — because it forces the exact skills companies actually want to build: communication, delegation, and problem-solving under pressure, all within one intense hour.
@@ -714,7 +714,7 @@ Si vous organisez un événement d'entreprise ou une sortie d'équipe à Tunis, 
       "Flickering lights, live scares, and a haunted doll — we break down what makes Annabelle one of the most intense escape room experiences in Tunisia.",
     order: 5,
     heroImageUrl: "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/annabelle-hero.webp",
-    seoTitle: "Is Annabelle the Scariest Escape Room in Tunisia? | elharba",
+    seoTitle: "Is Annabelle the Scariest Escape Room in Tunisia? | Escape Room Elharba",
     seoDescription:
       "Annabelle is our most intense horror escape room. Here's what makes it so terrifying — and whether you're ready to take it on.",
     content: `Horror-themed escape rooms are a different breed. They don't just test your puzzle-solving — they test your nerve. Annabelle, our flagship horror escape room, was built to do exactly that.

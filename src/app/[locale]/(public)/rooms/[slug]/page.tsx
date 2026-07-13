@@ -80,7 +80,7 @@ export default async function RoomPage({ params }: Props) {
     name: room.name,
     description: room.seoDescription,
     image: room.heroImageUrl,
-    brand: { "@type": "Brand", name: "elharba" },
+    brand: { "@type": "Brand", name: "Escape Room Elharba" },
     sku: room.id,
     url: roomUrl,
     offers: {
@@ -89,7 +89,7 @@ export default async function RoomPage({ params }: Props) {
       priceCurrency: "TND",
       availability: roomStatus === "active" ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
       url: roomUrl,
-      seller: { "@type": "Organization", name: "elharba" },
+      seller: { "@type": "Organization", name: "Escape Room Elharba" },
     },
   };
 
