@@ -11,6 +11,7 @@ export type Dict = {
     faq: string;
     contact: string;
     bookNow: string;
+    leaderboard: string;
   };
   home: {
     eyebrow: string;
@@ -138,5 +139,18 @@ export type Dict = {
     ctaSub: string;
     viewAllRooms: string;
     contactUs: string;
+  };
+  leaderboard: {
+    homeH: string;
+    homeSub: string;
+    pageH: string;
+    pageSub: string;
+    seeFull: string;
+    rank: string;
+    group: string;
+    party: string;
+    time: string;
+    successRate: string;
+    empty: string;
   };
 };

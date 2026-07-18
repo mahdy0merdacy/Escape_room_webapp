@@ -31,10 +31,25 @@ model Room {
   order             Int       @default(0)
   seoTitle          String
   seoDescription    String
+  successRate       Float     @default(0)
   bookings          Booking[]
   blockedSlots      BlockedSlot[]
+  leaderboardEntries LeaderboardEntry[]
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+}
+
+model LeaderboardEntry {
+  id            String   @id @default(cuid())
+  room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId        String
+  groupName     String
+  partySize     Int
+  timeSpentSec  Int
+  completedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([roomId, timeSpentSec])
 }
 
 model BlockedSlot {

@@ -9,6 +9,7 @@ export const en: Dict = {
     faq: "FAQ",
     contact: "Contact",
     bookNow: "Book Now",
+    leaderboard: "Leaderboard",
   },
   home: {
     eyebrow: "Tunisia's #1 Escape Room",
@@ -156,5 +157,18 @@ export const en: Dict = {
     ctaSub: "Book one of our three themed escape rooms in Tunis, Tunisia — 60 minutes, no experience needed.",
     viewAllRooms: "View All Rooms",
     contactUs: "Contact Us",
+  },
+  leaderboard: {
+    homeH: "Leaderboard",
+    homeSub: "The fastest teams to beat each room. Think you can top the board?",
+    pageH: "Leaderboard",
+    pageSub: "The top 20 fastest completions for each room. Only teams who beat the room make the board.",
+    seeFull: "See full leaderboard →",
+    rank: "#",
+    group: "Group",
+    party: "Party",
+    time: "Time",
+    successRate: "Success rate",
+    empty: "No completions yet — be the first to beat this room!",
   },
 };

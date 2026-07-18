@@ -45,7 +45,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
-  const rooms = await prisma.room.findMany({ where: { active: true }, orderBy: { order: "asc" } });
+  const rooms = await prisma.room.findMany({
+    where: { active: true },
+    orderBy: { order: "asc" },
+    include: {
+      leaderboardEntries: {
+        orderBy: { timeSpentSec: "asc" },
+        take: 5,
+        select: { id: true, groupName: true, partySize: true, timeSpentSec: true, completedAt: true },
+      },
+    },
+  });
 
   const base = (process.env.NEXTAUTH_URL ?? "https://elharba.tn").replace(/\/+$/, "");
   const logoUrl = "https://mcgny6ysyqbf6ib9.public.blob.vercel-storage.com/Images/logo_Plan-de-travail-1.png";
@@ -115,6 +125,14 @@ export default async function HomePage({ params }: Props) {
     roomStatus: r.roomStatus ?? "active",
   }));
 
+  const leaderboardRooms = rooms.map((r) => ({
+    slug: r.slug,
+    name: r.name,
+    themeColors: r.themeColors,
+    successRate: r.successRate,
+    entries: r.leaderboardEntries.map((e) => ({ ...e, completedAt: e.completedAt.toISOString() })),
+  }));
+
   return (
     <>
       <script
@@ -122,7 +140,7 @@ export default async function HomePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HomeContent rooms={roomsData} />
+      <HomeContent rooms={roomsData} leaderboardRooms={leaderboardRooms} />
       <GoogleReviews />
       <SocialGallery />
       <HomeCTA />

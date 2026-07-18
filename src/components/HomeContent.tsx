@@ -3,6 +3,8 @@
 import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { useT } from "./IntlProvider";
+import LeaderboardWidget from "./LeaderboardWidget";
+import type { LeaderboardRoom } from "@/lib/useLeaderboardData";
 
 type Room = {
   slug: string;
@@ -16,7 +18,13 @@ type Room = {
   roomStatus: string;
 };
 
-export default function HomeContent({ rooms }: { rooms: Room[] }) {
+export default function HomeContent({
+  rooms,
+  leaderboardRooms,
+}: {
+  rooms: Room[];
+  leaderboardRooms: LeaderboardRoom[];
+}) {
   const t = useT();
 
   return (
@@ -54,6 +62,8 @@ export default function HomeContent({ rooms }: { rooms: Room[] }) {
           </div>
         </div>
       </section>
+
+      <LeaderboardWidget initialRooms={leaderboardRooms} />
 
       {/* Rooms preview */}
       <section className="max-w-6xl mx-auto px-4 py-24">

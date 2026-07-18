@@ -19,6 +19,7 @@ export default function Nav() {
 
   const NAV_LINKS = [
     { href: "/rooms", label: t.nav.rooms },
+    { href: "/leaderboard", label: t.nav.leaderboard },
     { href: "/guides", label: t.nav.guides },
     { href: "/faq", label: t.nav.faq },
     { href: "/contact", label: t.nav.contact },

@@ -9,6 +9,7 @@ export const fr: Dict = {
     faq: "FAQ",
     contact: "Contact",
     bookNow: "Réserver",
+    leaderboard: "Classement",
   },
   home: {
     eyebrow: "N°1 des Escape Rooms en Tunisie",
@@ -156,5 +157,18 @@ export const fr: Dict = {
     ctaSub: "Réservez l'une de nos trois escape rooms à thème à Tunis, Tunisie — 60 minutes, aucune expérience requise.",
     viewAllRooms: "Voir toutes les salles",
     contactUs: "Nous contacter",
+  },
+  leaderboard: {
+    homeH: "Classement",
+    homeSub: "Les équipes les plus rapides à avoir vaincu chaque salle. Pensez-vous pouvoir faire mieux ?",
+    pageH: "Classement",
+    pageSub: "Le top 20 des complétions les plus rapides pour chaque salle. Seules les équipes ayant vaincu la salle figurent au classement.",
+    seeFull: "Voir le classement complet →",
+    rank: "#",
+    group: "Groupe",
+    party: "Équipe",
+    time: "Temps",
+    successRate: "Taux de réussite",
+    empty: "Aucune complétion pour l'instant — soyez les premiers à vaincre cette salle !",
   },
 };
