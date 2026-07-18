@@ -47,6 +47,14 @@ const nextConfig: NextConfig = {
         destination: "/en/guides/top-reasons-to-try-an-escape-room-in-tunisia",
         permanent: true,
       },
+
+      // --- Old French WordPress URLs ("salles" = rooms, "à propos" = about) ---
+      { source: "/escape-room-tunis-a-propos", destination: "/fr/about", permanent: true },
+      { source: "/salles/escape-room-annabelle", destination: "/fr/rooms/annabelle", permanent: true },
+      { source: "/salles/stranger-things", destination: "/fr/rooms/stranger-things", permanent: true },
+      // Catch-all for any other old /salles/:slug room page (e.g. breaking-bad variants) not listed above
+      { source: "/salles/:slug", destination: "/fr/rooms", permanent: true },
+      { source: "/salles", destination: "/fr/rooms", permanent: true },
     ];
   },
 };
