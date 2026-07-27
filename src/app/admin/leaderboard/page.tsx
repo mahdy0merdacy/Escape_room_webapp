@@ -28,9 +28,15 @@ export default async function AdminLeaderboardPage() {
     }),
   ]);
 
+  const serializedEntries = entries.map((e) => ({
+    ...e,
+    completedAt: e.completedAt.toISOString(),
+    createdAt: e.createdAt.toISOString(),
+  }));
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
-      <LeaderboardManager rooms={rooms} initialEntries={entries} />
+      <LeaderboardManager rooms={rooms} initialEntries={serializedEntries} />
     </div>
   );
 }
