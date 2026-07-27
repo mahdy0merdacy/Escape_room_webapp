@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import LeaderboardContent from "@/components/LeaderboardContent";
 import { localePath, localeAlternates } from "@/lib/i18n/locale-url";
 import type { Locale } from "@/lib/i18n/types";
+import { isLeaderboardEnabled } from "@/lib/leaderboardSettings";
 
 export const revalidate = 60;
 
@@ -40,6 +42,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function LeaderboardPage() {
+  if (!(await isLeaderboardEnabled())) {
+    notFound();
+  }
+
   const rooms = await prisma.room.findMany({
     where: { active: true },
     orderBy: { order: "asc" },

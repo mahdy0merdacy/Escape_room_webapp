@@ -21,6 +21,12 @@ const SECTIONS = [
     desc: "Edit the values and features cards shown on the About page.",
     icon: "📄",
   },
+  {
+    href: "/admin/content/leaderboard",
+    title: "Leaderboard",
+    desc: "Show or hide the leaderboard widget, nav link, and page on the public site.",
+    icon: "🏆",
+  },
 ];
 
 export default async function ContentPage() {

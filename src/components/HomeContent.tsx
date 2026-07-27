@@ -63,7 +63,7 @@ export default function HomeContent({
         </div>
       </section>
 
-      <LeaderboardWidget initialRooms={leaderboardRooms} />
+      {leaderboardRooms.length > 0 && <LeaderboardWidget initialRooms={leaderboardRooms} />}
 
       {/* Rooms preview */}
       <section className="max-w-6xl mx-auto px-4 py-24">

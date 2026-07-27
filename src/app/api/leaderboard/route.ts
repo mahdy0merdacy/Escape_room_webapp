@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { isLeaderboardEnabled } from "@/lib/leaderboardSettings";
 
 export const dynamic = "force-dynamic";
 
 const ENTRIES_PER_ROOM = 20;
 
 export async function GET() {
+  if (!(await isLeaderboardEnabled())) {
+    return NextResponse.json({ rooms: [] }, { headers: { "Cache-Control": "no-store" } });
+  }
+
   const rooms = await prisma.room.findMany({
     where: { active: true },
     orderBy: { order: "asc" },

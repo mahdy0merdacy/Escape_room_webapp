@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { revalidateLocalizedPath } from "@/lib/revalidate-locales";
+import { LEADERBOARD_ENABLED_KEY } from "@/lib/leaderboardSettings";
 
 export async function GET() {
   const session = await auth();
@@ -22,5 +24,11 @@ export async function POST(request: Request) {
     update: { value },
     create: { key, value },
   });
+
+  if (key === LEADERBOARD_ENABLED_KEY) {
+    revalidateLocalizedPath("/");
+    revalidateLocalizedPath("/leaderboard");
+  }
+
   return NextResponse.json(row);
 }

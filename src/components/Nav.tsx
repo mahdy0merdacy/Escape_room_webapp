@@ -8,7 +8,7 @@ import { useT } from "./IntlProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { stripLocalePath } from "@/lib/i18n/locale-url";
 
-export default function Nav() {
+export default function Nav({ showLeaderboard = true }: { showLeaderboard?: boolean }) {
   const [open, setOpen] = useState(false);
   const rawPathname = usePathname();
   const pathname = stripLocalePath(rawPathname);
@@ -19,7 +19,7 @@ export default function Nav() {
 
   const NAV_LINKS = [
     { href: "/rooms", label: t.nav.rooms },
-    { href: "/leaderboard", label: t.nav.leaderboard },
+    ...(showLeaderboard ? [{ href: "/leaderboard", label: t.nav.leaderboard }] : []),
     { href: "/guides", label: t.nav.guides },
     { href: "/faq", label: t.nav.faq },
     { href: "/contact", label: t.nav.contact },
