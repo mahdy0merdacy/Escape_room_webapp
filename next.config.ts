@@ -19,34 +19,53 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       // --- New locale-URL structure: every previously-bare page now lives under /en ---
-      // NOTE: "/en", "/en/rooms", and "/en/rooms/stranger-things" are deliberately NOT
-      // listed here — those exact paths are now real routes (English homepage, rooms
-      // listing, and the stranger-things room), so redirecting them would create a loop.
       { source: "/", destination: "/en", permanent: true },
       { source: "/rooms", destination: "/en/rooms", permanent: true },
+      { source: "/rooms/", destination: "/en/rooms", permanent: true },
       { source: "/rooms/:slug", destination: "/en/rooms/:slug", permanent: true },
+      { source: "/rooms/:slug/", destination: "/en/rooms/:slug", permanent: true },
       { source: "/about", destination: "/en/about", permanent: true },
+      { source: "/about/", destination: "/en/about", permanent: true },
       { source: "/contact", destination: "/en/contact", permanent: true },
+      { source: "/contact/", destination: "/en/contact", permanent: true },
       { source: "/faq", destination: "/en/faq", permanent: true },
+      { source: "/faq/", destination: "/en/faq", permanent: true },
       { source: "/guides", destination: "/en/guides", permanent: true },
+      { source: "/guides/", destination: "/en/guides", permanent: true },
       { source: "/guides/:slug", destination: "/en/guides/:slug", permanent: true },
+      { source: "/guides/:slug/", destination: "/en/guides/:slug", permanent: true },
       { source: "/booking/confirmed", destination: "/en/booking/confirmed", permanent: true },
+
+      // --- Bare room slugs (old direct URLs without /rooms/ prefix) ---
+      { source: "/stranger-things", destination: "/en/rooms/stranger-things", permanent: true },
+      { source: "/stranger-things/", destination: "/en/rooms/stranger-things", permanent: true },
+      { source: "/annabelle", destination: "/en/rooms/annabelle", permanent: true },
+      { source: "/annabelle/", destination: "/en/rooms/annabelle", permanent: true },
 
       // --- Legacy pre-relaunch WordPress URLs ---
       { source: "/en/rooms/annabelle-horror", destination: "/en/rooms/annabelle", permanent: true },
       { source: "/breaking-bad", destination: "/en/rooms/breaking-bad", permanent: true },
+      { source: "/breaking-bad/", destination: "/en/rooms/breaking-bad", permanent: true },
       { source: "/en/about-us-escape-room-elharba", destination: "/en/about", permanent: true },
+      { source: "/about-us-escape-room-elharba", destination: "/en/about", permanent: true },
+      { source: "/about-us-escape-room-elharba/", destination: "/en/about", permanent: true },
       { source: "/contact-us", destination: "/en/contact", permanent: true },
       { source: "/en/contact-us", destination: "/en/contact", permanent: true },
       { source: "/privacy-policy", destination: "/en", permanent: true },
       { source: "/blog", destination: "/en/guides", permanent: true },
       { source: "/blog/:path*", destination: "/en/guides", permanent: true },
       { source: "/escape-room-tunisie", destination: "/en/guides/escape-room-tunisie", permanent: true },
+      { source: "/escape-room-tunisie/", destination: "/en/guides/escape-room-tunisie", permanent: true },
       {
         source: "/top-5-des-raisons-dessayer-une-escape-room-en-tunisie",
         destination: "/en/guides/top-reasons-to-try-an-escape-room-in-tunisia",
         permanent: true,
       },
+      { source: "/a-propos", destination: "/fr/about", permanent: true },
+      { source: "/a-propos/", destination: "/fr/about", permanent: true },
+      { source: "/thank-you", destination: "/en", permanent: true },
+      { source: "/thank-you/", destination: "/en", permanent: true },
+      { source: "/locations.kml", destination: "/en", permanent: true },
 
       // --- Old French WordPress URLs ("salles" = rooms, "à propos" = about) ---
       { source: "/escape-room-tunis-a-propos", destination: "/fr/about", permanent: true },
