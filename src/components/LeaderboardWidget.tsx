@@ -35,14 +35,7 @@ export default function LeaderboardWidget({ initialRooms }: { initialRooms: Lead
               style={{ background: colors.primary }}
             >
               <div className="p-5 border-b border-white/10 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <h3 className="text-lg font-bold text-white truncate">{room.name}</h3>
-                  {isComingSoon && (
-                    <span className="text-[10px] font-black uppercase tracking-widest bg-amber-500 text-black px-2 py-0.5 rounded-full shrink-0">
-                      Coming Soon
-                    </span>
-                  )}
-                </div>
+                <h3 className="text-lg font-bold text-white truncate">{room.name}</h3>
                 <span
                   className="text-xs font-bold tracking-wide uppercase px-2 py-1 rounded-full shrink-0"
                   style={{ background: colors.accent, color: colors.primary }}
