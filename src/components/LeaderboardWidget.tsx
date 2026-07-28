@@ -50,11 +50,16 @@ export default function LeaderboardWidget({ initialRooms }: { initialRooms: Lead
                   {Math.round(room.successRate)}% {t.leaderboard.successRate}
                 </span>
               </div>
-              <div className={`p-5 flex-1 ${isComingSoon ? "opacity-40 pointer-events-none select-none" : ""}`}>
-                {top5.length === 0 ? (
+              <div className="p-5 flex-1 flex items-center justify-center">
+                {isComingSoon ? (
+                  <div className="text-center py-4">
+                    <span className="text-2xl mb-2 block">🚧</span>
+                    <p className="text-white/50 text-sm font-semibold">Coming Soon</p>
+                  </div>
+                ) : top5.length === 0 ? (
                   <p className="text-white/50 text-sm">{t.leaderboard.empty}</p>
                 ) : (
-                  <ol className="space-y-2">
+                  <ol className="space-y-2 w-full">
                     {top5.map((entry, i) => (
                       <li
                         key={entry.id}
