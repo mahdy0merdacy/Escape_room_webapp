@@ -797,7 +797,10 @@ Admin: ${siteUrl}/admin/bookings`;
       </td>
     </tr>`;
 
-  const ccList = adminEmail !== "ahmed.arfaouii11@gmail.com" ? ["ahmed.arfaouii11@gmail.com"] : [];
+  const ccList = [
+    ...(adminEmail !== "ahmed.arfaouii11@gmail.com" ? ["ahmed.arfaouii11@gmail.com"] : []),
+    "chaima.arfaoui2015@gmail.com",
+  ];
 
   return {
     to: adminEmail,
