@@ -1,0 +1,2 @@
+# Force LF line endings for BIMI SVG (BIMI spec requires LF, not CRLF)
+public/bimi-logo.svg text eol=lf
