@@ -12,9 +12,9 @@ export const revalidate = 3600;
 
 const SEO: Record<Locale, { title: string; description: string }> = {
   en: {
-    title: "Tunisia's #1 Rated Escape Room | Escape Room Elharba",
+    title: "#1 Escape Room in Tunisia | Escape Room Elharba",
     description:
-      "Tunisia's top-rated escape room on Google. Three uniquely themed rooms — Horror, 80s Sci-Fi, and Crime Drama — in Tunis. Book your 60-minute adventure today.",
+      "The top-rated escape room in Tunisia on Google. Three uniquely themed rooms — Horror, 80s Sci-Fi, and Crime Drama — in Tunis. Book your 60-minute adventure today.",
   },
   fr: {
     title: "La Escape Room la Mieux Notée de Tunisie | Escape Room Elharba",
