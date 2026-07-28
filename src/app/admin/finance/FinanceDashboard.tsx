@@ -251,7 +251,7 @@ function BookingRow({
   }
 
   return (
-    <tr className={`border-b border-white/5 ${isCancelled ? "opacity-40" : ""}`}>
+    <tr className="border-b border-white/5">
       {/* Date / Time */}
       <td className="py-3 pr-4 whitespace-nowrap">
         <p className="text-white text-sm font-medium">
@@ -418,6 +418,7 @@ export default function FinanceDashboard({
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [tableTab, setTableTab] = useState<"sessions" | "cancelled">("sessions");
 
   const { from, to } = useMemo(
     () => getRange(mode, refDate, customFrom, customTo),
@@ -450,6 +451,8 @@ export default function FinanceDashboard({
   const bars = useMemo(() => aggregate(bookings, mode, from, to), [bookings, mode, from, to]);
 
   const live = bookings.filter((b) => b.status !== "cancelled");
+  const cancelled = bookings.filter((b) => b.status === "cancelled");
+  const tableRows = tableTab === "sessions" ? live : cancelled;
   const totalCollected = live.filter((b) => b.confirmedPlayed).reduce((s, b) => s + (b.amountPaid ?? 0), 0);
   const totalExpected = live.filter((b) => !b.confirmedPlayed).reduce((s, b) => s + getTotalPrice(b.partySize), 0);
   const sessionsDone = live.filter((b) => b.confirmedPlayed).length;
@@ -580,10 +583,25 @@ export default function FinanceDashboard({
       {/* Bookings table */}
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between gap-3">
-          <p className="text-white font-semibold text-sm">
-            Sessions{" "}
-            <span className="text-white/30 font-normal">({bookings.length})</span>
-          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTableTab("sessions")}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${tableTab === "sessions" ? "bg-white/15 text-white" : "text-white/40 hover:text-white"}`}
+            >
+              Sessions <span className="font-normal text-white/30">({live.length})</span>
+            </button>
+            {cancelled.length > 0 && (
+              <button
+                onClick={() => setTableTab("cancelled")}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 ${tableTab === "cancelled" ? "bg-red-500/20 text-red-400" : "text-red-400/40 hover:text-red-400"}`}
+              >
+                Cancelled
+                <span className="text-xs font-bold bg-red-500/30 text-red-300 rounded-full px-1.5 py-0.5">
+                  {cancelled.length}
+                </span>
+              </button>
+            )}
+          </div>
           <button
             onClick={async () => {
               setExporting(true);
@@ -600,9 +618,9 @@ export default function FinanceDashboard({
           </button>
         </div>
 
-        {bookings.length === 0 ? (
+        {tableRows.length === 0 ? (
           <div className="py-16 text-center text-white/30 text-sm">
-            No sessions in this period.
+            {tableTab === "cancelled" ? "No cancelled sessions in this period." : "No sessions in this period."}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -622,7 +640,7 @@ export default function FinanceDashboard({
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((booking) => (
+                {tableRows.map((booking) => (
                   <BookingRow
                     key={booking.id}
                     booking={booking}
