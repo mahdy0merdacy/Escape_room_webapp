@@ -330,7 +330,7 @@ function SlotPanel({
       .flatMap((adjSlug) => rooms.filter((r) => r.slug === adjSlug).map((r) => r.id))
   );
   const orphanedBookings = (bookingsByDay.get(day) ?? []).filter(
-    (b) => b.roomId === room.id && !slotTimes.has(new Date(b.startTime).getTime())
+    (b) => b.roomId === room.id && b.status !== "cancelled" && !slotTimes.has(new Date(b.startTime).getTime())
   );
 
   const bookingCardProps = {
@@ -376,7 +376,6 @@ function SlotPanel({
             )
             .sort((a, b) => (a.status === "cancelled" ? 1 : 0) - (b.status === "cancelled" ? 1 : 0));
           const hasActiveBooking = slotBookings.some((b) => b.status !== "cancelled");
-          const cancelledOnly = slotBookings.length > 0 && !hasActiveBooking;
           const isBlocked = blocked.some(
             (b) =>
               b.roomId === room.id &&
@@ -386,7 +385,7 @@ function SlotPanel({
           if (hasActiveBooking) {
             return (
               <div key={slotIso} className="divide-y divide-white/5">
-                {slotBookings.map((booking) => (
+                {slotBookings.filter((b) => b.status !== "cancelled").map((booking) => (
                   <BookingCard key={booking.id} booking={booking} label={slot.label} {...bookingCardProps} />
                 ))}
               </div>
@@ -409,14 +408,6 @@ function SlotPanel({
 
           return (
             <div key={slotIso}>
-              {/* Slot is open (or was cancelled and never rebooked) — cancelled history stays visible above the still-bookable row */}
-              {cancelledOnly && (
-                <div className="divide-y divide-white/5 border-b border-white/5">
-                  {slotBookings.map((booking) => (
-                    <BookingCard key={booking.id} booking={booking} label={slot.label} {...bookingCardProps} />
-                  ))}
-                </div>
-              )}
               <div className="flex items-center gap-3 px-5 py-2.5">
                 <span className={`text-sm font-mono w-24 shrink-0 ${isAdjacencyBlocked ? "text-white/20" : "text-white/35"}`}>
                   {slot.label}
@@ -811,6 +802,21 @@ export default function BookingCalendar({
 
   // ── Render ────────────────────────────────────────────────────────────────
 
+  const cancelledForDay = selectedDay !== null
+    ? (bookingsByDay.get(selectedDay) ?? []).filter((b) => b.status === "cancelled")
+    : [];
+
+  const bookingCardPropsForCalendar = {
+    rooms, rescheduleId, onSetRescheduleId: setRescheduleId, pending, todayStr,
+    rescheduleDate, onSetRescheduleDate: setRescheduleDate,
+    rescheduleSlots, onSetRescheduleSlots: setRescheduleSlots,
+    rescheduleSlotTime, onSetRescheduleSlotTime: setRescheduleSlotTime,
+    rescheduleFetching,
+    onConfirmBooking: confirmBooking, onCancelBooking: cancelBooking,
+    onFetchRescheduleSlots: fetchRescheduleSlots, onConfirmReschedule: confirmReschedule,
+    onEditBooking: editBooking,
+  };
+
   return (
     <div className="space-y-8">
       {/* Calendar grid */}
@@ -951,10 +957,47 @@ export default function BookingCalendar({
                   </button>
                 );
               })}
+              {cancelledForDay.length > 0 && (
+                <button
+                  onClick={() => { setSelectedRoomId("cancelled"); setRescheduleId(null); setNewBookingSlot(null); }}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
+                  style={
+                    selectedRoomId === "cancelled"
+                      ? { background: "#ef4444", color: "#fff" }
+                      : { background: "#ef444422", color: "#ef4444" }
+                  }
+                >
+                  Cancelled
+                  <span
+                    className="text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                    style={
+                      selectedRoomId === "cancelled"
+                        ? { background: "rgba(0,0,0,0.25)", color: "#fff" }
+                        : { background: "#ef4444", color: "#fff" }
+                    }
+                  >
+                    {cancelledForDay.length}
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
-          {selectedRoomId ? (
+          {selectedRoomId === "cancelled" ? (
+            <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#111]">
+              <div className="px-5 py-3 border-b border-white/10 bg-red-500/10">
+                <span className="text-sm font-bold uppercase tracking-widest text-red-400">Cancelled Bookings</span>
+              </div>
+              <div className="divide-y divide-white/5">
+                {cancelledForDay.map((booking) => {
+                  const label = `${booking.room.name} · ${new Date(booking.startTime).toLocaleTimeString("en-US", {
+                    hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Africa/Tunis",
+                  })}`;
+                  return <BookingCard key={booking.id} booking={booking} label={label} {...bookingCardPropsForCalendar} />;
+                })}
+              </div>
+            </div>
+          ) : selectedRoomId ? (
             <SlotPanel day={selectedDay} roomId={selectedRoomId} {...slotPanelProps} />
           ) : (
             <p className="text-white/30 text-sm text-center py-6 border border-white/5 rounded-2xl">
