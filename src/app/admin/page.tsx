@@ -196,7 +196,7 @@ export default async function AdminDashboard() {
 
       {/* ── KPI row ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KPI label="Today" accent="text-white">
+        <KPI label="Today">
           <p className="text-2xl font-bold text-white">{todayBookings.length}</p>
           <p className="text-white/30 text-xs mt-0.5">session{todayBookings.length !== 1 ? "s" : ""}</p>
         </KPI>
