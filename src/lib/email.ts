@@ -728,7 +728,7 @@ export function newBookingAdminEmail(params: {
   const localeLabel = locale === "ar" ? " 🇹🇳 AR" : locale === "fr" ? " 🇫🇷 FR" : "";
   const gameLangLabel = gameLanguage === "en" ? "🇬🇧 English" : "🇫🇷 Français";
 
-  const textContent = `New booking #${ref}
+  const textContent = `New booking
 
   Room:          ${roomName}
   Date:          ${dateStr}
@@ -745,7 +745,7 @@ Admin: ${siteUrl}/admin/bookings`;
 
   const header = `
     <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#fecdd3;font-weight:600;">Admin Notification</p>
-    <h1 style="margin:6px 0 0;font-size:20px;font-weight:900;color:#fff;">🔔 New Booking — #${ref}${localeLabel}</h1>`;
+    <h1 style="margin:6px 0 0;font-size:20px;font-weight:900;color:#fff;">🔔 New Booking${localeLabel}</h1>`;
 
   const body = `
     <tr>
@@ -806,7 +806,7 @@ Admin: ${siteUrl}/admin/bookings`;
     to: adminEmail,
     toName: "Escape Room Elharba Admin",
     cc: ccList,
-    subject: `🔔 New Booking #${ref} — ${roomName} · ${dateStr}`,
+    subject: `🔔 New Booking — ${roomName} · ${dateStr}`,
     textContent,
     htmlContent: emailShell("#e11d48", header, body),
   };
