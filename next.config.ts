@@ -91,8 +91,14 @@ const nextConfig: NextConfig = {
       },
 
       // --- Old WordPress technical URLs (catch-all → home, removes 404s from Search Console) ---
-      { source: "/wp-:path*", destination: "/en", permanent: true },
       { source: "/wp-json/:path*", destination: "/en", permanent: true },
+      { source: "/wp-admin", destination: "/en", permanent: true },
+      { source: "/wp-admin/:path*", destination: "/en", permanent: true },
+      { source: "/wp-login.php", destination: "/en", permanent: true },
+      { source: "/wp-cron.php", destination: "/en", permanent: true },
+      { source: "/wp-content/:path*", destination: "/en", permanent: true },
+      { source: "/wp-includes/:path*", destination: "/en", permanent: true },
+      { source: "/wp-sitemap.xml", destination: "/en", permanent: true },
     ];
   },
 };
