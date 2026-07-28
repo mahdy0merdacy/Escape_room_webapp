@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.2" baseProfile="tiny-ps"
+     xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 500 500"
+     width="500" height="500">
+  <title>Escape Room Elharba</title>
+
+  <!-- Black circle background -->
+  <circle cx="250" cy="250" r="250" fill="#0a0a0a"/>
+
+  <!-- Subtle dark red border ring -->
+  <circle cx="250" cy="250" r="242" fill="none" stroke="#3a0000" stroke-width="4"/>
+  <circle cx="250" cy="250" r="238" fill="none" stroke="#5a0000" stroke-width="1.5"/>
+
+  <!-- Neon glow layers (outermost → innermost) -->
+  <text x="254" y="290" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#3a0000" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+  <text x="246" y="290" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#3a0000" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+  <text x="250" y="294" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#3a0000" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+  <text x="250" y="286" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#3a0000" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+
+  <text x="252" y="289" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#800000" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+  <text x="248" y="289" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#800000" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+  <text x="250" y="292" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#800000" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+  <text x="250" y="287" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#800000" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+
+  <text x="251" y="288" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#cc1111" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+  <text x="249" y="288" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#cc1111" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+
+  <!-- Main bright red text -->
+  <text x="250" y="287" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#ff1a1a" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+
+  <!-- Soft white-pink highlight core -->
+  <text x="250" y="287" font-family="Arial, Helvetica, sans-serif" font-size="122" font-weight="bold"
+        text-anchor="middle" fill="#ff9999" opacity="0.18" direction="rtl" unicode-bidi="bidi-override">الهربة</text>
+</svg>
