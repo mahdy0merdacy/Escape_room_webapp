@@ -376,6 +376,131 @@ function BookingRow({
   );
 }
 
+// ── Mobile booking card ───────────────────────────────────────────────────────
+
+function BookingCard({
+  booking,
+  onUpdate,
+}: {
+  booking: Booking;
+  onUpdate: (id: string, patch: Partial<Booking>) => Promise<void>;
+}) {
+  const expected = getTotalPrice(booking.partySize);
+  const [editing, setEditing] = useState(false);
+  const [amountInput, setAmountInput] = useState(
+    booking.amountPaid !== null ? String(booking.amountPaid) : String(expected)
+  );
+  const [pending, startTransition] = useTransition();
+
+  const colors = JSON.parse(booking.room.themeColors) as { primary: string; accent: string };
+  const startTime = new Date(booking.startTime);
+  const isCancelled = booking.status === "cancelled";
+
+  function confirmPlayed() {
+    const amt = parseFloat(amountInput);
+    if (isNaN(amt) || amt < 0) return;
+    startTransition(() => onUpdate(booking.id, { confirmedPlayed: true, amountPaid: amt }));
+    setEditing(false);
+  }
+  function saveAmount() {
+    const amt = parseFloat(amountInput);
+    if (isNaN(amt) || amt < 0) return;
+    startTransition(() => onUpdate(booking.id, { amountPaid: amt }));
+    setEditing(false);
+  }
+  function unconfirm() {
+    startTransition(() => onUpdate(booking.id, { confirmedPlayed: false }));
+  }
+
+  return (
+    <div className="px-4 py-3 border-b border-white/5">
+      {/* Room + customer + status */}
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className="text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0"
+            style={{ background: colors.accent + "22", color: colors.accent }}
+          >
+            {booking.room.name}
+          </span>
+          <span className="text-white text-sm font-medium truncate">{booking.customerName}</span>
+        </div>
+        {isCancelled ? (
+          <span className="text-white/25 text-xs shrink-0">cancelled</span>
+        ) : booking.confirmedPlayed ? (
+          <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full font-semibold shrink-0">
+            ✓ Played
+          </span>
+        ) : null}
+      </div>
+
+      {/* Date · time · party */}
+      <p className="text-xs text-white/35 mb-2">
+        {startTime.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+        {" · "}
+        {startTime.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}
+        {" · "}
+        {booking.partySize} pax
+      </p>
+
+      {/* Amount + action */}
+      {!isCancelled && (
+        <div className="flex items-center justify-between gap-2">
+          {booking.confirmedPlayed ? (
+            editing ? (
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number" min={0} value={amountInput}
+                  onChange={(e) => setAmountInput(e.target.value)}
+                  className="w-20 bg-white/10 border border-white/20 rounded px-2 py-1 text-sm text-white text-right"
+                  onKeyDown={(e) => e.key === "Enter" && saveAmount()}
+                  autoFocus
+                />
+                <span className="text-white/40 text-xs">TND</span>
+                <button onClick={saveAmount} disabled={pending} className="text-xs text-green-400 font-semibold">Save</button>
+                <button onClick={() => setEditing(false)} className="text-xs text-white/30">✕</button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-green-400 text-sm font-semibold">{formatTND(booking.amountPaid ?? 0)}</span>
+                <button
+                  onClick={() => { setAmountInput(String(booking.amountPaid ?? expected)); setEditing(true); }}
+                  className="text-white/25 text-xs"
+                >✎</button>
+              </div>
+            )
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number" min={0} value={amountInput}
+                onChange={(e) => setAmountInput(e.target.value)}
+                className="w-20 bg-white/10 border border-white/10 rounded px-2 py-1 text-sm text-white text-right"
+              />
+              <span className="text-white/40 text-xs">TND</span>
+            </div>
+          )}
+          {booking.confirmedPlayed ? (
+            <button
+              onClick={unconfirm} disabled={pending}
+              className="text-[10px] text-white/20 hover:text-red-400 transition-colors"
+            >
+              undo
+            </button>
+          ) : (
+            <button
+              onClick={confirmPlayed}
+              disabled={pending || parseFloat(amountInput) < 0 || isNaN(parseFloat(amountInput))}
+              className="text-xs bg-red-700/80 hover:bg-red-600 disabled:opacity-40 text-white px-3 py-1.5 rounded font-semibold transition-colors"
+            >
+              {pending ? "…" : "✓ Confirm"}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── XLSX export ──────────────────────────────────────────────────────────────
 
 async function exportXLSX(bookings: Booking[], from: Date, to: Date) {
@@ -623,47 +748,56 @@ export default function FinanceDashboard({
             {tableTab === "cancelled" ? "No cancelled sessions in this period." : "No sessions in this period."}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/5">
-                  {["Date", "Room", "Customer", "Party", "Expected", "Amount Paid", ""].map((h) => (
-                    <th
-                      key={h}
-                      className={`px-0 pr-4 py-2.5 pl-6 first:pl-6 text-xs font-medium text-white/30 uppercase tracking-widest ${
-                        h === "Amount Paid" || h === "" ? "text-right" : "text-left"
-                      } ${h === "Party" ? "text-center" : ""}`}
-                    >
-                      {h}
-                    </th>
+          <>
+            {/* Mobile: compact cards */}
+            <div className="md:hidden">
+              {tableRows.map((booking) => (
+                <BookingCard key={booking.id} booking={booking} onUpdate={handleUpdate} />
+              ))}
+            </div>
+            {/* Desktop: full table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/5">
+                    {["Date", "Room", "Customer", "Party", "Expected", "Amount Paid", ""].map((h) => (
+                      <th
+                        key={h}
+                        className={`px-0 pr-4 py-2.5 pl-6 first:pl-6 text-xs font-medium text-white/30 uppercase tracking-widest ${
+                          h === "Amount Paid" || h === "" ? "text-right" : "text-left"
+                        } ${h === "Party" ? "text-center" : ""}`}
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableRows.map((booking) => (
+                    <BookingRow
+                      key={booking.id}
+                      booking={booking}
+                      onUpdate={handleUpdate}
+                    />
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {tableRows.map((booking) => (
-                  <BookingRow
-                    key={booking.id}
-                    booking={booking}
-                    onUpdate={handleUpdate}
-                  />
-                ))}
-              </tbody>
-              <tfoot className="border-t border-white/10">
-                <tr>
-                  <td colSpan={4} className="pl-6 py-3 text-xs text-white/30">
-                    {sessionsDone} confirmed · {sessionsPending} pending
-                  </td>
-                  <td className="pr-4 py-3 text-right text-xs text-white/40">
-                    {formatTND(totalCollected + totalExpected)}
-                  </td>
-                  <td className="pr-4 py-3 text-right">
-                    <span className="text-green-400 text-sm font-bold">{formatTND(totalCollected)}</span>
-                  </td>
-                  <td />
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+                </tbody>
+                <tfoot className="border-t border-white/10">
+                  <tr>
+                    <td colSpan={4} className="pl-6 py-3 text-xs text-white/30">
+                      {sessionsDone} confirmed · {sessionsPending} pending
+                    </td>
+                    <td className="pr-4 py-3 text-right text-xs text-white/40">
+                      {formatTND(totalCollected + totalExpected)}
+                    </td>
+                    <td className="pr-4 py-3 text-right">
+                      <span className="text-green-400 text-sm font-bold">{formatTND(totalCollected)}</span>
+                    </td>
+                    <td />
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>
