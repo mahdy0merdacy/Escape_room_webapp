@@ -922,6 +922,7 @@ export default function BookingCalendar({
             <div className="flex gap-2 flex-wrap">
               {rooms.map((room) => {
                 const c = JSON.parse(room.themeColors) as { primary: string; accent: string };
+                const tabAccent = room.slug === "annabelle" ? "#8b5cf6" : c.accent;
                 const isActive = selectedRoomId === room.id;
                 const roomCount = (activeBookingsByDay.get(selectedDay) ?? []).filter(
                   (b) => b.roomId === room.id
@@ -937,8 +938,8 @@ export default function BookingCalendar({
                     className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
                     style={
                       isActive
-                        ? { background: c.accent, color: c.primary }
-                        : { background: c.accent + "22", color: c.accent }
+                        ? { background: tabAccent, color: "#fff" }
+                        : { background: tabAccent + "22", color: tabAccent }
                     }
                   >
                     {room.name}
@@ -947,8 +948,8 @@ export default function BookingCalendar({
                         className="text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
                         style={
                           isActive
-                            ? { background: "rgba(0,0,0,0.25)", color: c.primary }
-                            : { background: c.accent, color: c.primary }
+                            ? { background: "rgba(0,0,0,0.25)", color: "#fff" }
+                            : { background: tabAccent, color: "#fff" }
                         }
                       >
                         {roomCount}
