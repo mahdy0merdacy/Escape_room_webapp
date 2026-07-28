@@ -51,10 +51,29 @@ const nextConfig: NextConfig = {
       // --- Old French WordPress URLs ("salles" = rooms, "à propos" = about) ---
       { source: "/escape-room-tunis-a-propos", destination: "/fr/about", permanent: true },
       { source: "/salles/escape-room-annabelle", destination: "/fr/rooms/annabelle", permanent: true },
+      { source: "/salles/escape-room-annabelle/", destination: "/fr/rooms/annabelle", permanent: true },
       { source: "/salles/stranger-things", destination: "/fr/rooms/stranger-things", permanent: true },
+      { source: "/salles/stranger-things/", destination: "/fr/rooms/stranger-things", permanent: true },
       // Catch-all for any other old /salles/:slug room page (e.g. breaking-bad variants) not listed above
       { source: "/salles/:slug", destination: "/fr/rooms", permanent: true },
+      { source: "/salles/:slug/", destination: "/fr/rooms", permanent: true },
       { source: "/salles", destination: "/fr/rooms", permanent: true },
+
+      // --- Trailing-slash variants (prevent double-hop redirects) ---
+      { source: "/contact-us/", destination: "/en/contact", permanent: true },
+      { source: "/en/contact-us/", destination: "/en/contact", permanent: true },
+      { source: "/privacy-policy/", destination: "/en", permanent: true },
+      { source: "/en/rooms/annabelle-horror/", destination: "/en/rooms/annabelle", permanent: true },
+      { source: "/escape-room-tunisie/", destination: "/en/guides/escape-room-tunisie", permanent: true },
+      {
+        source: "/top-5-des-raisons-dessayer-une-escape-room-en-tunisie/",
+        destination: "/en/guides/top-reasons-to-try-an-escape-room-in-tunisia",
+        permanent: true,
+      },
+
+      // --- Old WordPress technical URLs (catch-all → home, removes 404s from Search Console) ---
+      { source: "/wp-:path*", destination: "/en", permanent: true },
+      { source: "/wp-json/:path*", destination: "/en", permanent: true },
     ];
   },
 };
