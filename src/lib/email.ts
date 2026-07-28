@@ -7,6 +7,7 @@ export interface EmailPayload {
   to: string;
   toName?: string;
   cc?: string[];
+  replyTo?: string;
   subject: string;
   textContent: string;
   htmlContent?: string;
@@ -32,10 +33,13 @@ export async function sendEmail(payload: EmailPayload): Promise<void> {
     return;
   }
 
+  const replyToEmail = payload.replyTo ?? process.env.ADMIN_NOTIFICATION_EMAIL ?? process.env.ADMIN_EMAIL ?? "ahmed.arfaouii11@gmail.com";
+
   const body = {
     sender: { name: senderName, email: senderEmail },
     to: [{ email: payload.to, name: payload.toName ?? payload.to }],
     ...(payload.cc?.length ? { cc: payload.cc.map((e) => ({ email: e })) } : {}),
+    replyTo: { email: replyToEmail },
     subject: payload.subject,
     textContent: payload.textContent,
     ...(payload.htmlContent ? { htmlContent: payload.htmlContent } : {}),
