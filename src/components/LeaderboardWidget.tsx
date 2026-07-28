@@ -27,14 +27,22 @@ export default function LeaderboardWidget({ initialRooms }: { initialRooms: Lead
             accent: string;
           };
           const top5 = room.entries.slice(0, 5);
+          const isComingSoon = room.roomStatus === "coming_soon";
           return (
             <div
               key={room.slug}
-              className="rounded-2xl overflow-hidden border border-white/10 flex flex-col"
+              className="rounded-2xl overflow-hidden border border-white/10 flex flex-col relative"
               style={{ background: colors.primary }}
             >
               <div className="p-5 border-b border-white/10 flex items-center justify-between gap-2">
-                <h3 className="text-lg font-bold text-white">{room.name}</h3>
+                <div className="flex items-center gap-2 min-w-0">
+                  <h3 className="text-lg font-bold text-white truncate">{room.name}</h3>
+                  {isComingSoon && (
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-amber-500 text-black px-2 py-0.5 rounded-full shrink-0">
+                      Coming Soon
+                    </span>
+                  )}
+                </div>
                 <span
                   className="text-xs font-bold tracking-wide uppercase px-2 py-1 rounded-full shrink-0"
                   style={{ background: colors.accent, color: colors.primary }}
@@ -42,7 +50,7 @@ export default function LeaderboardWidget({ initialRooms }: { initialRooms: Lead
                   {Math.round(room.successRate)}% {t.leaderboard.successRate}
                 </span>
               </div>
-              <div className="p-5 flex-1">
+              <div className={`p-5 flex-1 ${isComingSoon ? "opacity-40 pointer-events-none select-none" : ""}`}>
                 {top5.length === 0 ? (
                   <p className="text-white/50 text-sm">{t.leaderboard.empty}</p>
                 ) : (

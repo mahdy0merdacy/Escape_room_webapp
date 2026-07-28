@@ -13,6 +13,7 @@ type Room = {
   heroImageUrl: string;
   themeColors: string;
   difficulty: number;
+  successRate: number;
   minPlayers: number;
   maxPlayers: number;
   roomStatus: string;
@@ -62,8 +63,6 @@ export default function HomeContent({
           </div>
         </div>
       </section>
-
-      {leaderboardRooms.length > 0 && <LeaderboardWidget initialRooms={leaderboardRooms} />}
 
       {/* Rooms preview */}
       <section className="max-w-6xl mx-auto px-4 py-24">
@@ -119,12 +118,18 @@ export default function HomeContent({
                   )}
                 </div>
                 <div className={`p-6 flex flex-col flex-1 ${locked ? "opacity-60" : ""}`}>
-                  <span
-                    className="text-xs font-bold tracking-widest uppercase mb-2"
-                    style={{ color: colors.accent }}
-                  >
-                    {"★".repeat(room.difficulty)} {t.home.difficulty} {room.difficulty}/5
-                  </span>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span
+                      className="text-xs font-bold tracking-widest uppercase"
+                      style={{ color: colors.accent }}
+                    >
+                      {"★".repeat(room.difficulty)} {t.home.difficulty} {room.difficulty}/5
+                    </span>
+                    <span className="text-xs font-bold text-white/40">·</span>
+                    <span className="text-xs font-bold text-white/50">
+                      {Math.round(room.successRate)}% {t.leaderboard.successRate}
+                    </span>
+                  </div>
                   <h3 className="text-2xl font-bold text-white mb-2">{room.name}</h3>
                   <p className="text-white/60 text-sm mb-4 flex-1">{room.tagline}</p>
                   <div className="flex items-center justify-between text-sm mt-auto">
@@ -147,6 +152,8 @@ export default function HomeContent({
           })}
         </div>
       </section>
+
+      {leaderboardRooms.length > 0 && <LeaderboardWidget initialRooms={leaderboardRooms} />}
 
       {/* How it works */}
       <section className="bg-white/5 py-20">

@@ -20,6 +20,7 @@ export async function GET() {
       name: true,
       themeColors: true,
       successRate: true,
+      roomStatus: true,
       leaderboardEntries: {
         orderBy: { timeSpentSec: "asc" },
         take: ENTRIES_PER_ROOM,
@@ -39,6 +40,7 @@ export async function GET() {
     name: room.name,
     themeColors: room.themeColors,
     successRate: room.successRate,
+    roomStatus: room.roomStatus ?? "active",
     entries: room.leaderboardEntries,
   }));
 

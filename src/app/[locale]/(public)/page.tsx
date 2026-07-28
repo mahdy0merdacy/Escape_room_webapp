@@ -124,6 +124,7 @@ export default async function HomePage({ params }: Props) {
     heroImageUrl: r.heroImageUrl,
     themeColors: r.themeColors,
     difficulty: r.difficulty,
+    successRate: r.successRate,
     minPlayers: r.minPlayers,
     maxPlayers: r.maxPlayers,
     roomStatus: r.roomStatus ?? "active",
@@ -135,6 +136,7 @@ export default async function HomePage({ params }: Props) {
         name: r.name,
         themeColors: r.themeColors,
         successRate: r.successRate,
+        roomStatus: r.roomStatus ?? "active",
         entries: r.leaderboardEntries.map((e) => ({ ...e, completedAt: e.completedAt.toISOString() })),
       }))
     : [];

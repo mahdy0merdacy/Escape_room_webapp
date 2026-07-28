@@ -15,6 +15,7 @@ export type LeaderboardRoom = {
   name: string;
   themeColors: string;
   successRate: number;
+  roomStatus?: string;
   entries: LeaderboardEntry[];
 };
 
