@@ -42,6 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...expand(base, { path: "/contact", lastModified: now, changeFrequency: "monthly", priority: 0.8 }),
     ...expand(base, { path: "/faq", lastModified: now, changeFrequency: "weekly", priority: 0.7 }),
     ...expand(base, { path: "/guides", lastModified: now, changeFrequency: "weekly", priority: 0.8 }),
+    ...expand(base, { path: "/leaderboard", lastModified: now, changeFrequency: "daily", priority: 0.6 }),
     ...rooms.flatMap((r) =>
       expand(base, { path: `/rooms/${r.slug}`, lastModified: r.updatedAt, changeFrequency: "daily", priority: 0.8 })
     ),
